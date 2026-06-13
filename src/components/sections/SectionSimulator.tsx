@@ -19,14 +19,21 @@ export function SectionSimulator() {
   const [route, setRoute] = useState(2); // 1-4
 
   const results = useMemo(() => {
-    const ridership = Math.round((population * 0.32 + budget * 0.0008) * (1 + route * 0.05) * 1000);
-    const co2 = Math.round((budget * 0.4 - ridership * 0.0008) * (route === 1 ? 0.9 : 1));
+    const ridership = Math.round(
+      (population * 0.32 + budget * 0.0008) * (1 + route * 0.05) * 1000
+    );
+    // CO2 is negative when ridership offsets construction emissions
+    const co2 = Math.round((budget * 0.06 - ridership * 0.012) * (route === 4 ? 0.7 : 1));
     const econ = Math.round((budget * 1.85 - population * 50) * (1 + route * 0.04));
-    const sentiment = Math.round(
-      Math.min(94, 38 + (ridership / 1000) * 1.4 - Math.max(0, co2) * 0.03)
+    const sentiment = Math.max(
+      18,
+      Math.min(
+        94,
+        Math.round(58 + (ridership / 1000) * 4 - Math.max(0, co2) * 0.4 - population * 3 + route * 1.5)
+      )
     );
     const displacement = Math.round(
-      Math.max(0, population * 12 + (route === 4 ? 22 : 0) - budget * 0.005)
+      Math.max(0, population * 8 + (route === 4 ? 22 : 0) - budget * 0.004)
     );
     return { ridership, co2, econ, sentiment, displacement };
   }, [budget, population, route]);
@@ -137,10 +144,10 @@ export function SectionSimulator() {
                 <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
                   Stakeholder sentiment
                 </div>
-                <div className="mt-2 h-44">
+                <div className="relative mt-2 h-44">
                   <ResponsiveContainer>
                     <RadialBarChart
-                      innerRadius="70%"
+                      innerRadius="72%"
                       outerRadius="100%"
                       data={[{ name: "s", v: results.sentiment, fill: "var(--signal)" }]}
                       startAngle={90}
@@ -150,11 +157,13 @@ export function SectionSimulator() {
                       <RadialBar dataKey="v" background={{ fill: "var(--hairline)" }} cornerRadius={0} />
                     </RadialBarChart>
                   </ResponsiveContainer>
-                </div>
-                <div className="-mt-32 text-center">
-                  <div className="font-display text-3xl font-bold text-ink">{results.sentiment}</div>
-                  <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
-                    / 100
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="font-display text-3xl font-bold tabular-nums text-ink">
+                      {results.sentiment}
+                    </div>
+                    <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+                      / 100
+                    </div>
                   </div>
                 </div>
               </div>

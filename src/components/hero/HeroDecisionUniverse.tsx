@@ -28,7 +28,7 @@ export function HeroDecisionUniverse() {
         <span>seed: {active.id.toUpperCase()} · 04 chains active</span>
       </div>
 
-      <div className="mx-auto grid min-h-[88vh] max-w-[1400px] grid-cols-1 items-center gap-8 px-6 pt-24 pb-20 lg:grid-cols-[1.05fr_1fr] lg:gap-2">
+      <div className="mx-auto grid min-h-[80vh] max-w-[1400px] grid-cols-1 items-center gap-8 px-6 pt-20 pb-16 lg:grid-cols-[1.05fr_1fr] lg:gap-2">
         {/* Left: copy */}
         <div className="relative z-10 max-w-2xl">
           <motion.div
@@ -111,7 +111,7 @@ export function HeroDecisionUniverse() {
         </div>
 
         {/* Right: 3D canvas */}
-        <div className="relative h-[520px] lg:h-[640px]">
+        <div className="relative -mx-4 h-[520px] lg:mx-0 lg:h-[620px]">
           {/* HUD */}
           <div className="pointer-events-none absolute left-0 top-0 z-10">
             <div className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">

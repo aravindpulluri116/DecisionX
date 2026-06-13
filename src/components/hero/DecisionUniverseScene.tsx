@@ -16,16 +16,18 @@ function buildNodes(): NodePoint[] {
   decisions.forEach((d, di) => {
     d.chain.forEach((_, ci) => {
       const ring = ci + 1;
-      const baseRadius = 1.4 + ring * 0.95;
+      const baseRadius = 1.3 + ring * 0.7;
       // distribute around a circle slice per decision
       const slice = (Math.PI * 2) / decisions.length;
       const center = slice * di;
-      const spread = slice * 0.7;
-      const angle = center + (Math.random() - 0.5) * spread;
-      const tilt = (Math.random() - 0.5) * 0.4;
+      // deterministic spread per (di, ci) so positions are stable across re-renders
+      const jitter = Math.sin(di * 3.1 + ci * 1.7);
+      const tiltSeed = Math.cos(di * 2.4 + ci * 0.9);
+      const angle = center + jitter * slice * 0.32;
+      const tilt = tiltSeed * 0.4;
       const x = Math.cos(angle) * baseRadius;
       const z = Math.sin(angle) * baseRadius;
-      const y = tilt * ring * 0.5;
+      const y = tilt * ring * 0.35;
       pts.push({ position: [x, y, z], decisionId: d.id, consequenceIdx: ci, ring });
     });
   });
