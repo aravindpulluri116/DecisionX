@@ -1,0 +1,13 @@
+# For local development: supabase start
+project_id = "decisionx"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323

@@ -14,9 +14,10 @@ import {
   YAxis,
 } from "recharts";
 import { toast } from "sonner";
+import { formatBudgetCrore } from "@/lib/format/currency";
 
 export function SectionSimulator() {
-  const [budget, setBudget] = useState(1200); // $M
+  const [budget, setBudget] = useState(1200); // ₹ crore
   const [population, setPopulation] = useState(2.4); // M
   const [route, setRoute] = useState(2); // 1-4
 
@@ -86,7 +87,7 @@ export function SectionSimulator() {
 
             <ControlBlock
               label="Capital budget"
-              value={`$${budget.toLocaleString()}M`}
+              value={formatBudgetCrore(budget)}
               min={400}
               max={3200}
               step={50}
@@ -137,7 +138,7 @@ export function SectionSimulator() {
                 value={`${results.co2 > 0 ? "+" : ""}${results.co2}`}
                 tone={results.co2 > 0 ? "negative" : "positive"}
               />
-              <KPI label="Econ uplift ($M)" value={`$${results.econ}`} tone="positive" />
+              <KPI label="Econ uplift (₹ Cr)" value={`₹${results.econ.toLocaleString("en-IN")}`} tone="positive" />
               <KPI label="Displacement (k)" value={`${results.displacement}`} tone="warning" />
             </div>
 

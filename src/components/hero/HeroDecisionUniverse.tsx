@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { decisions } from "@/lib/mock/decisions";
 import { DecisionUniverseScene } from "./DecisionUniverseScene";
@@ -82,10 +83,12 @@ export function HeroDecisionUniverse() {
               Start simulation
               <ArrowRight className="h-4 w-4" />
             </MagneticButton>
-            <MagneticButton variant="ghost">
-              <Play className="h-3.5 w-3.5 fill-current" />
-              Watch scenario
-            </MagneticButton>
+            <Link href="/judge">
+              <MagneticButton variant="ghost">
+                <Play className="h-3.5 w-3.5 fill-current" />
+                Experience Judge Demo
+              </MagneticButton>
+            </Link>
           </motion.div>
 
           {/* live readouts */}

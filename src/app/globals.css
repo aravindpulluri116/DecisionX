@@ -60,6 +60,7 @@
   --color-positive: var(--positive);
   --color-warning: var(--warning);
   --color-negative: var(--negative);
+  --color-environmental: var(--environmental);
   --color-hairline: var(--hairline);
   --color-grid-line: var(--grid-line);
   --font-display: var(--font-display);
@@ -82,6 +83,7 @@
   --positive: oklch(0.51 0.15 145); /* #15803D */
   --warning: oklch(0.674 0.143 79); /* #CA8A04 */
   --negative: oklch(0.512 0.205 27); /* #B91C1C */
+  --environmental: oklch(0.55 0.12 195);
   --hairline: oklch(0.205 0.04 264 / 0.08);
   --grid-line: oklch(0.205 0.04 264 / 0.05);
 

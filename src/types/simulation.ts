@@ -1,0 +1,119 @@
+import type { CanvasNode, ImpactScores, Project, ScenarioParams, WorkspaceGraph } from "./workspace";
+
+export type ProjectCategory =
+  | "Transportation"
+  | "Urban Development"
+  | "Environment"
+  | "Education"
+  | "Healthcare"
+  | "Economic Policy";
+
+export type StakeholderGroup =
+  | "Citizens"
+  | "Businesses"
+  | "Government"
+  | "Students"
+  | "Environmental Groups";
+
+import type { ProjectGeo, LocationIntelligence } from "./geo";
+import type { TimeMachineBundle } from "./timemachine";
+
+export type DecisionProject = Project & {
+  description: string;
+  category: ProjectCategory;
+  stakeholders: StakeholderGroup[];
+  budget: number;
+  timeline: string;
+  geo?: ProjectGeo;
+  locationIntelligence?: LocationIntelligence;
+};
+
+export type AgentId =
+  | "economic"
+  | "social"
+  | "environmental"
+  | "stakeholder"
+  | "risk"
+  | "futureShock"
+  | "chiefDecisionOfficer";
+
+export type AgentStatus = "queued" | "running" | "completed" | "failed";
+
+export type ConfidenceLevel = "low" | "medium" | "high";
+
+export type AgentResult = {
+  summary: string;
+  impactScore: number;
+  risks: string[];
+  opportunities: string[];
+  confidence: number;
+  confidenceLevel: ConfidenceLevel;
+  recommendations: string[];
+  assumptions: string[];
+  evidence: string[];
+  uncertainties: string[];
+  raw?: Record<string, unknown>;
+};
+
+export type AgentRunState = {
+  id: AgentId;
+  label: string;
+  status: AgentStatus;
+  findings: string[];
+  result?: AgentResult;
+  startedAt?: string;
+  completedAt?: string;
+};
+
+export type SimulationStatus = "pending" | "running" | "completed" | "failed";
+
+export type Simulation = {
+  id: string;
+  projectId: string;
+  scenarioId?: string;
+  status: SimulationStatus;
+  params: ScenarioParams;
+  agentResults: Partial<Record<AgentId, AgentResult>>;
+  graph?: WorkspaceGraph;
+  impactScores?: ImpactScores;
+  reportId?: string;
+  timeMachine?: TimeMachineBundle;
+  startedAt: string;
+  completedAt?: string;
+};
+
+export type TimelineYear = 1 | 3 | 5 | 10;
+
+export type ConsequenceNode = CanvasNode & {
+  evidence?: string[];
+  yearVariants?: Partial<Record<TimelineYear, { label: string; weight: number }>>;
+};
+
+export type DecisionReportSections = {
+  executiveSummary: string;
+  impactAnalysis: string;
+  stakeholderAnalysis: string;
+  riskAnalysis: string;
+  futureOutlook: string;
+  recommendations: string[];
+  viabilityScore?: number;
+  alternativeScenarios?: string[];
+  assumptions?: string[];
+  uncertainties?: string[];
+};
+
+export type DecisionReport = {
+  id: string;
+  simulationId: string;
+  projectTitle: string;
+  generatedAt: string;
+  sections: DecisionReportSections;
+};
+
+export type WorkspaceMode = "canvas" | "timeline" | "compare" | "report" | "map" | "timemachine";
+
+export type SimulationInput = {
+  project: DecisionProject;
+  params: ScenarioParams;
+  scenarioTitle?: string;
+};

@@ -1,0 +1,2830 @@
+{
+  "id": "flyover",
+  "slug": "flyover-construction",
+  "title": "Flyover Construction Project",
+  "tagline": "Decongest critical junction at LB Nagar",
+  "overview": {
+    "budget": 320,
+    "timeline": "5 years",
+    "location": "Hyderabad",
+    "stakeholders": [
+      "Commuters",
+      "Citizens",
+      "Businesses",
+      "Government"
+    ],
+    "description": "Four-lane elevated flyover spanning 2.8km at LB Nagar junction, targeting 35% reduction in peak-hour wait times."
+  },
+  "agentSequence": [
+    {
+      "agentId": "economic",
+      "label": "Economic Agent",
+      "findings": [
+        "₹180M annual productivity savings from reduced congestion",
+        "Local retail foot traffic recovers post-construction by month 18",
+        "Low fiscal exposure relative to metro-scale projects"
+      ],
+      "status": "completed"
+    },
+    {
+      "agentId": "social",
+      "label": "Social Agent",
+      "findings": [
+        "350,000 daily commuters benefit from 22-minute average savings",
+        "Temporary noise and dust impact on 1,200 adjacent households",
+        "Pedestrian access improvements included in design"
+      ],
+      "status": "completed"
+    },
+    {
+      "agentId": "environmental",
+      "label": "Environmental Agent",
+      "findings": [
+        "Modest emissions reduction from idling traffic elimination",
+        "Green belt encroachment: 0.4 hectares — compensatory planting required",
+        "Construction dust mitigation plan approved"
+      ],
+      "status": "completed"
+    },
+    {
+      "agentId": "stakeholder",
+      "label": "Stakeholder Agent",
+      "findings": [
+        "Commuters strongly support (84%)",
+        "Adjacent shop owners concerned during construction (45% oppose short-term)",
+        "Government alignment high — quick-win infrastructure"
+      ],
+      "status": "completed"
+    },
+    {
+      "agentId": "risk",
+      "label": "Risk Agent",
+      "findings": [
+        "Construction timeline risk: low-medium",
+        "Utility relocation delays possible",
+        "Minimal land acquisition — elevated design reduces conflict"
+      ],
+      "status": "completed"
+    },
+    {
+      "agentId": "futureShock",
+      "label": "Future Shock Agent",
+      "findings": [
+        "Flyover → Traffic flow → Commercial revival → Property micro-appreciation",
+        "Long-term: induced demand may offset gains by 2035 without transit integration",
+        "Integration with metro feeder routes amplifies benefit +40%"
+      ],
+      "status": "completed"
+    },
+    {
+      "agentId": "chiefDecisionOfficer",
+      "label": "Chief Decision Officer",
+      "findings": [
+        "Viability score: 78/100 — approve with transit integration clause",
+        "Low cost, high commuter benefit, manageable environmental footprint",
+        "Recommend concurrent metro feeder planning"
+      ],
+      "status": "completed"
+    }
+  ],
+  "impactScores": {
+    "economic": 65,
+    "social": 68,
+    "environmental": 52,
+    "infrastructure": 78,
+    "politicalRisk": 35,
+    "publicAcceptance": 71
+  },
+  "society": {
+    "citizenCount": 10000,
+    "supportPct": 74,
+    "opposePct": 11,
+    "neutralPct": 15,
+    "cohorts": [
+      {
+        "profile": "Students",
+        "supportPct": 83,
+        "opposePct": 2,
+        "neutralPct": 15
+      },
+      {
+        "profile": "Commuters",
+        "supportPct": 86,
+        "opposePct": 0,
+        "neutralPct": 14
+      },
+      {
+        "profile": "Business Owners",
+        "supportPct": 81,
+        "opposePct": 4,
+        "neutralPct": 15
+      },
+      {
+        "profile": "Families",
+        "supportPct": 71,
+        "opposePct": 14,
+        "neutralPct": 15
+      },
+      {
+        "profile": "Retirees",
+        "supportPct": 66,
+        "opposePct": 19,
+        "neutralPct": 15
+      },
+      {
+        "profile": "Government Employees",
+        "supportPct": 76,
+        "opposePct": 9,
+        "neutralPct": 15
+      },
+      {
+        "profile": "Low Income Households",
+        "supportPct": 63,
+        "opposePct": 22,
+        "neutralPct": 15
+      },
+      {
+        "profile": "High Income Households",
+        "supportPct": 79,
+        "opposePct": 6,
+        "neutralPct": 15
+      },
+      {
+        "profile": "Environmental Advocates",
+        "supportPct": 59,
+        "opposePct": 26,
+        "neutralPct": 15
+      }
+    ]
+  },
+  "timeMachine": {
+    "expected": {
+      "branch": "expectedCase",
+      "milestones": [
+        "present",
+        "y1",
+        "y3",
+        "y5",
+        "y10",
+        "y20"
+      ],
+      "calendarYears": {
+        "present": 2026,
+        "y1": 2027,
+        "y3": 2030,
+        "y5": 2032,
+        "y10": 2037,
+        "y20": 2047
+      },
+      "snapshots": {
+        "present": {
+          "milestone": "present",
+          "calendarYear": 2026,
+          "population": {
+            "totalEstimate": 2400000,
+            "densityIndex": 54,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 31,
+            "employment": 26,
+            "investment": 21,
+            "taxRevenue": 16
+          },
+          "infrastructure": 70,
+          "environmental": {
+            "carbonImpact": 52,
+            "landUsage": 40,
+            "greenSpaces": 31,
+            "pollution": 54
+          },
+          "sentiment": {
+            "supportPct": 74,
+            "opposePct": 11,
+            "neutralPct": 15,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 83,
+                "opposePct": 2,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 86,
+                "opposePct": 0,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 81,
+                "opposePct": 4,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Families",
+                "supportPct": 71,
+                "opposePct": 14,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 66,
+                "opposePct": 19,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 76,
+                "opposePct": 9,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 63,
+                "opposePct": 22,
+                "neutralPct": 15
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 79,
+                "opposePct": 6,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 59,
+                "opposePct": 26,
+                "neutralPct": 15
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 57
+        },
+        "y1": {
+          "milestone": "y1",
+          "calendarYear": 2027,
+          "population": {
+            "totalEstimate": 2448000,
+            "densityIndex": 55,
+            "migrationDirection": "stable"
+          },
+          "economic": {
+            "businessActivity": 32,
+            "employment": 27,
+            "investment": 22,
+            "taxRevenue": 17
+          },
+          "infrastructure": 71,
+          "environmental": {
+            "carbonImpact": 54,
+            "landUsage": 44,
+            "greenSpaces": 33,
+            "pollution": 55
+          },
+          "sentiment": {
+            "supportPct": 71,
+            "opposePct": 13,
+            "neutralPct": 16,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 80,
+                "opposePct": 4,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 83,
+                "opposePct": 2,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 78,
+                "opposePct": 6,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Families",
+                "supportPct": 68,
+                "opposePct": 16,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 63,
+                "opposePct": 21,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 73,
+                "opposePct": 11,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 60,
+                "opposePct": 24,
+                "neutralPct": 16
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 76,
+                "opposePct": 8,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 56,
+                "opposePct": 28,
+                "neutralPct": 16
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 56
+        },
+        "y3": {
+          "milestone": "y3",
+          "calendarYear": 2030,
+          "population": {
+            "totalEstimate": 2544000,
+            "densityIndex": 57,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 38,
+            "employment": 33,
+            "investment": 29,
+            "taxRevenue": 22
+          },
+          "infrastructure": 72,
+          "environmental": {
+            "carbonImpact": 57,
+            "landUsage": 51,
+            "greenSpaces": 37,
+            "pollution": 57
+          },
+          "sentiment": {
+            "supportPct": 75,
+            "opposePct": 11,
+            "neutralPct": 14,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 84,
+                "opposePct": 1,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 87,
+                "opposePct": 0,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 82,
+                "opposePct": 3,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Families",
+                "supportPct": 72,
+                "opposePct": 14,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 67,
+                "opposePct": 19,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 77,
+                "opposePct": 9,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 64,
+                "opposePct": 22,
+                "neutralPct": 14
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 80,
+                "opposePct": 6,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 60,
+                "opposePct": 26,
+                "neutralPct": 14
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 58
+        },
+        "y5": {
+          "milestone": "y5",
+          "calendarYear": 2032,
+          "population": {
+            "totalEstimate": 2640000,
+            "densityIndex": 59,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 51,
+            "employment": 44,
+            "investment": 43,
+            "taxRevenue": 33
+          },
+          "infrastructure": 73,
+          "environmental": {
+            "carbonImpact": 60,
+            "landUsage": 58,
+            "greenSpaces": 41,
+            "pollution": 58
+          },
+          "sentiment": {
+            "supportPct": 78,
+            "opposePct": 10,
+            "neutralPct": 12,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 87,
+                "opposePct": 0,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 90,
+                "opposePct": 0,
+                "neutralPct": 10
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 85,
+                "opposePct": 2,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Families",
+                "supportPct": 75,
+                "opposePct": 12,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 70,
+                "opposePct": 17,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 80,
+                "opposePct": 7,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 67,
+                "opposePct": 20,
+                "neutralPct": 13
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 83,
+                "opposePct": 4,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 63,
+                "opposePct": 24,
+                "neutralPct": 13
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 59
+        },
+        "y10": {
+          "milestone": "y10",
+          "calendarYear": 2037,
+          "population": {
+            "totalEstimate": 2832000,
+            "densityIndex": 64,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 64,
+            "employment": 56,
+            "investment": 57,
+            "taxRevenue": 43
+          },
+          "infrastructure": 76,
+          "environmental": {
+            "carbonImpact": 64,
+            "landUsage": 68,
+            "greenSpaces": 47,
+            "pollution": 60
+          },
+          "sentiment": {
+            "supportPct": 82,
+            "opposePct": 8,
+            "neutralPct": 10,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 91,
+                "opposePct": 0,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 94,
+                "opposePct": 0,
+                "neutralPct": 6
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 89,
+                "opposePct": 0,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Families",
+                "supportPct": 79,
+                "opposePct": 10,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 74,
+                "opposePct": 15,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 84,
+                "opposePct": 5,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 71,
+                "opposePct": 18,
+                "neutralPct": 11
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 87,
+                "opposePct": 2,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 67,
+                "opposePct": 22,
+                "neutralPct": 11
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 61
+        },
+        "y20": {
+          "milestone": "y20",
+          "calendarYear": 2047,
+          "population": {
+            "totalEstimate": 3072000,
+            "densityIndex": 69,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 65,
+            "employment": 57,
+            "investment": 58,
+            "taxRevenue": 44
+          },
+          "infrastructure": 79,
+          "environmental": {
+            "carbonImpact": 67,
+            "landUsage": 75,
+            "greenSpaces": 51,
+            "pollution": 62
+          },
+          "sentiment": {
+            "supportPct": 84,
+            "opposePct": 7,
+            "neutralPct": 9,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 93,
+                "opposePct": 0,
+                "neutralPct": 7
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 95,
+                "opposePct": 0,
+                "neutralPct": 5
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 91,
+                "opposePct": 0,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Families",
+                "supportPct": 81,
+                "opposePct": 9,
+                "neutralPct": 10
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 76,
+                "opposePct": 14,
+                "neutralPct": 10
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 86,
+                "opposePct": 4,
+                "neutralPct": 10
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 73,
+                "opposePct": 17,
+                "neutralPct": 10
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 89,
+                "opposePct": 1,
+                "neutralPct": 10
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 69,
+                "opposePct": 21,
+                "neutralPct": 10
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 62
+        }
+      },
+      "consequences": [
+        {
+          "year": 2027,
+          "milestone": "y1",
+          "label": "Traffic Reduction",
+          "description": "Project Decision leads to Traffic Reduction",
+          "type": "impact",
+          "confidence": 75
+        },
+        {
+          "year": 2030,
+          "milestone": "y3",
+          "label": "Property Value Growth",
+          "description": "Traffic Reduction leads to Property Value Growth",
+          "type": "economic",
+          "confidence": 68
+        },
+        {
+          "year": 2032,
+          "milestone": "y5",
+          "label": "Rental Inflation",
+          "description": "Property Value Growth leads to Rental Inflation",
+          "type": "risk",
+          "confidence": 62
+        },
+        {
+          "year": 2037,
+          "milestone": "y10",
+          "label": "Population Migration",
+          "description": "Rental Inflation leads to Population Migration",
+          "type": "social",
+          "confidence": 55
+        }
+      ],
+      "headlines": [
+        {
+          "year": 2032,
+          "title": "Construction Phase Nears Completion Across Key Corridors",
+          "subtitle": "Public sentiment at 78% support as infrastructure matures",
+          "tone": "positive"
+        },
+        {
+          "year": 2037,
+          "title": "Property Value Growth Drives Regional Economic Activity",
+          "subtitle": "Business activity index reaches 64/100",
+          "tone": "positive"
+        },
+        {
+          "year": 2037,
+          "title": "Metro Corridor Boosts Regional Economy",
+          "subtitle": "Employment index at 56; investment flows accelerate",
+          "tone": "positive"
+        },
+        {
+          "year": 2047,
+          "title": "Housing Affordability Emerges as Key Policy Challenge",
+          "subtitle": "Support at 84% as migration patterns shift",
+          "tone": "neutral"
+        }
+      ],
+      "citizenStories": [
+        {
+          "name": "Anita",
+          "profile": "Student",
+          "occupation": "University Student",
+          "zone": "Central",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Commute reduced by 40 minutes on new metro segment."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Rajesh",
+          "profile": "Business Owners",
+          "occupation": "Shop Owner",
+          "zone": "South",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Priya",
+          "profile": "Commuters",
+          "occupation": "IT Professional",
+          "zone": "West",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Lakshmi",
+          "profile": "Families",
+          "occupation": "Healthcare Worker",
+          "zone": "East",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Vikram",
+          "profile": "Environmental Advocates",
+          "occupation": "NGO Coordinator",
+          "zone": "North",
+          "stance": "neutral",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Construction noise and reduced foot traffic affect daily routine."
+            },
+            {
+              "year": 2032,
+              "narrative": "Rising rents near corridor strain household budget."
+            },
+            {
+              "year": 2037,
+              "narrative": "Considering relocation due to affordability pressure."
+            }
+          ]
+        }
+      ],
+      "cityStates": [
+        {
+          "milestone": "present",
+          "buildingScale": 0.4,
+          "transitCoverage": 0,
+          "populationDensity": 0.3,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.518
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.538
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.558
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.5780000000000001
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.598
+            }
+          ]
+        },
+        {
+          "milestone": "y1",
+          "buildingScale": 0.48424,
+          "transitCoverage": 0.08892,
+          "populationDensity": 0.384,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.54464
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.56464
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.58464
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.6046400000000001
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.62464
+            }
+          ]
+        },
+        {
+          "milestone": "y3",
+          "buildingScale": 0.6457,
+          "transitCoverage": 0.25934999999999997,
+          "populationDensity": 0.5449999999999999,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.5956999999999999
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.6156999999999999
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.6356999999999999
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.6557
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.6756999999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y5",
+          "buildingScale": 0.7861,
+          "transitCoverage": 0.40754999999999997,
+          "populationDensity": 0.685,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.6401
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.6601
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.6801
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.7001
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.7201
+            }
+          ]
+        },
+        {
+          "milestone": "y10",
+          "buildingScale": 0.9967,
+          "transitCoverage": 0.62985,
+          "populationDensity": 0.895,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.7067
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.7267
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.7467
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.7666999999999999
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.7867
+            }
+          ]
+        },
+        {
+          "milestone": "y20",
+          "buildingScale": 1.102,
+          "transitCoverage": 0.741,
+          "populationDensity": 1,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.74
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.76
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.78
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.8
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.82
+            }
+          ]
+        }
+      ],
+      "generatedAt": "2026-06-13T12:31:57.262Z"
+    },
+    "best": {
+      "branch": "bestCase",
+      "milestones": [
+        "present",
+        "y1",
+        "y3",
+        "y5",
+        "y10",
+        "y20"
+      ],
+      "calendarYears": {
+        "present": 2026,
+        "y1": 2027,
+        "y3": 2030,
+        "y5": 2032,
+        "y10": 2037,
+        "y20": 2047
+      },
+      "snapshots": {
+        "present": {
+          "milestone": "present",
+          "calendarYear": 2026,
+          "population": {
+            "totalEstimate": 2760000,
+            "densityIndex": 54,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 31,
+            "employment": 26,
+            "investment": 21,
+            "taxRevenue": 16
+          },
+          "infrastructure": 81,
+          "environmental": {
+            "carbonImpact": 52,
+            "landUsage": 40,
+            "greenSpaces": 31,
+            "pollution": 54
+          },
+          "sentiment": {
+            "supportPct": 74,
+            "opposePct": 11,
+            "neutralPct": 15,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 83,
+                "opposePct": 2,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 86,
+                "opposePct": 0,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 81,
+                "opposePct": 4,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Families",
+                "supportPct": 71,
+                "opposePct": 14,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 66,
+                "opposePct": 19,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 76,
+                "opposePct": 9,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 63,
+                "opposePct": 22,
+                "neutralPct": 15
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 79,
+                "opposePct": 6,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 59,
+                "opposePct": 26,
+                "neutralPct": 15
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 62
+        },
+        "y1": {
+          "milestone": "y1",
+          "calendarYear": 2027,
+          "population": {
+            "totalEstimate": 2815200,
+            "densityIndex": 55,
+            "migrationDirection": "stable"
+          },
+          "economic": {
+            "businessActivity": 32,
+            "employment": 27,
+            "investment": 23,
+            "taxRevenue": 17
+          },
+          "infrastructure": 81,
+          "environmental": {
+            "carbonImpact": 54,
+            "landUsage": 44,
+            "greenSpaces": 34,
+            "pollution": 55
+          },
+          "sentiment": {
+            "supportPct": 71,
+            "opposePct": 13,
+            "neutralPct": 16,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 80,
+                "opposePct": 4,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 83,
+                "opposePct": 2,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 78,
+                "opposePct": 6,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Families",
+                "supportPct": 68,
+                "opposePct": 16,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 63,
+                "opposePct": 21,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 73,
+                "opposePct": 11,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 60,
+                "opposePct": 24,
+                "neutralPct": 16
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 76,
+                "opposePct": 8,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 56,
+                "opposePct": 28,
+                "neutralPct": 16
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 60
+        },
+        "y3": {
+          "milestone": "y3",
+          "calendarYear": 2030,
+          "population": {
+            "totalEstimate": 2925600,
+            "densityIndex": 57,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 40,
+            "employment": 34,
+            "investment": 30,
+            "taxRevenue": 23
+          },
+          "infrastructure": 83,
+          "environmental": {
+            "carbonImpact": 57,
+            "landUsage": 52,
+            "greenSpaces": 38,
+            "pollution": 57
+          },
+          "sentiment": {
+            "supportPct": 75,
+            "opposePct": 10,
+            "neutralPct": 15,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 84,
+                "opposePct": 1,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 87,
+                "opposePct": 0,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 82,
+                "opposePct": 3,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Families",
+                "supportPct": 72,
+                "opposePct": 13,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 67,
+                "opposePct": 18,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 77,
+                "opposePct": 8,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 64,
+                "opposePct": 21,
+                "neutralPct": 15
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 80,
+                "opposePct": 5,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 60,
+                "opposePct": 25,
+                "neutralPct": 15
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 62
+        },
+        "y5": {
+          "milestone": "y5",
+          "calendarYear": 2032,
+          "population": {
+            "totalEstimate": 3036000,
+            "densityIndex": 59,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 55,
+            "employment": 47,
+            "investment": 47,
+            "taxRevenue": 35
+          },
+          "infrastructure": 84,
+          "environmental": {
+            "carbonImpact": 61,
+            "landUsage": 60,
+            "greenSpaces": 43,
+            "pollution": 59
+          },
+          "sentiment": {
+            "supportPct": 79,
+            "opposePct": 10,
+            "neutralPct": 11,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 88,
+                "opposePct": 0,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 91,
+                "opposePct": 0,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 86,
+                "opposePct": 2,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Families",
+                "supportPct": 76,
+                "opposePct": 12,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 71,
+                "opposePct": 17,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 81,
+                "opposePct": 7,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 68,
+                "opposePct": 20,
+                "neutralPct": 12
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 84,
+                "opposePct": 4,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 64,
+                "opposePct": 24,
+                "neutralPct": 12
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 64
+        },
+        "y10": {
+          "milestone": "y10",
+          "calendarYear": 2037,
+          "population": {
+            "totalEstimate": 3256800,
+            "densityIndex": 64,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 69,
+            "employment": 60,
+            "investment": 62,
+            "taxRevenue": 47
+          },
+          "infrastructure": 87,
+          "environmental": {
+            "carbonImpact": 66,
+            "landUsage": 72,
+            "greenSpaces": 50,
+            "pollution": 61
+          },
+          "sentiment": {
+            "supportPct": 83,
+            "opposePct": 7,
+            "neutralPct": 10,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 92,
+                "opposePct": 0,
+                "neutralPct": 8
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 95,
+                "opposePct": 0,
+                "neutralPct": 5
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 90,
+                "opposePct": 0,
+                "neutralPct": 10
+              },
+              {
+                "profile": "Families",
+                "supportPct": 80,
+                "opposePct": 9,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 75,
+                "opposePct": 14,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 85,
+                "opposePct": 4,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 72,
+                "opposePct": 17,
+                "neutralPct": 11
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 88,
+                "opposePct": 1,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 68,
+                "opposePct": 21,
+                "neutralPct": 11
+              }
+            ]
+          },
+          "politicalViability": "high",
+          "viabilityScore": 67
+        },
+        "y20": {
+          "milestone": "y20",
+          "calendarYear": 2047,
+          "population": {
+            "totalEstimate": 3532800,
+            "densityIndex": 69,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 70,
+            "employment": 62,
+            "investment": 64,
+            "taxRevenue": 48
+          },
+          "infrastructure": 91,
+          "environmental": {
+            "carbonImpact": 69,
+            "landUsage": 80,
+            "greenSpaces": 54,
+            "pollution": 63
+          },
+          "sentiment": {
+            "supportPct": 85,
+            "opposePct": 7,
+            "neutralPct": 8,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 95,
+                "opposePct": 0,
+                "neutralPct": 5
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 95,
+                "opposePct": 0,
+                "neutralPct": 5
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 93,
+                "opposePct": 0,
+                "neutralPct": 7
+              },
+              {
+                "profile": "Families",
+                "supportPct": 83,
+                "opposePct": 8,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 78,
+                "opposePct": 13,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 88,
+                "opposePct": 3,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 75,
+                "opposePct": 16,
+                "neutralPct": 9
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 91,
+                "opposePct": 0,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 71,
+                "opposePct": 20,
+                "neutralPct": 9
+              }
+            ]
+          },
+          "politicalViability": "high",
+          "viabilityScore": 68
+        }
+      },
+      "consequences": [
+        {
+          "year": 2027,
+          "milestone": "y1",
+          "label": "Traffic Reduction",
+          "description": "Project Decision leads to Traffic Reduction",
+          "type": "impact",
+          "confidence": 75
+        },
+        {
+          "year": 2030,
+          "milestone": "y3",
+          "label": "Property Value Growth",
+          "description": "Traffic Reduction leads to Property Value Growth",
+          "type": "economic",
+          "confidence": 68
+        },
+        {
+          "year": 2032,
+          "milestone": "y5",
+          "label": "Rental Inflation",
+          "description": "Property Value Growth leads to Rental Inflation",
+          "type": "risk",
+          "confidence": 62
+        },
+        {
+          "year": 2037,
+          "milestone": "y10",
+          "label": "Population Migration",
+          "description": "Rental Inflation leads to Population Migration",
+          "type": "social",
+          "confidence": 55
+        }
+      ],
+      "headlines": [
+        {
+          "year": 2032,
+          "title": "Construction Phase Nears Completion Across Key Corridors",
+          "subtitle": "Public sentiment at 79% support as infrastructure matures",
+          "tone": "positive"
+        },
+        {
+          "year": 2037,
+          "title": "Property Value Growth Drives Regional Economic Activity",
+          "subtitle": "Business activity index reaches 69/100",
+          "tone": "positive"
+        },
+        {
+          "year": 2037,
+          "title": "Metro Corridor Boosts Regional Economy",
+          "subtitle": "Employment index at 60; investment flows accelerate",
+          "tone": "positive"
+        },
+        {
+          "year": 2047,
+          "title": "Housing Affordability Emerges as Key Policy Challenge",
+          "subtitle": "Support at 85% as migration patterns shift",
+          "tone": "neutral"
+        }
+      ],
+      "citizenStories": [
+        {
+          "name": "Anita",
+          "profile": "Student",
+          "occupation": "University Student",
+          "zone": "Central",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Commute reduced by 40 minutes on new metro segment."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Rajesh",
+          "profile": "Business Owners",
+          "occupation": "Shop Owner",
+          "zone": "South",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Priya",
+          "profile": "Commuters",
+          "occupation": "IT Professional",
+          "zone": "West",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Lakshmi",
+          "profile": "Families",
+          "occupation": "Healthcare Worker",
+          "zone": "East",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Vikram",
+          "profile": "Environmental Advocates",
+          "occupation": "NGO Coordinator",
+          "zone": "North",
+          "stance": "neutral",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Construction noise and reduced foot traffic affect daily routine."
+            },
+            {
+              "year": 2032,
+              "narrative": "Rising rents near corridor strain household budget."
+            },
+            {
+              "year": 2037,
+              "narrative": "Considering relocation due to affordability pressure."
+            }
+          ]
+        }
+      ],
+      "cityStates": [
+        {
+          "milestone": "present",
+          "buildingScale": 0.4,
+          "transitCoverage": 0,
+          "populationDensity": 0.3,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.518
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.538
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.558
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.5780000000000001
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.598
+            }
+          ]
+        },
+        {
+          "milestone": "y1",
+          "buildingScale": 0.496876,
+          "transitCoverage": 0.10225799999999997,
+          "populationDensity": 0.39659999999999995,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.5486359999999999
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.5686359999999999
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.5886359999999999
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.608636
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.6286359999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y3",
+          "buildingScale": 0.682555,
+          "transitCoverage": 0.2982525,
+          "populationDensity": 0.58175,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.607355
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.627355
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.647355
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.6673549999999999
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.6873549999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y5",
+          "buildingScale": 0.844015,
+          "transitCoverage": 0.46868249999999995,
+          "populationDensity": 0.7427499999999999,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.658415
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.678415
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.698415
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.718415
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.7384149999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y10",
+          "buildingScale": 1.086205,
+          "transitCoverage": 0.7243275,
+          "populationDensity": 0.9842499999999998,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.735005
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.755005
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.775005
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.795005
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.815005
+            }
+          ]
+        },
+        {
+          "milestone": "y20",
+          "buildingScale": 1.2073,
+          "transitCoverage": 0.8521499999999999,
+          "populationDensity": 1.105,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.7733
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.7933
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.8133
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.8332999999999999
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.8533
+            }
+          ]
+        }
+      ],
+      "generatedAt": "2026-06-13T12:31:57.262Z"
+    },
+    "worst": {
+      "branch": "worstCase",
+      "milestones": [
+        "present",
+        "y1",
+        "y3",
+        "y5",
+        "y10",
+        "y20"
+      ],
+      "calendarYears": {
+        "present": 2026,
+        "y1": 2027,
+        "y3": 2030,
+        "y5": 2032,
+        "y10": 2037,
+        "y20": 2047
+      },
+      "snapshots": {
+        "present": {
+          "milestone": "present",
+          "calendarYear": 2026,
+          "population": {
+            "totalEstimate": 1800000,
+            "densityIndex": 54,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 30,
+            "employment": 25,
+            "investment": 21,
+            "taxRevenue": 15
+          },
+          "infrastructure": 53,
+          "environmental": {
+            "carbonImpact": 52,
+            "landUsage": 40,
+            "greenSpaces": 31,
+            "pollution": 54
+          },
+          "sentiment": {
+            "supportPct": 74,
+            "opposePct": 11,
+            "neutralPct": 15,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 83,
+                "opposePct": 2,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 86,
+                "opposePct": 0,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 81,
+                "opposePct": 4,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Families",
+                "supportPct": 71,
+                "opposePct": 14,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 66,
+                "opposePct": 19,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 76,
+                "opposePct": 9,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 63,
+                "opposePct": 22,
+                "neutralPct": 15
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 79,
+                "opposePct": 6,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 59,
+                "opposePct": 26,
+                "neutralPct": 15
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 47
+        },
+        "y1": {
+          "milestone": "y1",
+          "calendarYear": 2027,
+          "population": {
+            "totalEstimate": 1836000,
+            "densityIndex": 55,
+            "migrationDirection": "stable"
+          },
+          "economic": {
+            "businessActivity": 32,
+            "employment": 26,
+            "investment": 22,
+            "taxRevenue": 16
+          },
+          "infrastructure": 53,
+          "environmental": {
+            "carbonImpact": 53,
+            "landUsage": 43,
+            "greenSpaces": 33,
+            "pollution": 55
+          },
+          "sentiment": {
+            "supportPct": 72,
+            "opposePct": 12,
+            "neutralPct": 16,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 81,
+                "opposePct": 3,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 84,
+                "opposePct": 1,
+                "neutralPct": 15
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 79,
+                "opposePct": 5,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Families",
+                "supportPct": 69,
+                "opposePct": 15,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 64,
+                "opposePct": 20,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 74,
+                "opposePct": 10,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 61,
+                "opposePct": 23,
+                "neutralPct": 16
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 77,
+                "opposePct": 7,
+                "neutralPct": 16
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 57,
+                "opposePct": 27,
+                "neutralPct": 16
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 46
+        },
+        "y3": {
+          "milestone": "y3",
+          "calendarYear": 2030,
+          "population": {
+            "totalEstimate": 1908000,
+            "densityIndex": 57,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 36,
+            "employment": 31,
+            "investment": 27,
+            "taxRevenue": 20
+          },
+          "infrastructure": 54,
+          "environmental": {
+            "carbonImpact": 55,
+            "landUsage": 48,
+            "greenSpaces": 36,
+            "pollution": 56
+          },
+          "sentiment": {
+            "supportPct": 75,
+            "opposePct": 11,
+            "neutralPct": 14,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 84,
+                "opposePct": 2,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 87,
+                "opposePct": 0,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 82,
+                "opposePct": 4,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Families",
+                "supportPct": 72,
+                "opposePct": 14,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 67,
+                "opposePct": 19,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 77,
+                "opposePct": 9,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 64,
+                "opposePct": 22,
+                "neutralPct": 14
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 80,
+                "opposePct": 6,
+                "neutralPct": 14
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 60,
+                "opposePct": 26,
+                "neutralPct": 14
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 48
+        },
+        "y5": {
+          "milestone": "y5",
+          "calendarYear": 2032,
+          "population": {
+            "totalEstimate": 1980000,
+            "densityIndex": 59,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 46,
+            "employment": 40,
+            "investment": 38,
+            "taxRevenue": 28
+          },
+          "infrastructure": 55,
+          "environmental": {
+            "carbonImpact": 58,
+            "landUsage": 53,
+            "greenSpaces": 39,
+            "pollution": 57
+          },
+          "sentiment": {
+            "supportPct": 77,
+            "opposePct": 10,
+            "neutralPct": 13,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 86,
+                "opposePct": 1,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 89,
+                "opposePct": 0,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 84,
+                "opposePct": 3,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Families",
+                "supportPct": 74,
+                "opposePct": 13,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 69,
+                "opposePct": 18,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 79,
+                "opposePct": 8,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 66,
+                "opposePct": 21,
+                "neutralPct": 13
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 82,
+                "opposePct": 5,
+                "neutralPct": 13
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 62,
+                "opposePct": 25,
+                "neutralPct": 13
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 48
+        },
+        "y10": {
+          "milestone": "y10",
+          "calendarYear": 2037,
+          "population": {
+            "totalEstimate": 2124000,
+            "densityIndex": 64,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 55,
+            "employment": 48,
+            "investment": 48,
+            "taxRevenue": 36
+          },
+          "infrastructure": 57,
+          "environmental": {
+            "carbonImpact": 61,
+            "landUsage": 61,
+            "greenSpaces": 43,
+            "pollution": 59
+          },
+          "sentiment": {
+            "supportPct": 80,
+            "opposePct": 9,
+            "neutralPct": 11,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 89,
+                "opposePct": 0,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 92,
+                "opposePct": 0,
+                "neutralPct": 8
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 87,
+                "opposePct": 1,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Families",
+                "supportPct": 77,
+                "opposePct": 11,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 72,
+                "opposePct": 16,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 82,
+                "opposePct": 6,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 69,
+                "opposePct": 19,
+                "neutralPct": 12
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 85,
+                "opposePct": 3,
+                "neutralPct": 12
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 65,
+                "opposePct": 23,
+                "neutralPct": 12
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 50
+        },
+        "y20": {
+          "milestone": "y20",
+          "calendarYear": 2047,
+          "population": {
+            "totalEstimate": 2304000,
+            "densityIndex": 69,
+            "migrationDirection": "inward"
+          },
+          "economic": {
+            "businessActivity": 56,
+            "employment": 49,
+            "investment": 49,
+            "taxRevenue": 37
+          },
+          "infrastructure": 59,
+          "environmental": {
+            "carbonImpact": 63,
+            "landUsage": 66,
+            "greenSpaces": 46,
+            "pollution": 60
+          },
+          "sentiment": {
+            "supportPct": 82,
+            "opposePct": 8,
+            "neutralPct": 10,
+            "cohorts": [
+              {
+                "profile": "Students",
+                "supportPct": 91,
+                "opposePct": 0,
+                "neutralPct": 9
+              },
+              {
+                "profile": "Commuters",
+                "supportPct": 94,
+                "opposePct": 0,
+                "neutralPct": 6
+              },
+              {
+                "profile": "Business Owners",
+                "supportPct": 89,
+                "opposePct": 0,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Families",
+                "supportPct": 79,
+                "opposePct": 10,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Retirees",
+                "supportPct": 74,
+                "opposePct": 15,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Government Employees",
+                "supportPct": 84,
+                "opposePct": 5,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Low Income Households",
+                "supportPct": 71,
+                "opposePct": 18,
+                "neutralPct": 11
+              },
+              {
+                "profile": "High Income Households",
+                "supportPct": 87,
+                "opposePct": 2,
+                "neutralPct": 11
+              },
+              {
+                "profile": "Environmental Advocates",
+                "supportPct": 67,
+                "opposePct": 22,
+                "neutralPct": 11
+              }
+            ]
+          },
+          "politicalViability": "medium",
+          "viabilityScore": 51
+        }
+      },
+      "consequences": [
+        {
+          "year": 2027,
+          "milestone": "y1",
+          "label": "Traffic Reduction",
+          "description": "Project Decision leads to Traffic Reduction",
+          "type": "impact",
+          "confidence": 75
+        },
+        {
+          "year": 2030,
+          "milestone": "y3",
+          "label": "Property Value Growth",
+          "description": "Traffic Reduction leads to Property Value Growth",
+          "type": "economic",
+          "confidence": 68
+        },
+        {
+          "year": 2032,
+          "milestone": "y5",
+          "label": "Rental Inflation",
+          "description": "Property Value Growth leads to Rental Inflation",
+          "type": "risk",
+          "confidence": 62
+        },
+        {
+          "year": 2037,
+          "milestone": "y10",
+          "label": "Population Migration",
+          "description": "Rental Inflation leads to Population Migration",
+          "type": "social",
+          "confidence": 55
+        }
+      ],
+      "headlines": [
+        {
+          "year": 2032,
+          "title": "Construction Phase Nears Completion Across Key Corridors",
+          "subtitle": "Public sentiment at 77% support as infrastructure matures",
+          "tone": "positive"
+        },
+        {
+          "year": 2037,
+          "title": "Property Value Growth Drives Regional Economic Activity",
+          "subtitle": "Business activity index reaches 55/100",
+          "tone": "positive"
+        },
+        {
+          "year": 2037,
+          "title": "Metro Corridor Boosts Regional Economy",
+          "subtitle": "Employment index at 48; investment flows accelerate",
+          "tone": "positive"
+        },
+        {
+          "year": 2047,
+          "title": "Housing Affordability Emerges as Key Policy Challenge",
+          "subtitle": "Support at 82% as migration patterns shift",
+          "tone": "neutral"
+        }
+      ],
+      "citizenStories": [
+        {
+          "name": "Anita",
+          "profile": "Student",
+          "occupation": "University Student",
+          "zone": "Central",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Commute reduced by 40 minutes on new metro segment."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Rajesh",
+          "profile": "Business Owners",
+          "occupation": "Shop Owner",
+          "zone": "South",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Priya",
+          "profile": "Commuters",
+          "occupation": "IT Professional",
+          "zone": "West",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Lakshmi",
+          "profile": "Families",
+          "occupation": "Healthcare Worker",
+          "zone": "East",
+          "stance": "support",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Early disruption from construction, but commute times already improving on partial routes."
+            },
+            {
+              "year": 2032,
+              "narrative": "New transit access opens employment options across the city."
+            },
+            {
+              "year": 2037,
+              "narrative": "Relocated closer to city center for better mobility and career growth."
+            }
+          ]
+        },
+        {
+          "name": "Vikram",
+          "profile": "Environmental Advocates",
+          "occupation": "NGO Coordinator",
+          "zone": "North",
+          "stance": "neutral",
+          "milestones": [
+            {
+              "year": 2027,
+              "narrative": "Construction noise and reduced foot traffic affect daily routine."
+            },
+            {
+              "year": 2032,
+              "narrative": "Rising rents near corridor strain household budget."
+            },
+            {
+              "year": 2037,
+              "narrative": "Considering relocation due to affordability pressure."
+            }
+          ]
+        }
+      ],
+      "cityStates": [
+        {
+          "milestone": "present",
+          "buildingScale": 0.4,
+          "transitCoverage": 0,
+          "populationDensity": 0.3,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.518
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.538
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.558
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.5780000000000001
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.598
+            }
+          ]
+        },
+        {
+          "milestone": "y1",
+          "buildingScale": 0.46318000000000004,
+          "transitCoverage": 0.06669,
+          "populationDensity": 0.363,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.53798
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.55798
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.57798
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.59798
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.61798
+            }
+          ]
+        },
+        {
+          "milestone": "y3",
+          "buildingScale": 0.584275,
+          "transitCoverage": 0.19451249999999998,
+          "populationDensity": 0.48374999999999996,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.576275
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.596275
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.616275
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.6362749999999999
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.6562749999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y5",
+          "buildingScale": 0.689575,
+          "transitCoverage": 0.30566250000000006,
+          "populationDensity": 0.58875,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.609575
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.629575
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.649575
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.669575
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.6895749999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y10",
+          "buildingScale": 0.8475250000000001,
+          "transitCoverage": 0.4723875,
+          "populationDensity": 0.7462499999999999,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.6595249999999999
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.6795249999999999
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.699525
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.719525
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.7395249999999999
+            }
+          ]
+        },
+        {
+          "milestone": "y20",
+          "buildingScale": 0.9265000000000001,
+          "transitCoverage": 0.55575,
+          "populationDensity": 0.825,
+          "zoneHeatmap": [
+            {
+              "zoneId": "north",
+              "supportWeight": 0.6845
+            },
+            {
+              "zoneId": "south",
+              "supportWeight": 0.7045
+            },
+            {
+              "zoneId": "east",
+              "supportWeight": 0.7245
+            },
+            {
+              "zoneId": "west",
+              "supportWeight": 0.7444999999999999
+            },
+            {
+              "zoneId": "central",
+              "supportWeight": 0.7645
+            }
+          ]
+        }
+      ],
+      "generatedAt": "2026-06-13T12:31:57.262Z"
+    }
+  },
+  "headlines": [
+    {
+      "year": 2032,
+      "title": "Construction Phase Nears Completion Across Key Corridors",
+      "subtitle": "Public sentiment at 78% support as infrastructure matures",
+      "tone": "positive"
+    },
+    {
+      "year": 2037,
+      "title": "Property Value Growth Drives Regional Economic Activity",
+      "subtitle": "Business activity index reaches 64/100",
+      "tone": "positive"
+    },
+    {
+      "year": 2037,
+      "title": "Metro Corridor Boosts Regional Economy",
+      "subtitle": "Employment index at 56; investment flows accelerate",
+      "tone": "positive"
+    },
+    {
+      "year": 2047,
+      "title": "Housing Affordability Emerges as Key Policy Challenge",
+      "subtitle": "Support at 84% as migration patterns shift",
+      "tone": "neutral"
+    }
+  ],
+  "recommendation": {
+    "viabilityScore": 78,
+    "keyRisks": [
+      "Induced demand offsetting gains",
+      "Construction disruption to businesses",
+      "Utility delays"
+    ],
+    "keyOpportunities": [
+      "35% congestion reduction",
+      "Low fiscal exposure",
+      "Quick implementation timeline"
+    ],
+    "mitigations": [
+      "Transit integration planning",
+      "Business compensation fund during construction",
+      "Night-shift construction windows"
+    ],
+    "alternativeScenario": "Hybrid flyover + bus rapid transit lane at grade",
+    "executiveSummary": "Flyover Construction Project delivers strong commuter benefits at modest cost. Approve with concurrent transit integration planning."
+  },
+  "judgeInsights": {
+    "innovationScore": 88,
+    "technicalComplexity": "High — agent + geo + society stack",
+    "stakeholderCoverage": "9 cohorts · 10,000 citizens",
+    "futurePredictionDepth": "20-year projection · 3 branches"
+  },
+  "stepTimings": {
+    "overview": 18000,
+    "agents": 45000,
+    "impact": 22000,
+    "society": 28000,
+    "timemachine": 35000,
+    "headlines": 15000,
+    "recommendation": 17000
+  }
+}

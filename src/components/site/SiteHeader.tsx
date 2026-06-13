@@ -19,25 +19,35 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {["Platform", "Scenarios", "Intelligence", "Customers", "Docs"].map((l) => (
-            <a
+          <Link
+            href="/workspace"
+            className="font-mono-data text-[11px] uppercase tracking-[0.18em] text-ink-muted transition-colors hover:text-ink"
+          >
+            Platform
+          </Link>
+          {["Scenarios", "Intelligence", "Customers", "Docs"].map((l) => (
+            <span
               key={l}
-              href="#"
-              className="font-mono-data text-[11px] uppercase tracking-[0.18em] text-ink-muted transition-colors hover:text-ink"
+              className="font-mono-data text-[11px] uppercase tracking-[0.18em] text-ink-muted/50"
             >
               {l}
-            </a>
+            </span>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
-          <a href="#" className="hidden text-sm text-ink-muted hover:text-ink md:inline">
-            Sign in
-          </a>
-          <MagneticButton className="!px-4 !py-2 text-xs">
-            Request access
-            <span aria-hidden>→</span>
-          </MagneticButton>
+          <Link
+            href="/workspace"
+            className="hidden text-sm text-ink-muted hover:text-ink md:inline"
+          >
+            Open workspace
+          </Link>
+          <Link href="/workspace">
+            <MagneticButton className="!px-4 !py-2 text-xs">
+              Request access
+              <span aria-hidden>→</span>
+            </MagneticButton>
+          </Link>
         </div>
       </div>
     </header>
