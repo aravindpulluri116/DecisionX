@@ -1,26 +1,15 @@
 import type { AgentId } from "@/types/simulation";
 import type { ScenarioParams } from "@/types/workspace";
-import { buildTimeMachineBundle } from "@/lib/timemachine/futureProjector";
-import { buildDefaultCohortSentiment } from "@/lib/timemachine/societyBaseline";
+import { buildDefaultCohortSentiment } from "./societyBaseline";
 import type {
   AgentDemoBeat,
+  FutureHeadline,
   JudgeDemoPack,
   JudgeInsightScores,
   JudgeRecommendation,
   JudgeSocietySnapshot,
 } from "./types";
 import { DEFAULT_STEP_TIMINGS } from "./types";
-
-function mockFutureShockRaw() {
-  return {
-    consequences: [
-      { source: "Project Decision", target: "Traffic Reduction", type: "impact", confidence: 75 },
-      { source: "Traffic Reduction", target: "Property Value Growth", type: "economic", confidence: 68 },
-      { source: "Property Value Growth", target: "Rental Inflation", type: "risk", confidence: 62 },
-      { source: "Rental Inflation", target: "Population Migration", type: "social", confidence: 55 },
-    ],
-  };
-}
 
 function buildSociety(scores: JudgeDemoPack["impactScores"]): JudgeSocietySnapshot {
   const cohorts = buildDefaultCohortSentiment(scores);
@@ -49,19 +38,13 @@ type PackConfig = {
   agentSequence: AgentDemoBeat[];
   recommendation: JudgeRecommendation;
   judgeInsights: JudgeInsightScores;
+  headlines: FutureHeadline[];
   params: ScenarioParams;
   isTransit?: boolean;
 };
 
 function assemblePack(config: PackConfig): JudgeDemoPack {
-  const timeMachine = buildTimeMachineBundle(
-    config.impactScores,
-    config.params,
-    { futureShock: { raw: mockFutureShockRaw() } } as never,
-    null,
-  );
   const society = buildSociety(config.impactScores);
-  const headlines = timeMachine.expected.headlines;
 
   return {
     id: config.id,
@@ -72,8 +55,7 @@ function assemblePack(config: PackConfig): JudgeDemoPack {
     agentSequence: config.agentSequence,
     impactScores: config.impactScores,
     society,
-    timeMachine,
-    headlines,
+    headlines: config.headlines,
     recommendation: config.recommendation,
     judgeInsights: config.judgeInsights,
     stepTimings: { ...DEFAULT_STEP_TIMINGS },
@@ -159,8 +141,25 @@ export const METRO_DEMO_PACK: JudgeDemoPack = assemblePack({
     innovationScore: 92,
     technicalComplexity: "High — 7-agent pipeline + geo + society",
     stakeholderCoverage: "9 cohorts · 10,000 citizens",
-    futurePredictionDepth: "20-year projection · 3 branches",
+    futurePredictionDepth: "Multi-agent impact synthesis",
   },
+  headlines: [
+    {
+      year: 2030,
+      title: "Metro Phase I Opens to Record Ridership",
+      subtitle: "1.2M daily passengers within the first month of operation",
+    },
+    {
+      year: 2033,
+      title: "Property Values Surge Along Metro Corridor",
+      subtitle: "Residential prices up 18% in eastern Hyderabad zones",
+    },
+    {
+      year: 2037,
+      title: "Peak Congestion Drops 28% Across IT Corridor",
+      subtitle: "Average commute times cut by 40 minutes at rush hour",
+    },
+  ],
 });
 
 export const INDUSTRIAL_DEMO_PACK: JudgeDemoPack = assemblePack({
@@ -242,8 +241,25 @@ export const INDUSTRIAL_DEMO_PACK: JudgeDemoPack = assemblePack({
     innovationScore: 89,
     technicalComplexity: "High — multi-domain impact modeling",
     stakeholderCoverage: "9 cohorts · 10,000 citizens",
-    futurePredictionDepth: "20-year projection · 3 branches",
+    futurePredictionDepth: "Multi-agent impact synthesis",
   },
+  headlines: [
+    {
+      year: 2032,
+      title: "Industrial Zone Creates 25,000 Jobs",
+      subtitle: "Advanced manufacturing hub reaches first production milestone",
+    },
+    {
+      year: 2035,
+      title: "Water Stress Triggers Compliance Review",
+      subtitle: "Green manufacturing standards become binding requirement",
+    },
+    {
+      year: 2038,
+      title: "Export Revenue Doubles in Telangana Hub",
+      subtitle: "Regional GDP contribution exceeds initial projections",
+    },
+  ],
 });
 
 export const FLYOVER_DEMO_PACK: JudgeDemoPack = assemblePack({
@@ -325,8 +341,25 @@ export const FLYOVER_DEMO_PACK: JudgeDemoPack = assemblePack({
     innovationScore: 88,
     technicalComplexity: "High — agent + geo + society stack",
     stakeholderCoverage: "9 cohorts · 10,000 citizens",
-    futurePredictionDepth: "20-year projection · 3 branches",
+    futurePredictionDepth: "Multi-agent impact synthesis",
   },
+  headlines: [
+    {
+      year: 2030,
+      title: "LB Nagar Flyover Cuts Peak Wait Times by 35%",
+      subtitle: "350,000 daily commuters save an average of 22 minutes",
+    },
+    {
+      year: 2032,
+      title: "Local Retail Foot Traffic Recovers Post-Construction",
+      subtitle: "Shop revenue returns to pre-build levels by month 18",
+    },
+    {
+      year: 2035,
+      title: "Transit Integration Boosts Flyover Impact",
+      subtitle: "Metro feeder routes amplify corridor gains by 40%",
+    },
+  ],
 });
 
 export const JUDGE_DEMO_PACKS: Record<string, JudgeDemoPack> = {

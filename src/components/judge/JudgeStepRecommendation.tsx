@@ -9,7 +9,7 @@ export function JudgeStepRecommendation({ pack }: { pack: JudgeDemoPack }) {
   return (
     <div className="flex flex-1 flex-col items-center px-8 py-10">
       <p className="font-mono-data text-[10px] uppercase tracking-[0.3em] text-signal">
-        Step 7 · Final Recommendation
+        Step 6 · Final Recommendation
       </p>
       <motion.p
         initial={{ scale: 0.8, opacity: 0 }}

@@ -1,5 +1,4 @@
 import type { LocationIntelligence } from "@/types/geo";
-import type { TimeMachineBundle } from "@/types/timemachine";
 import type {
   AgentId,
   AgentResult,
@@ -19,7 +18,6 @@ export type OrchestratorEvent =
   | { type: "report:ready"; report: DecisionReport }
   | { type: "simulation:complete"; simulation: Simulation }
   | { type: "enrichment:ready"; intelligence: LocationIntelligence }
-  | { type: "timemachine:ready"; timeMachine: TimeMachineBundle }
   | { type: "log"; message: string };
 
 export type OrchestratorOptions = {

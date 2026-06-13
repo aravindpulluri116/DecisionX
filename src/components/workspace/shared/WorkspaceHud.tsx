@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Network,
-  Clock,
   GitCompare,
   FileText,
   Map,
@@ -17,11 +15,9 @@ import type { WorkspaceMode } from "@/types/simulation";
 import { cn } from "@/lib/utils";
 import { ImpactScoreSummary } from "../intelligence/ImpactScoreStrip";
 
-const MODES: { id: WorkspaceMode; label: string; icon: typeof Network; short: string }[] = [
-  { id: "canvas", label: "Canvas", icon: Network, short: "Graph" },
-  { id: "timemachine", label: "Time Machine", icon: Clock, short: "Future" },
-  { id: "compare", label: "Compare", icon: GitCompare, short: "Compare" },
+const MODES: { id: WorkspaceMode; label: string; icon: typeof FileText; short: string }[] = [
   { id: "report", label: "Report", icon: FileText, short: "Report" },
+  { id: "compare", label: "Compare", icon: GitCompare, short: "Compare" },
   { id: "map", label: "Map", icon: Map, short: "Geo" },
 ];
 
@@ -51,7 +47,7 @@ export function WorkspaceHud({
   const selectedScenario = useWorkspaceStore((s) => s.selectedScenario);
   const setCompareScenarioIds = useWorkspaceStore((s) => s.setCompareScenarioIds);
 
-  const activeMode = workspaceMode === "timeline" ? "timemachine" : workspaceMode;
+  const activeMode = workspaceMode;
 
   const selectMode = (mode: WorkspaceMode) => {
     if (mode === "compare" && selectedScenario) {

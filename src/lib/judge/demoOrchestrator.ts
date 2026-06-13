@@ -5,7 +5,6 @@ export type DemoOrchestratorCallbacks = {
   onStepEnter?: (step: DemoStep, index: number) => void;
   onStepProgress?: (progress: number) => void;
   onAgentBeat?: (index: number) => void;
-  onTimeMachineYear?: (index: number) => void;
   onComplete?: () => void;
 };
 
@@ -13,22 +12,18 @@ export class DemoOrchestrator {
   private timer: ReturnType<typeof setInterval> | null = null;
   private stepTimer: ReturnType<typeof setTimeout> | null = null;
   private agentTimer: ReturnType<typeof setInterval> | null = null;
-  private yearTimer: ReturnType<typeof setInterval> | null = null;
   private stepStart = 0;
   private paused = false;
   private stepDurations: Record<DemoStep, number>;
   private agentCount: number;
-  private yearCount: number;
 
   constructor(
     stepDurations: Record<DemoStep, number>,
     agentCount: number,
-    yearCount: number,
     private callbacks: DemoOrchestratorCallbacks,
   ) {
     this.stepDurations = stepDurations;
     this.agentCount = agentCount;
-    this.yearCount = yearCount;
   }
 
   start(stepIndex: number, autoPlay: boolean) {
@@ -58,20 +53,6 @@ export class DemoOrchestrator {
           clearInterval(this.agentTimer);
         }
       }, agentDuration);
-    }
-
-    if (step === "timemachine") {
-      let yearIdx = 0;
-      const yearDuration = duration / Math.max(1, this.yearCount);
-      this.callbacks.onTimeMachineYear?.(0);
-      this.yearTimer = setInterval(() => {
-        yearIdx += 1;
-        if (yearIdx < this.yearCount) {
-          this.callbacks.onTimeMachineYear?.(yearIdx);
-        } else if (this.yearTimer) {
-          clearInterval(this.yearTimer);
-        }
-      }, yearDuration);
     }
 
     this.timer = setInterval(() => {
@@ -110,8 +91,6 @@ export class DemoOrchestrator {
 
   private clearSubTimers() {
     if (this.agentTimer) clearInterval(this.agentTimer);
-    if (this.yearTimer) clearInterval(this.yearTimer);
     this.agentTimer = null;
-    this.yearTimer = null;
   }
 }

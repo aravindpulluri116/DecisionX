@@ -9,7 +9,7 @@ export function JudgeStepHeadlines({ pack }: { pack: JudgeDemoPack }) {
   return (
     <div className="flex flex-1 flex-col items-center px-8 py-10">
       <p className="font-mono-data text-[10px] uppercase tracking-[0.3em] text-signal">
-        Step 6 · Future Headlines
+        Step 5 · Future Headlines
       </p>
       <h2 className="mt-4 font-display text-3xl font-bold">The Future, in Headlines</h2>
       <div className="mt-10 w-full max-w-2xl space-y-4">

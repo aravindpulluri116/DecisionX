@@ -74,9 +74,9 @@ export function IntelligencePanel() {
             transition={{ delay: 0.2 }}
             className="rounded-xl border border-hairline bg-background/50 px-3 py-3 text-center"
           >
-            <p className="text-xs font-medium text-ink">Explore the graph</p>
+            <p className="text-xs font-medium text-ink">Run simulation</p>
             <p className="mt-1 text-[11px] text-ink-muted">
-              Tap any node for stakeholders, timeline & mitigations
+              Generate KPIs, report, and future projections
             </p>
           </motion.div>
         </div>

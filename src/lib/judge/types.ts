@@ -1,14 +1,11 @@
 import type { AgentId } from "@/types/simulation";
-import type { FutureHeadline, TimeMachineBundle } from "@/types/timemachine";
 import type { ImpactScores } from "@/types/workspace";
-import type { CohortSentiment } from "@/types/timemachine";
 
 export type DemoStep =
   | "overview"
   | "agents"
   | "impact"
   | "society"
-  | "timemachine"
   | "headlines"
   | "recommendation";
 
@@ -17,10 +14,22 @@ export const DEMO_STEPS: DemoStep[] = [
   "agents",
   "impact",
   "society",
-  "timemachine",
   "headlines",
   "recommendation",
 ];
+
+export type FutureHeadline = {
+  year: number;
+  title: string;
+  subtitle: string;
+};
+
+export type CohortSentiment = {
+  profile: string;
+  supportPct: number;
+  opposePct: number;
+  neutralPct: number;
+};
 
 export type AgentDemoBeat = {
   agentId: AgentId;
@@ -68,7 +77,6 @@ export type JudgeDemoPack = {
   agentSequence: AgentDemoBeat[];
   impactScores: ImpactScores;
   society: JudgeSocietySnapshot;
-  timeMachine: TimeMachineBundle;
   headlines: FutureHeadline[];
   recommendation: JudgeRecommendation;
   judgeInsights: JudgeInsightScores;
@@ -80,7 +88,6 @@ export const DEFAULT_STEP_TIMINGS: Record<DemoStep, number> = {
   agents: 45000,
   impact: 22000,
   society: 28000,
-  timemachine: 35000,
   headlines: 15000,
   recommendation: 17000,
 };

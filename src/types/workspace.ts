@@ -1,5 +1,4 @@
 import type { ProjectGeo, LocationIntelligence } from "./geo";
-import type { TimeMachineBundle } from "./timemachine";
 
 export type NodeType = "decision" | "impact" | "risk" | "stakeholder" | "environmental";
 
@@ -49,7 +48,6 @@ export type Scenario = {
   is_active: boolean;
   params: ScenarioParams;
   impact_scores: ImpactScores;
-  time_machine_snapshot?: TimeMachineBundle;
   created_at: string;
 };
 

@@ -10,15 +10,9 @@ import {
 } from "@/components/ui/resizable";
 import { DecisionNavigator } from "../navigator/DecisionNavigator";
 import { IntelligencePanel } from "../intelligence/IntelligencePanel";
-import { IntelligenceDrawer } from "../intelligence/IntelligenceDrawer";
 import { IntelligenceLoader } from "../shared/IntelligenceLoader";
 import { WorkspaceHud } from "../shared/WorkspaceHud";
 
-// Heavy view components: lazy-loaded on first render to keep initial bundle small
-const DecisionCanvas = dynamic(
-  () => import("../canvas/DecisionCanvas").then((m) => ({ default: m.DecisionCanvas })),
-  { loading: () => <IntelligenceLoader />, ssr: false },
-);
 const ScenarioBuilder = dynamic(
   () => import("../builder/ScenarioBuilder").then((m) => ({ default: m.ScenarioBuilder })),
   { ssr: false },
@@ -43,10 +37,6 @@ const GeoIntelligenceMap = dynamic(
   () => import("../map/GeoIntelligenceMap").then((m) => ({ default: m.GeoIntelligenceMap })),
   { loading: () => <IntelligenceLoader />, ssr: false },
 );
-const TimeMachineView = dynamic(
-  () => import("../timemachine/TimeMachineView").then((m) => ({ default: m.TimeMachineView })),
-  { loading: () => <IntelligenceLoader />, ssr: false },
-);
 const LocationIntelligencePanel = dynamic(
   () =>
     import("../map/LocationIntelligencePanel").then((m) => ({
@@ -67,19 +57,14 @@ type WorkspaceShellProps = {
 
 function CenterPanel({
   scenarioId,
-  projectTitle,
   projectId,
 }: {
   scenarioId: string | null;
-  projectTitle: string;
   projectId: string;
 }) {
   const workspaceMode = useWorkspaceStore((s) => s.workspaceMode);
 
   switch (workspaceMode) {
-    case "timeline":
-    case "timemachine":
-      return <TimeMachineView projectId={projectId} scenarioId={scenarioId} />;
     case "compare":
       return <CompareView projectId={projectId} />;
     case "report":
@@ -87,7 +72,7 @@ function CenterPanel({
     case "map":
       return <GeoIntelligenceMap />;
     default:
-      return <DecisionCanvas scenarioId={scenarioId} projectTitle={projectTitle} />;
+      return <ReportView />;
   }
 }
 
@@ -109,8 +94,6 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   const startSimulation = useStartSimulation();
 
   const setSelectedScenario = useWorkspaceStore((s) => s.setSelectedScenario);
-  const setSelectedNodeId = useWorkspaceStore((s) => s.setSelectedNodeId);
-  const setNodeIntelligence = useWorkspaceStore((s) => s.setNodeIntelligence);
   const setLocationIntelligence = useWorkspaceStore((s) => s.setLocationIntelligence);
   const setBuilderOpen = useWorkspaceStore((s) => s.setBuilderOpen);
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
@@ -148,7 +131,7 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
     }
   }, [activeScenario, setSelectedScenario]);
 
-  // Map mode benefits from geo panel; canvas mode keeps intel panel
+  // Map mode benefits from geo panel
   useEffect(() => {
     if (workspaceMode === "map") setIntelOpen(true);
   }, [workspaceMode]);
@@ -156,8 +139,6 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   const handleScenarioSelect = (scenario: Scenario) => {
     setActiveScenarioId(scenario.id);
     setSelectedScenario(scenario);
-    setSelectedNodeId(null);
-    setNodeIntelligence(null);
   };
 
   const handleRunSimulation = async () => {
@@ -181,8 +162,6 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
           project={project}
           onScenarioCreated={async (id) => {
             setActiveScenarioId(id);
-            setSelectedNodeId(null);
-            setNodeIntelligence(null);
             await queryClient.invalidateQueries({ queryKey: ["scenarios", project.id] });
             await queryClient.invalidateQueries({ queryKey: ["active-scenario", project.id] });
             await queryClient.invalidateQueries({ queryKey: ["workspace-graph", id] });
@@ -197,7 +176,6 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
       )}
       <ProjectWizard />
       <SimulationTheater />
-      <IntelligenceDrawer />
     </>
   );
 
@@ -246,8 +224,7 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
 
   if (!project) return overlays;
 
-  const showIntelPanel =
-    intelOpen && workspaceMode !== "timemachine" && workspaceMode !== "compare";
+  const showIntelPanel = intelOpen && workspaceMode !== "compare";
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-background">
@@ -299,11 +276,7 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
 
           <ResizablePanel defaultSize={showIntelPanel ? 58 : 100} minSize={45}>
             <div className="relative h-full overflow-hidden bg-[oklch(0.988_0.004_240)]">
-              <CenterPanel
-                scenarioId={activeScenarioId}
-                projectTitle={project.title}
-                projectId={project.id}
-              />
+              <CenterPanel scenarioId={activeScenarioId} projectId={project.id} />
             </div>
           </ResizablePanel>
 

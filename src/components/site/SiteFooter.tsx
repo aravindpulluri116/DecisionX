@@ -12,7 +12,7 @@ export function SiteFooter() {
             </p>
           </div>
           {[
-            { title: "Platform", links: ["Simulator", "Canvas", "Intelligence", "Maps"] },
+            { title: "Platform", links: ["Simulator", "Report", "Intelligence", "Maps"] },
             { title: "Sectors", links: ["Public sector", "Mobility", "Energy", "Climate"] },
             { title: "Company", links: ["About", "Research", "Press", "Contact"] },
           ].map((col) => (

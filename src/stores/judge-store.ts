@@ -12,7 +12,6 @@ type JudgeStore = {
   fullscreen: boolean;
   demoActive: boolean;
   visibleAgentIndex: number;
-  timeMachineYearIndex: number;
   demoComplete: boolean;
   setActivePack: (pack: JudgeDemoPack | null) => void;
   setCurrentStep: (step: DemoStep) => void;
@@ -23,7 +22,6 @@ type JudgeStore = {
   setFullscreen: (on: boolean) => void;
   setDemoActive: (on: boolean) => void;
   setVisibleAgentIndex: (i: number) => void;
-  setTimeMachineYearIndex: (i: number) => void;
   setDemoComplete: (on: boolean) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -40,7 +38,6 @@ export const useJudgeStore = create<JudgeStore>((set, get) => ({
   fullscreen: false,
   demoActive: false,
   visibleAgentIndex: 0,
-  timeMachineYearIndex: 0,
   demoComplete: false,
   setActivePack: (pack) => set({ activePack: pack }),
   setCurrentStep: (step) => {
@@ -57,7 +54,6 @@ export const useJudgeStore = create<JudgeStore>((set, get) => ({
   setFullscreen: (on) => set({ fullscreen: on }),
   setDemoActive: (on) => set({ demoActive: on }),
   setVisibleAgentIndex: (i) => set({ visibleAgentIndex: i }),
-  setTimeMachineYearIndex: (i) => set({ timeMachineYearIndex: i }),
   setDemoComplete: (on) => set({ demoComplete: on }),
   nextStep: () => {
     const { stepIndex } = get();
@@ -75,7 +71,6 @@ export const useJudgeStore = create<JudgeStore>((set, get) => ({
       stepIndex: 0,
       stepProgress: 0,
       visibleAgentIndex: 0,
-      timeMachineYearIndex: 0,
       demoActive: false,
       demoComplete: false,
     }),

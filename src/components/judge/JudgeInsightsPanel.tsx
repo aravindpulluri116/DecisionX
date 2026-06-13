@@ -38,7 +38,7 @@ export function JudgeInsightsPanel() {  const pack = useJudgeStore((s) => s.acti
         <InsightRow
           label="Future Prediction Depth"
           value={insights.futurePredictionDepth}
-          highlight={currentStep === "timemachine" || stepIndex >= 4}
+          highlight={currentStep === "headlines" || stepIndex >= 4}
         />
       </div>
     </motion.div>

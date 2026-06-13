@@ -60,10 +60,6 @@ async function handleOrchestratorEvent(
     case "enrichment:ready":
       useWorkspaceStore.getState().setLocationIntelligence(event.intelligence);
       break;
-    case "timemachine:ready":
-      useWorkspaceStore.getState().setTimeMachineBundle(event.timeMachine);
-      appendLog("Future trajectories projected — Time Machine ready");
-      break;
     case "report:ready":
       setActiveReport(event.report);
       break;
@@ -80,7 +76,7 @@ async function handleOrchestratorEvent(
         ctx.router.push(`/workspace/${ctx.project.slug}`);
       }
       toast.success("Analysis complete", { description: title });
-      useWorkspaceStore.getState().setWorkspaceMode("timemachine");
+      useWorkspaceStore.getState().setWorkspaceMode("report");
       break;
     }
   }
@@ -105,7 +101,7 @@ export function useStartSimulation() {
       clearLog();
       setAgentRuns(initAgentRuns());
       setSimulationTheaterOpen(true);
-      setWorkspaceMode("canvas");
+      setWorkspaceMode("report");
 
       const input: SimulationInput = {
         project,

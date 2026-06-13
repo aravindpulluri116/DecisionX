@@ -16,7 +16,6 @@ export type StakeholderGroup =
   | "Environmental Groups";
 
 import type { ProjectGeo, LocationIntelligence } from "./geo";
-import type { TimeMachineBundle } from "./timemachine";
 
 export type DecisionProject = Project & {
   description: string;
@@ -77,7 +76,6 @@ export type Simulation = {
   graph?: WorkspaceGraph;
   impactScores?: ImpactScores;
   reportId?: string;
-  timeMachine?: TimeMachineBundle;
   startedAt: string;
   completedAt?: string;
 };
@@ -110,7 +108,7 @@ export type DecisionReport = {
   sections: DecisionReportSections;
 };
 
-export type WorkspaceMode = "canvas" | "timeline" | "compare" | "report" | "map" | "timemachine";
+export type WorkspaceMode = "compare" | "report" | "map";
 
 export type SimulationInput = {
   project: DecisionProject;

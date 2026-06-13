@@ -12,7 +12,6 @@ import type {
 } from "@/types/simulation";
 import type { EventHandler, OrchestratorOptions } from "./events";
 import { enrichLocationContext } from "@/lib/enrichment/enrichLocationContext";
-import { runTimeMachineProjection } from "@/lib/timemachine/runTimeMachineProjection";
 
 async function prepareEnrichedInput(input: SimulationInput, emit: EventHandler): Promise<SimulationInput> {
   await emit({ type: "log", message: "Enriching location context..." });
@@ -59,15 +58,6 @@ async function finalizeSimulation(
   const scores = computeImpactFromAgents(agentResults);
   await emit({ type: "scores:ready", scores });
 
-  await emit({ type: "log", message: "Projecting future trajectories..." });
-  const timeMachine = await runTimeMachineProjection({
-    agentResults,
-    impactScores: scores,
-    params: input.params,
-    geo: input.project.locationIntelligence,
-  });
-  await emit({ type: "timemachine:ready", timeMachine });
-
   const simulation: Simulation = {
     id: simulationId,
     projectId: input.project.id,
@@ -76,7 +66,6 @@ async function finalizeSimulation(
     agentResults,
     graph,
     impactScores: scores,
-    timeMachine,
     startedAt: new Date().toISOString(),
     completedAt: new Date().toISOString(),
   };

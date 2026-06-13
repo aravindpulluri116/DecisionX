@@ -51,10 +51,6 @@ export async function persistSimulationAsScenario(
 
   simulation.scenarioId = scenario.id;
   saveSimulation(simulation);
-  if (simulation.timeMachine) {
-    const { saveTimeMachineSnapshot } = await import("@/lib/workspace/queries");
-    await saveTimeMachineSnapshot(simulation.id, scenario.id, simulation.timeMachine);
-  }
   return scenario;
 }
 

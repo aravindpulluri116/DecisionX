@@ -5,8 +5,6 @@ import { DemoOrchestrator } from "@/lib/judge/demoOrchestrator";
 import { DEMO_STEPS } from "@/lib/judge/types";
 import { useJudgeStore } from "@/stores/judge-store";
 
-const TIME_MACHINE_MILESTONES = ["present", "y1", "y3", "y5", "y10"] as const;
-
 export function useJudgeDemo() {
   const orchestratorRef = useRef<DemoOrchestrator | null>(null);
   const activePack = useJudgeStore((s) => s.activePack);
@@ -16,7 +14,6 @@ export function useJudgeDemo() {
   const setStepIndex = useJudgeStore((s) => s.setStepIndex);
   const setStepProgress = useJudgeStore((s) => s.setStepProgress);
   const setVisibleAgentIndex = useJudgeStore((s) => s.setVisibleAgentIndex);
-  const setTimeMachineYearIndex = useJudgeStore((s) => s.setTimeMachineYearIndex);
   const setDemoComplete = useJudgeStore((s) => s.setDemoComplete);
 
   const startOrchestrator = useCallback(() => {
@@ -24,27 +21,20 @@ export function useJudgeDemo() {
     if (!pack) return;
     const { stepIndex: currentStepIndex, autoPlay: isAutoPlay } = useJudgeStore.getState();
     orchestratorRef.current?.stop();
-    const orch = new DemoOrchestrator(
-      pack.stepTimings,
-      pack.agentSequence.length,
-      TIME_MACHINE_MILESTONES.length,
-      {
-        onStepEnter: (_step, index) => {
-          setStepIndex(index);
-          setStepProgress(0);
-          setDemoComplete(false);
-          if (_step === "agents") setVisibleAgentIndex(0);
-          if (_step === "timemachine") setTimeMachineYearIndex(0);
-        },
-        onStepProgress: setStepProgress,
-        onAgentBeat: setVisibleAgentIndex,
-        onTimeMachineYear: setTimeMachineYearIndex,
-        onComplete: () => setDemoComplete(true),
+    const orch = new DemoOrchestrator(pack.stepTimings, pack.agentSequence.length, {
+      onStepEnter: (_step, index) => {
+        setStepIndex(index);
+        setStepProgress(0);
+        setDemoComplete(false);
+        if (_step === "agents") setVisibleAgentIndex(0);
       },
-    );
+      onStepProgress: setStepProgress,
+      onAgentBeat: setVisibleAgentIndex,
+      onComplete: () => setDemoComplete(true),
+    });
     orchestratorRef.current = orch;
     orch.start(currentStepIndex, isAutoPlay);
-  }, [setStepIndex, setStepProgress, setVisibleAgentIndex, setTimeMachineYearIndex, setDemoComplete]);
+  }, [setStepIndex, setStepProgress, setVisibleAgentIndex, setDemoComplete]);
 
   useEffect(() => {
     if (!demoActive || !activePack) return;
@@ -89,7 +79,5 @@ export function useJudgeDemo() {
     }
   }, []);
 
-  return { next, prev, toggleAutoPlay, toggleFullscreen, timeMachineMilestones: TIME_MACHINE_MILESTONES };
+  return { next, prev, toggleAutoPlay, toggleFullscreen };
 }
-
-export { TIME_MACHINE_MILESTONES };

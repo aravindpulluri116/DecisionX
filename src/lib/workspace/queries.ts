@@ -1,6 +1,5 @@
 import type { AgentId, AgentResult, DecisionReport, Simulation } from "@/types/simulation";
 import type { LocationIntelligence } from "@/types/geo";
-import type { TimeMachineBundle } from "@/types/timemachine";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import type {
   CanvasNode,
@@ -22,7 +21,6 @@ import {
   mergeProjectLists,
   saveMockScenario,
   setMockActiveScenario,
-  updateMockNodePosition,
 } from "./mock-data";
 import { withTimeout } from "@/lib/supabase/with-timeout";
 
@@ -149,16 +147,6 @@ export async function activateScenario(projectId: string, scenarioId: string) {
 
   await supabase.from("scenarios").update({ is_active: false }).eq("project_id", projectId);
   await supabase.from("scenarios").update({ is_active: true }).eq("id", scenarioId);
-}
-
-export async function persistNodePosition(nodeId: string, position: { x: number; y: number }) {
-  const supabase = createClient();
-  if (!supabase) {
-    updateMockNodePosition(nodeId, position);
-    return;
-  }
-
-  await supabase.from("canvas_nodes").update({ position }).eq("id", nodeId);
 }
 
 export async function createScenario(
@@ -515,55 +503,5 @@ export async function fetchLocationIntelligence(projectId: string): Promise<Loca
     .maybeSingle();
 
   if (data?.location_intelligence) return data.location_intelligence as LocationIntelligence;
-  return cached ?? null;
-}
-
-const mockTimeMachine = new Map<string, TimeMachineBundle>();
-
-export async function saveTimeMachineSnapshot(
-  simulationId: string,
-  scenarioId: string | undefined,
-  bundle: TimeMachineBundle,
-): Promise<void> {
-  mockTimeMachine.set(simulationId, bundle);
-  if (scenarioId) mockTimeMachine.set(scenarioId, bundle);
-
-  const supabase = createClient();
-  if (!supabase) return;
-
-  await supabase
-    .from("simulation_runs")
-    .update({ time_machine_snapshot: bundle })
-    .eq("id", simulationId);
-
-  if (scenarioId) {
-    await supabase
-      .from("scenarios")
-      .update({ time_machine_snapshot: bundle })
-      .eq("id", scenarioId);
-  }
-}
-
-export async function fetchTimeMachineSnapshot(
-  id: string,
-): Promise<TimeMachineBundle | null> {
-  const cached = mockTimeMachine.get(id);
-  const supabase = createClient();
-  if (!supabase) return cached ?? null;
-
-  const { data: sim } = await supabase
-    .from("simulation_runs")
-    .select("time_machine_snapshot")
-    .eq("id", id)
-    .maybeSingle();
-  if (sim?.time_machine_snapshot) return sim.time_machine_snapshot as TimeMachineBundle;
-
-  const { data: scenario } = await supabase
-    .from("scenarios")
-    .select("time_machine_snapshot")
-    .eq("id", id)
-    .maybeSingle();
-  if (scenario?.time_machine_snapshot) return scenario.time_machine_snapshot as TimeMachineBundle;
-
   return cached ?? null;
 }

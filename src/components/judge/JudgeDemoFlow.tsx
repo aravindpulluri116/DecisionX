@@ -8,7 +8,6 @@ import { JudgeStepOverview } from "./JudgeStepOverview";
 import { JudgeStepAgents } from "./JudgeStepAgents";
 import { JudgeStepImpact } from "./JudgeStepImpact";
 import { JudgeStepSociety } from "./JudgeStepSociety";
-import { JudgeStepTimeMachine } from "./JudgeStepTimeMachine";
 import { JudgeStepHeadlines } from "./JudgeStepHeadlines";
 import { JudgeStepRecommendation } from "./JudgeStepRecommendation";
 import { JudgeClosingCard } from "./JudgeClosingCard";
@@ -61,7 +60,6 @@ export function JudgeDemoFlow({ onExit, onPickAnother }: JudgeDemoFlowProps) {
             {currentStep === "agents" && <JudgeStepAgents pack={pack} />}
             {currentStep === "impact" && <JudgeStepImpact pack={pack} />}
             {currentStep === "society" && <JudgeStepSociety pack={pack} />}
-            {currentStep === "timemachine" && <JudgeStepTimeMachine pack={pack} />}
             {currentStep === "headlines" && <JudgeStepHeadlines pack={pack} />}
             {currentStep === "recommendation" && <JudgeStepRecommendation pack={pack} />}
           </motion.div>

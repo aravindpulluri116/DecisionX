@@ -1,4 +1,4 @@
-import type { CohortSentiment } from "@/types/timemachine";
+import type { CohortSentiment } from "./types";
 import type { ImpactScores } from "@/types/workspace";
 
 const COHORT_PROFILES = [
@@ -32,19 +32,5 @@ export function buildDefaultCohortSentiment(scores: ImpactScores): CohortSentime
     const opposePct = Math.max(0, Math.min(60, Math.round(100 - supportPct - 15)));
     const neutralPct = Math.max(0, 100 - supportPct - opposePct);
     return { profile, supportPct, opposePct, neutralPct };
-  });
-}
-
-export function morphCohortSentiment(
-  cohorts: CohortSentiment[],
-  factor: number,
-  branchMultiplier: number,
-): CohortSentiment[] {
-  return cohorts.map((c) => {
-    const delta = (factor - 0.5) * 20 * branchMultiplier;
-    const supportPct = Math.max(5, Math.min(95, Math.round(c.supportPct + delta)));
-    const opposePct = Math.max(0, Math.min(80, Math.round(c.opposePct - delta * 0.5)));
-    const neutralPct = Math.max(0, 100 - supportPct - opposePct);
-    return { ...c, supportPct, opposePct, neutralPct };
   });
 }
