@@ -1,5 +1,5 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
+@source "../";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -72,16 +72,16 @@
 
   /* DecisionX core palette */
   --background: oklch(0.984 0.005 240); /* #F8FAFC */
-  --foreground: oklch(0.205 0.04 264);  /* #0F172A */
+  --foreground: oklch(0.205 0.04 264); /* #0F172A */
   --ink: oklch(0.205 0.04 264);
   --ink-muted: oklch(0.5 0.025 258);
-  --surface: oklch(1 0 0);              /* #FFFFFF */
+  --surface: oklch(1 0 0); /* #FFFFFF */
   --surface-elevated: oklch(0.992 0.003 240);
-  --signal: oklch(0.546 0.215 262);     /* #2563EB */
+  --signal: oklch(0.546 0.215 262); /* #2563EB */
   --signal-soft: oklch(0.546 0.215 262 / 0.12);
-  --positive: oklch(0.51 0.15 145);     /* #15803D */
-  --warning: oklch(0.674 0.143 79);     /* #CA8A04 */
-  --negative: oklch(0.512 0.205 27);    /* #B91C1C */
+  --positive: oklch(0.51 0.15 145); /* #15803D */
+  --warning: oklch(0.674 0.143 79); /* #CA8A04 */
+  --negative: oklch(0.512 0.205 27); /* #B91C1C */
   --hairline: oklch(0.205 0.04 264 / 0.08);
   --grid-line: oklch(0.205 0.04 264 / 0.05);
 
@@ -100,7 +100,7 @@
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.512 0.205 27);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.929 0.013 255);     /* #E2E8F0 */
+  --border: oklch(0.929 0.013 255); /* #E2E8F0 */
   --input: oklch(0.929 0.013 255);
   --ring: oklch(0.546 0.215 262);
   --chart-1: oklch(0.646 0.222 41.116);
@@ -170,7 +170,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
@@ -204,18 +207,35 @@
 }
 
 @keyframes dx-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
 
 @keyframes dx-ripple {
-  0% { transform: scale(0.4); opacity: 0.7; }
-  100% { transform: scale(3); opacity: 0; }
+  0% {
+    transform: scale(0.4);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
 }
 
 @keyframes dx-scan {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @utility animate-dx-pulse {
@@ -228,4 +248,4 @@
 
 @utility animate-dx-scan {
   animation: dx-scan 3s ease-in-out infinite;
-  }
+}

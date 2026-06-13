@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html, Line } from "@react-three/drei";
