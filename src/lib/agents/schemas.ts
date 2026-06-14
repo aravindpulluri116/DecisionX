@@ -92,7 +92,8 @@ export const futureShockAgentSchema = baseAgentFieldsSchema.extend({
 });
 
 export const cdoAgentSchema = z.object({
-  viabilityScore: z.number().min(0).max(100),
+  /** @deprecated Ignored — platform computes viability from impact KPIs */
+  viabilityScore: z.number().min(0).max(100).optional(),
   executiveSummary: z.string().min(20),
   keyRisks: z.array(z.string()).min(1),
   keyOpportunities: z.array(z.string()).min(1),

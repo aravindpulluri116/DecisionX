@@ -4,6 +4,7 @@ import type { AgentContext } from "@/agents/types";
 import { assembleGraphFromAgents } from "./graphAssembler";
 import { computeImpactFromAgents } from "@/lib/simulation/computeImpact";
 import { generateReport } from "@/lib/services/reportService";
+import { getProjectViability } from "@/lib/scoring/viability";
 import type {
   AgentId,
   AgentResult,
@@ -35,12 +36,14 @@ function buildAgentContext(
   input: SimulationInput,
   priorResults: AgentContext["priorResults"],
   enrichment: AgentContext["enrichment"],
+  platform?: Pick<AgentContext, "platformImpactScores" | "platformViabilityIndex">,
 ): AgentContext {
   return {
     project: input.project,
     params: input.params,
     priorResults,
     enrichment,
+    ...platform,
   };
 }
 
@@ -141,7 +144,15 @@ export async function runSimulationPipeline(
 
   await emit({ type: "log", message: "Specialist phase complete. Chief Decision Officer synthesizing..." });
 
-  const cdoCtx = buildAgentContext(enrichedInput, { ...agentResults }, enrichment);
+  const platformImpactScores = computeImpactFromAgents(agentResults);
+  const platformViabilityIndex = getProjectViability(platformImpactScores) ?? undefined;
+
+  const cdoCtx = buildAgentContext(
+    enrichedInput,
+    { ...agentResults },
+    enrichment,
+    { platformImpactScores, platformViabilityIndex },
+  );
   const cdoResult = await runClaudeAgent("chiefDecisionOfficer", cdoCtx, emit);
   if (cdoResult) {
     agentResults.chiefDecisionOfficer = cdoResult;
