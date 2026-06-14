@@ -44,12 +44,12 @@ function buildRootIntelligence(
   const economic = agentResults.economic;
   return {
     node_id: rootId,
-    impact_strength: cdo?.impactScore ?? economic?.impactScore ?? 50,
-    confidence: cdo?.confidence ?? economic?.confidence ?? 50,
+    impact_strength: cdo?.impactScore ?? economic?.impactScore ?? 0,
+    confidence: cdo?.confidence ?? economic?.confidence ?? 0,
     stakeholders: project.stakeholders,
     timeline: cdo?.summary
       ? [{ year: "Now", event: cdo.summary.slice(0, 120) }]
-      : [{ year: "Y1", event: "Project initiation" }],
+      : [],
     mitigation: cdo?.recommendations ?? economic?.recommendations ?? [],
     evidence: globalEvidence,
     assumptions: cdo?.assumptions,
@@ -137,6 +137,8 @@ function buildGraphFromConsequences(
       evidence: fsResult?.evidence?.length ? fsResult.evidence : globalEvidence.slice(0, 3),
       assumptions: fsResult?.assumptions,
       uncertainties: fsResult?.uncertainties,
+      reason: `${link.type} consequence: ${link.target} follows from ${link.source}.`,
+      causedBy: link.source,
     };
   }
 
@@ -209,6 +211,8 @@ function buildGraphFromSpecialists(
       evidence: agentResult.evidence,
       assumptions: agentResult.assumptions,
       uncertainties: agentResult.uncertainties,
+      reason: agentResult.summary.slice(0, 200),
+      causedBy: project.title,
     };
 
     prevId = nodeId;

@@ -5,7 +5,7 @@ function clamp(n: number) {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
 
-const AGENT_WEIGHTS: Record<keyof ImpactScores, AgentId[]> = {
+export const IMPACT_AGENT_WEIGHTS: Record<keyof ImpactScores, AgentId[]> = {
   economic: ["economic", "chiefDecisionOfficer"],
   social: ["social", "stakeholder"],
   environmental: ["environmental", "futureShock"],
@@ -13,6 +13,8 @@ const AGENT_WEIGHTS: Record<keyof ImpactScores, AgentId[]> = {
   politicalRisk: ["risk", "stakeholder"],
   publicAcceptance: ["social", "stakeholder", "chiefDecisionOfficer"],
 };
+
+const AGENT_WEIGHTS = IMPACT_AGENT_WEIGHTS;
 
 function weightedAgentScore(
   agentResults: Partial<Record<AgentId, AgentResult>>,
@@ -27,7 +29,7 @@ function weightedAgentScore(
   return scores.reduce((a, b) => a + b, 0) / scores.length;
 }
 
-/** Derive impact KPIs entirely from agent outputs (no param formulas). */
+/** Derive impact KPIs entirely from agent outputs — 0 when agents did not run. */
 export function computeImpactFromAgents(
   agentResults: Partial<Record<AgentId, AgentResult>>,
 ): ImpactScores {
@@ -38,7 +40,7 @@ export function computeImpactFromAgents(
     if (key === "politicalRisk" && avg != null) {
       result[key] = clamp(100 - avg);
     } else {
-      result[key] = clamp(avg ?? 50);
+      result[key] = clamp(avg ?? 0);
     }
   }
 

@@ -3,15 +3,23 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import { DecisionNavigator } from "../navigator/DecisionNavigator";
 import { IntelligencePanel } from "../intelligence/IntelligencePanel";
 import { IntelligenceLoader } from "../shared/IntelligenceLoader";
 import { WorkspaceHud } from "../shared/WorkspaceHud";
+import { WorkspaceShellLayout } from "../shared/WorkspaceShellLayout";
+import { WorkspaceLoadingState } from "../shared/WorkspaceLoadingState";
+import { WorkspaceEmptyState } from "../shared/WorkspaceEmptyState";
+import { FileText, Plus } from "lucide-react";
+import { fetchActiveScenario, fetchProjectBySlug, fetchScenarios, linkOrphanSimulationRuns } from "@/lib/workspace/queries";
+import { touchRecentProject } from "@/lib/workspace/mock-storage";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { toDecisionProject } from "@/lib/services/projectService";
+import { useScenarioSimulation } from "@/hooks/useSimulationQueries";
+import { useEvidencePack } from "@/hooks/useEvidencePack";
+import { useStartSimulation } from "@/hooks/useStartSimulation";
+import { ExplanationDrawer } from "../evidence/ExplanationDrawer";
+import type { Scenario } from "@/types/workspace";
 
 const ScenarioBuilder = dynamic(
   () => import("../builder/ScenarioBuilder").then((m) => ({ default: m.ScenarioBuilder })),
@@ -33,77 +41,66 @@ const ReportView = dynamic(
   () => import("../report/ReportView").then((m) => ({ default: m.ReportView })),
   { loading: () => <IntelligenceLoader />, ssr: false },
 );
-const GeoIntelligenceMap = dynamic(
-  () => import("../map/GeoIntelligenceMap").then((m) => ({ default: m.GeoIntelligenceMap })),
-  { loading: () => <IntelligenceLoader />, ssr: false },
-);
-const LocationIntelligencePanel = dynamic(
-  () =>
-    import("../map/LocationIntelligencePanel").then((m) => ({
-      default: m.LocationIntelligencePanel,
-    })),
-  { ssr: false },
-);
-import { fetchActiveScenario, fetchProjectBySlug, fetchScenarios } from "@/lib/workspace/queries";
-import { touchRecentProject } from "@/lib/workspace/mock-storage";
-import { useWorkspaceStore } from "@/stores/workspace-store";
-import { toDecisionProject } from "@/lib/services/projectService";
-import { useStartSimulation } from "@/hooks/useStartSimulation";
-import type { Scenario } from "@/types/workspace";
 
 type WorkspaceShellProps = {
   projectSlug: string;
 };
 
-function CenterPanel({
-  scenarioId,
-  projectId,
-}: {
-  scenarioId: string | null;
-  projectId: string;
-}) {
-  const workspaceMode = useWorkspaceStore((s) => s.workspaceMode);
-
-  switch (workspaceMode) {
-    case "compare":
-      return <CompareView projectId={projectId} />;
-    case "report":
-      return <ReportView />;
-    case "map":
-      return <GeoIntelligenceMap />;
-    default:
-      return <ReportView />;
-  }
-}
-
-function RightPanel() {
-  const workspaceMode = useWorkspaceStore((s) => s.workspaceMode);
-  const locationIntelligence = useWorkspaceStore((s) => s.locationIntelligence);
-
-  if (workspaceMode === "map") {
-    return <LocationIntelligencePanel intelligence={locationIntelligence} />;
-  }
-  return <IntelligencePanel />;
-}
-
 export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
-  const [navOpen, setNavOpen] = useState(true);
-  const [intelOpen, setIntelOpen] = useState(true);
   const queryClient = useQueryClient();
   const startSimulation = useStartSimulation();
 
   const setSelectedScenario = useWorkspaceStore((s) => s.setSelectedScenario);
+  const setActiveSimulation = useWorkspaceStore((s) => s.setActiveSimulation);
+  const setActiveReport = useWorkspaceStore((s) => s.setActiveReport);
+  const selectedScenario = useWorkspaceStore((s) => s.selectedScenario);
   const setLocationIntelligence = useWorkspaceStore((s) => s.setLocationIntelligence);
   const setBuilderOpen = useWorkspaceStore((s) => s.setBuilderOpen);
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
-  const workspaceMode = useWorkspaceStore((s) => s.workspaceMode);
+  const setWorkspaceTab = useWorkspaceStore((s) => s.setWorkspaceTab);
+  const workspaceTab = useWorkspaceStore((s) => s.workspaceTab);
+  const explanationOpen = useWorkspaceStore((s) => s.explanationOpen);
+  const explanationTarget = useWorkspaceStore((s) => s.explanationTarget);
+  const closeExplanation = useWorkspaceStore((s) => s.closeExplanation);
+  const evidencePack = useEvidencePack();
 
   const { data: project, isPending, isError, isFetched } = useQuery({
     queryKey: ["project", projectSlug],
     queryFn: () => fetchProjectBySlug(projectSlug),
     retry: 1,
   });
+
+  const { data: hydratedSimulation } = useScenarioSimulation(
+    project?.id,
+    selectedScenario?.id,
+  );
+
+  useEffect(() => {
+    if (!hydratedSimulation) return;
+
+    const current = useWorkspaceStore.getState().activeSimulation;
+    const hydratedAgents = Object.keys(hydratedSimulation.agentResults ?? {}).length;
+    const currentAgents = Object.keys(current?.agentResults ?? {}).length;
+    const sameScenario =
+      !current?.scenarioId || current.scenarioId === selectedScenario?.id;
+
+    if (!current || !sameScenario || hydratedAgents >= currentAgents) {
+      setActiveSimulation({
+        ...hydratedSimulation,
+        impactScores:
+          hydratedSimulation.impactScores ??
+          current?.impactScores ??
+          selectedScenario?.impact_scores ??
+          undefined,
+        agentResults:
+          hydratedAgents > 0
+            ? hydratedSimulation.agentResults
+            : (current?.agentResults ?? hydratedSimulation.agentResults),
+        graph: hydratedSimulation.graph ?? current?.graph,
+      });
+    }
+  }, [hydratedSimulation, selectedScenario?.impact_scores, selectedScenario?.id, setActiveSimulation]);
 
   const { data: activeScenario } = useQuery({
     queryKey: ["active-scenario", project?.id],
@@ -125,20 +122,23 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   }, [project?.slug, queryClient]);
 
   useEffect(() => {
-    if (activeScenario) {
+    if (activeScenario && project?.id) {
       setActiveScenarioId(activeScenario.id);
       setSelectedScenario(activeScenario);
+      void linkOrphanSimulationRuns(project.id, activeScenario.id).then(() => {
+        queryClient.invalidateQueries({
+          queryKey: ["scenario-simulation", project.id, activeScenario.id],
+        });
+      });
     }
-  }, [activeScenario, setSelectedScenario]);
-
-  // Map mode benefits from geo panel
-  useEffect(() => {
-    if (workspaceMode === "map") setIntelOpen(true);
-  }, [workspaceMode]);
+  }, [activeScenario, project?.id, setSelectedScenario, queryClient]);
 
   const handleScenarioSelect = (scenario: Scenario) => {
     setActiveScenarioId(scenario.id);
     setSelectedScenario(scenario);
+    setActiveReport(null);
+    setActiveSimulation(null);
+    setWorkspaceTab("report");
   };
 
   const handleRunSimulation = async () => {
@@ -176,16 +176,19 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
       )}
       <ProjectWizard />
       <SimulationTheater />
+      <ExplanationDrawer
+        open={explanationOpen}
+        onClose={closeExplanation}
+        pack={evidencePack}
+        target={explanationTarget}
+      />
     </>
   );
 
   if (isPending) {
     return (
       <>
-        <div className="flex h-screen flex-col items-center justify-center gap-3 bg-background">
-          <div className="h-8 w-8 animate-pulse rounded-full border-2 border-signal border-t-transparent" />
-          <p className="text-sm text-ink-muted">Loading workspace…</p>
-        </div>
+        <WorkspaceLoadingState message="Loading workspace…" />
         {overlays}
       </>
     );
@@ -194,29 +197,34 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   if (isError || (isFetched && !project)) {
     return (
       <>
-        <div className="flex h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
-          <p className="font-display text-xl font-semibold text-ink">Project not found</p>
-          <p className="max-w-md text-sm text-ink-muted">
-            {isError
-              ? "Could not load this workspace. If Supabase is configured, make sure it is running — or create a new decision."
-              : `"${projectSlug}" does not exist. Create it with New decision, or open a seed project.`}
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => setWizardOpen(true)}
-              className="rounded-md bg-signal px-4 py-2 text-sm font-medium text-white"
-            >
-              New decision
-            </button>
-            <a
-              href="/workspace/metro-expansion-hyderabad"
-              className="rounded-md border border-hairline px-4 py-2 text-sm text-ink-muted hover:text-ink"
-            >
-              Open demo project
-            </a>
-          </div>
-        </div>
+        <WorkspaceEmptyState
+          icon={FileText}
+          title="Project not found"
+          description={
+            isError
+              ? "Could not load this workspace. Check your Supabase connection, or create a new decision."
+              : `"${projectSlug}" was not found. It may have been removed.`
+          }
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setWizardOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg bg-signal px-4 py-2.5 text-sm font-medium text-white shadow-[0_2px_12px_oklch(0.52_0.22_262/0.3)]"
+              >
+                <Plus className="h-4 w-4" />
+                New decision
+              </button>
+              <a
+                href="/workspace"
+                className="rounded-lg border border-hairline px-4 py-2.5 text-sm text-ink-muted transition-colors hover:text-ink"
+              >
+                All projects
+              </a>
+            </div>
+          }
+          className="h-screen"
+        />
         {overlays}
       </>
     );
@@ -224,72 +232,46 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
 
   if (!project) return overlays;
 
-  const showIntelPanel = intelOpen && workspaceMode !== "compare";
-
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-background">
       <WorkspaceHud
         projectTitle={project.title}
         scenarioTitle={activeScenario?.title}
-        navOpen={navOpen}
-        intelOpen={intelOpen}
-        onToggleNav={() => setNavOpen((o) => !o)}
-        onToggleIntel={() => setIntelOpen((o) => !o)}
         onRunSimulation={handleRunSimulation}
         onNewDecision={() => setWizardOpen(true)}
       />
 
-      <div className="relative min-h-0 flex-1">
-        <ResizablePanelGroup orientation="horizontal" className="h-full">
-          {navOpen && (
-            <>
-              <ResizablePanel
-                defaultSize={16}
-                minSize={navOpen ? 14 : 3}
-                maxSize={22}
-                collapsible
-                collapsedSize={3}
-              >
-                <DecisionNavigator
-                  projectId={project.id}
-                  projectSlug={projectSlug}
-                  activeScenarioId={activeScenarioId}
-                  onScenarioSelect={handleScenarioSelect}
-                  collapsed={false}
-                />
-              </ResizablePanel>
-              <ResizableHandle withHandle className="bg-hairline/80" />
-            </>
-          )}
+      <WorkspaceShellLayout className="flex-1">
+        {workspaceTab === "report" && (
+          <div className="h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
+            <ReportView projectId={project.id} />
+          </div>
+        )}
 
-          {!navOpen && (
-            <div className="w-44 shrink-0 border-r border-hairline">
-              <DecisionNavigator
-                projectId={project.id}
-                projectSlug={projectSlug}
-                activeScenarioId={activeScenarioId}
-                onScenarioSelect={handleScenarioSelect}
-                collapsed
-              />
-            </div>
-          )}
+        {workspaceTab === "compare" && (
+          <div className="h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
+            <CompareView projectId={project.id} />
+          </div>
+        )}
 
-          <ResizablePanel defaultSize={showIntelPanel ? 58 : 100} minSize={45}>
-            <div className="relative h-full overflow-hidden bg-[oklch(0.988_0.004_240)]">
-              <CenterPanel scenarioId={activeScenarioId} projectId={project.id} />
-            </div>
-          </ResizablePanel>
+        {workspaceTab === "projects" && (
+          <div className="mx-auto h-full max-w-2xl overflow-hidden rounded-t-xl border-x border-t border-hairline/80 bg-surface/90 shadow-sm">
+            <DecisionNavigator
+              projectId={project.id}
+              projectSlug={projectSlug}
+              activeScenarioId={activeScenarioId}
+              onScenarioSelect={handleScenarioSelect}
+              variant="page"
+            />
+          </div>
+        )}
 
-          {showIntelPanel && (
-            <>
-              <ResizableHandle withHandle className="bg-hairline/80" />
-              <ResizablePanel defaultSize={26} minSize={20} maxSize={34}>
-                <RightPanel />
-              </ResizablePanel>
-            </>
-          )}
-        </ResizablePanelGroup>
-      </div>
+        {workspaceTab === "intelligence" && (
+          <div className="mx-auto h-full max-w-3xl overflow-hidden rounded-t-xl border-x border-t border-hairline/80 bg-surface/90 shadow-sm">
+            <IntelligencePanel variant="page" />
+          </div>
+        )}
+      </WorkspaceShellLayout>
 
       {overlays}
     </div>

@@ -64,8 +64,9 @@ export function SectionSimulator() {
   }, [results, budget]);
 
   return (
-    <section id="simulator" className="border-b border-hairline bg-surface">
-      <div className="mx-auto max-w-[1400px] px-6 py-28">
+    <section id="simulator" className="relative border-b border-hairline bg-surface">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,oklch(0.55_0.12_195/0.04)_0%,transparent_50%)]" />
+      <div className="relative mx-auto max-w-[1400px] px-6 py-28">
         <div className="max-w-2xl">
           <SectionLabel index="04" title="Scenario simulator" />
           <h2 className="mt-6 font-display text-[clamp(2rem,4.2vw,3.5rem)] font-bold leading-[1] tracking-[-0.03em]">
@@ -78,7 +79,7 @@ export function SectionSimulator() {
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden border border-hairline bg-hairline lg:grid-cols-[1fr_1.6fr]">
+        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.05)] lg:grid-cols-[1fr_1.6fr]">
           {/* Controls */}
           <div className="bg-surface p-8">
             <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">

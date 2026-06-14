@@ -1,5 +1,5 @@
 import type { GeoQueryContext, LocationIntelligence, LocationScores } from "@/types/geo";
-import { getMockLocationIntelligence } from "@/lib/geo/mock-geo";
+import { buildUnavailableLocationIntelligence } from "@/lib/geo/empty-geo";
 import { resolveProjectGeo } from "./geo-service";
 import { fetchInfrastructurePOIs } from "./infrastructure-service";
 import {
@@ -26,7 +26,7 @@ function computeAccessibility(pois: LocationIntelligence["nearbyPOIs"], radiusIm
 
 function computeInfrastructure(radiusImpacts: LocationIntelligence["radiusImpacts"]): number {
   const r5 = radiusImpacts.find((r) => r.radiusKm === 5);
-  if (!r5) return 60;
+  if (!r5) return 0;
   return Math.min(100, Math.round((r5.schools + r5.hospitals * 3 + r5.transitStops) / 2));
 }
 
@@ -45,7 +45,7 @@ export async function buildLocationIntelligence(ctx: GeoQueryContext): Promise<L
       fetchEconomicLayer(fullCtx),
     ]);
 
-    const popScores = computePopulationScores(ctx.location, radiusImpacts);
+    const popScores = computePopulationScores(radiusImpacts);
     const scores: LocationScores = {
       ...popScores,
       environmentalSensitivity: envResult.environmentalSensitivity,
@@ -53,13 +53,7 @@ export async function buildLocationIntelligence(ctx: GeoQueryContext): Promise<L
       infrastructureScore: computeInfrastructure(radiusImpacts),
     };
 
-    const layers = [
-      popLayer,
-      ...infra.layers,
-      ...envResult.layers,
-      economicLayer,
-      ...getMockLocationIntelligence(ctx.location, geo.coords).layers.filter((l) => l.key === "risk"),
-    ];
+    const layers = [popLayer, ...infra.layers, ...envResult.layers, economicLayer];
 
     const intelligence: LocationIntelligence = {
       summary: "",
@@ -84,6 +78,6 @@ export async function buildLocationIntelligence(ctx: GeoQueryContext): Promise<L
     intelligence.summary = buildSummary(intelligence);
     return intelligence;
   } catch {
-    return getMockLocationIntelligence(ctx.location, ctx.coords);
+    return buildUnavailableLocationIntelligence(ctx.location, ctx.coords);
   }
 }

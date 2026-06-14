@@ -9,6 +9,7 @@ import {
 } from "@/lib/workspace/queries";
 import { saveSimulation, saveReport } from "@/lib/services/simulationService";
 import { z } from "zod";
+import { validateProjectInputQuality } from "@/lib/validation/projectInput";
 
 export const maxDuration = 300;
 
@@ -28,6 +29,12 @@ const simulationInputSchema = z.object({
     stakeholders: z.array(z.string()),
     budget: z.number(),
     timeline: z.string(),
+    // Pass geo + location intelligence through so agents get real geo context
+    geo: z.object({
+      coords: z.object({ lat: z.number(), lng: z.number() }),
+      address: z.string(),
+    }).optional(),
+    locationIntelligence: z.unknown().optional(),
   }),
   params: z.object({
     budget: z.number(),
@@ -58,6 +65,22 @@ export async function POST(request: Request) {
     return Response.json(
       { error: "ANTHROPIC_API_KEY is required to run simulations." },
       { status: 503 },
+    );
+  }
+
+  const qualityErrors = validateProjectInputQuality({
+    title: input.project.title,
+    description: input.project.description,
+    location: input.project.location,
+    budget: input.project.budget,
+    timeline: input.project.timeline,
+    category: input.project.category,
+    stakeholders: input.project.stakeholders,
+  });
+  if (Object.keys(qualityErrors).length > 0) {
+    return Response.json(
+      { error: "Insufficient project input for simulation", details: qualityErrors },
+      { status: 422 },
     );
   }
 

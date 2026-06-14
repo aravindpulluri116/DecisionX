@@ -31,10 +31,10 @@ export function IntelligenceLoader() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm"
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/92 backdrop-blur-md"
         >
-          <div className="relative w-64 overflow-hidden border border-hairline bg-surface p-6">
-            <div className="absolute inset-x-0 top-0 h-px animate-dx-scan bg-signal" />
+          <div className="relative w-72 overflow-hidden rounded-xl border border-hairline bg-surface p-7 shadow-[0_16px_48px_oklch(0.18_0.045_264/0.1)] glow-signal">
+            <div className="absolute inset-x-0 top-0 h-0.5 animate-dx-scan bg-gradient-to-r from-transparent via-signal to-transparent" />
             <p className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
               Intelligence engine
             </p>

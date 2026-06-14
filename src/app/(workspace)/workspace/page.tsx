@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { WorkspaceIndex } from "@/components/workspace/shell/WorkspaceIndex";
 
 export default function WorkspaceIndexPage() {
-  redirect("/workspace/metro-expansion-hyderabad");
+  return <WorkspaceIndex />;
 }

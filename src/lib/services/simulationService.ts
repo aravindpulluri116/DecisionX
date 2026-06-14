@@ -3,9 +3,12 @@ import type { Scenario } from "@/types/workspace";
 import {
   createScenario,
   fetchDecisionReport,
+  fetchReportForProject,
   fetchScenarios,
   fetchSimulationRun,
+  fetchSimulationRunForProject,
   fetchWorkspaceGraph,
+  updateSimulationRun,
 } from "@/lib/workspace/queries";
 
 const mockSimulations = new Map<string, Simulation>();
@@ -31,6 +34,20 @@ export function saveReport(report: DecisionReport) {
   mockReports.set(report.id, report);
 }
 
+export async function getReportForScenario(
+  projectId: string,
+  scenarioId?: string | null,
+): Promise<DecisionReport | null> {
+  return fetchReportForProject(projectId, scenarioId);
+}
+
+export async function getSimulationForScenario(
+  projectId: string,
+  scenarioId?: string | null,
+): Promise<Simulation | null> {
+  return fetchSimulationRunForProject(projectId, scenarioId);
+}
+
 export async function persistSimulationAsScenario(
   input: SimulationInput,
   simulation: Simulation,
@@ -50,6 +67,7 @@ export async function persistSimulationAsScenario(
   );
 
   simulation.scenarioId = scenario.id;
+  await updateSimulationRun(simulation.id, { scenario_id: scenario.id });
   saveSimulation(simulation);
   return scenario;
 }
@@ -63,7 +81,9 @@ export async function duplicateScenario(
   if (!source) return null;
 
   const graph = await fetchWorkspaceGraph(scenarioId);
-  if (!graph?.nodes.length) return null;
+  const graphToSave = graph?.nodes.length
+    ? graph
+    : { nodes: [], edges: [], intelligence: {} };
 
   return createScenario(
     projectId,
@@ -71,6 +91,6 @@ export async function duplicateScenario(
     `${source.title} (Copy)`,
     source.params,
     source.impact_scores,
-    graph,
+    graphToSave,
   );
 }

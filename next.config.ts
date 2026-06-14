@@ -11,6 +11,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ["192.168.137.1"],
+  async redirects() {
+    return [{ source: "/judge", destination: "/workspace", permanent: true }];
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

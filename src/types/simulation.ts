@@ -20,7 +20,7 @@ import type { ProjectGeo, LocationIntelligence } from "./geo";
 export type DecisionProject = Project & {
   description: string;
   category: ProjectCategory;
-  stakeholders: StakeholderGroup[];
+  stakeholders: string[];
   budget: number;
   timeline: string;
   geo?: ProjectGeo;
@@ -108,7 +108,9 @@ export type DecisionReport = {
   sections: DecisionReportSections;
 };
 
-export type WorkspaceMode = "compare" | "report" | "map";
+export type WorkspaceMode = "compare" | "report";
+
+export type WorkspaceTab = "report" | "compare" | "projects" | "intelligence";
 
 export type SimulationInput = {
   project: DecisionProject;

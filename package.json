@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "bake:judge-fixtures": "npx --yes tsx scripts/bake-judge-fixtures.ts"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

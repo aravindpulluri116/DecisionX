@@ -24,7 +24,10 @@ export function HeroDecisionUniverse() {
 
   return (
     <section className="relative overflow-hidden border-b border-hairline">
-      <div className="dot-bg absolute inset-0 opacity-60" />
+      <div className="mesh-bg absolute inset-0" />
+      <div className="dot-bg absolute inset-0 opacity-40" />
+      <div className="pointer-events-none absolute -right-32 -top-32 h-[500px] w-[500px] rounded-full bg-signal/5 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-48 -left-24 h-[400px] w-[400px] rounded-full bg-environmental/5 blur-3xl" />
       {/* corner brackets */}
       <div className="pointer-events-none absolute inset-x-6 top-6 flex justify-between font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
         <span>◢ decision universe / live</span>
@@ -38,7 +41,7 @@ export function HeroDecisionUniverse() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-6 inline-flex items-center gap-2 border border-hairline bg-surface/80 px-3 py-1.5 backdrop-blur"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-hairline bg-surface/80 px-4 py-2 shadow-sm backdrop-blur"
           >
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-dx-pulse rounded-full bg-signal opacity-75" />
@@ -56,7 +59,7 @@ export function HeroDecisionUniverse() {
             className="font-display text-[clamp(2.6rem,6.4vw,5.2rem)] font-bold leading-[0.95] tracking-[-0.035em] text-ink"
           >
             Every decision<br />
-            creates <em className="not-italic text-signal">consequences</em>.
+            creates <span className="text-gradient-signal">consequences</span>.
           </motion.h1>
 
           <motion.p
@@ -83,10 +86,10 @@ export function HeroDecisionUniverse() {
               Start simulation
               <ArrowRight className="h-4 w-4" />
             </MagneticButton>
-            <Link href="/judge">
+            <Link href="/workspace">
               <MagneticButton variant="ghost">
                 <Play className="h-3.5 w-3.5 fill-current" />
-                Experience Judge Demo
+                Open workspace
               </MagneticButton>
             </Link>
           </motion.div>
@@ -96,18 +99,18 @@ export function HeroDecisionUniverse() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="mt-14 grid grid-cols-3 gap-px overflow-hidden border border-hairline bg-hairline"
+            className="mt-14 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.06)]"
           >
             {[
               { k: "Modeled chains", v: "12,408" },
               { k: "Stakeholders mapped", v: "2.4M" },
               { k: "Decision accuracy", v: "+38%" },
             ].map((s) => (
-              <div key={s.k} className="bg-surface px-4 py-4">
+              <div key={s.k} className="group bg-surface px-4 py-4 transition-colors hover:bg-signal/5">
                 <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
                   {s.k}
                 </div>
-                <div className="mt-1 font-display text-2xl font-semibold tracking-tight text-ink">
+                <div className="mt-1 font-display text-2xl font-semibold tracking-tight text-ink transition-colors group-hover:text-signal">
                   {s.v}
                 </div>
               </div>

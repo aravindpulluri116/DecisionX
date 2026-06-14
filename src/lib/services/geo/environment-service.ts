@@ -1,5 +1,5 @@
 import type { GeoLayerBundle, GeoQueryContext } from "@/types/geo";
-import { getMockLocationIntelligence } from "@/lib/geo/mock-geo";
+import { emptyGeoLayer } from "@/lib/geo/empty-geo";
 import { getGeoConfig } from "./geo-service";
 
 async function overpassEnvQuery(lat: number, lng: number, radiusM: number): Promise<GeoLayerBundle[]> {
@@ -52,10 +52,9 @@ export async function fetchEnvironmentLayers(
     const sensitivity = Math.min(100, Math.max(20, 100 - featureCount * 8));
     return { layers, environmentalSensitivity: sensitivity };
   } catch {
-    const mock = getMockLocationIntelligence(ctx.location, ctx.coords);
     return {
-      layers: mock.layers.filter((l) => l.key === "environment"),
-      environmentalSensitivity: mock.scores.environmentalSensitivity,
+      layers: [emptyGeoLayer("environment", "Environmental Zones (unavailable)", "#15803D")],
+      environmentalSensitivity: 0,
     };
   }
 }
@@ -91,6 +90,6 @@ export async function fetchEconomicLayer(
       },
     };
   } catch {
-    return getMockLocationIntelligence(ctx.location, ctx.coords).layers.find((l) => l.key === "economic")!;
+    return emptyGeoLayer("economic", "Economic Activity (unavailable)", "#CA8A04");
   }
 }

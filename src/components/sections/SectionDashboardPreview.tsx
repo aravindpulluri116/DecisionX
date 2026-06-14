@@ -46,8 +46,9 @@ const stakeholders = [
 
 export function SectionDashboardPreview() {
   return (
-    <section className="border-b border-hairline bg-background">
-      <div className="mx-auto max-w-[1400px] px-6 py-28">
+    <section className="relative border-b border-hairline bg-background">
+      <div className="mesh-bg absolute inset-0 opacity-40" />
+      <div className="relative mx-auto max-w-[1400px] px-6 py-28">
         <div className="max-w-2xl">
           <SectionLabel index="05" title="Intelligence wall" />
           <h2 className="mt-6 font-display text-[clamp(2rem,4.2vw,3.5rem)] font-bold leading-[1] tracking-[-0.03em]">
@@ -61,7 +62,7 @@ export function SectionDashboardPreview() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mt-14 overflow-hidden border border-hairline bg-surface"
+          className="relative mt-14 overflow-hidden rounded-xl border border-hairline bg-surface shadow-[0_12px_48px_oklch(0.18_0.045_264/0.08)]"
         >
           {/* HUD bar */}
           <div className="flex items-center justify-between border-b border-hairline px-5 py-3">

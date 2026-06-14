@@ -76,7 +76,13 @@ async function handleOrchestratorEvent(
         ctx.router.push(`/workspace/${ctx.project.slug}`);
       }
       toast.success("Analysis complete", { description: title });
-      useWorkspaceStore.getState().setWorkspaceMode("report");
+      useWorkspaceStore.getState().setWorkspaceTab("report");
+      await ctx.queryClient.invalidateQueries({
+        queryKey: ["scenario-report", ctx.project.id, scenario.id],
+      });
+      await ctx.queryClient.invalidateQueries({
+        queryKey: ["scenario-simulation", ctx.project.id, scenario.id],
+      });
       break;
     }
   }
@@ -102,6 +108,7 @@ export function useStartSimulation() {
       setAgentRuns(initAgentRuns());
       setSimulationTheaterOpen(true);
       setWorkspaceMode("report");
+      useWorkspaceStore.getState().setWorkspaceTab("report");
 
       const input: SimulationInput = {
         project,
@@ -153,7 +160,7 @@ export function useStartSimulation() {
         if (process.env.NODE_ENV !== "production") console.error(e);
       } finally {
         clearTimeout(timeoutId);
-        setTimeout(() => setSimulationTheaterOpen(false), reduced ? 0 : 800);
+        setTimeout(() => setSimulationTheaterOpen(false), reduced ? 0 : 1200);
       }
     },
     [
