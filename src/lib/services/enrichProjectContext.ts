@@ -1,3 +1,4 @@
+import type { GeoCoordinates } from "@/types/geo";
 import { buildLocationIntelligence } from "@/lib/services/geo/context-service";
 import { inferProjectMetadata } from "@/lib/services/projectMetadataAgent";
 import { fetchWebLocationContext } from "@/lib/services/webLocationContext";
@@ -14,6 +15,9 @@ export type EnrichProjectInput = {
   timeline: string;
   category?: ProjectCategory;
   stakeholders?: string[];
+  /** Reuse geo from wizard — skips a second OpenStreetMap round-trip at launch. */
+  geo?: { coords: GeoCoordinates; address: string };
+  locationIntelligence?: LocationIntelligence;
 };
 
 export type EnrichedProjectContext = {
@@ -30,8 +34,18 @@ function timelineYears(timeline: string): string {
 }
 
 export async function enrichProjectContext(input: EnrichProjectInput): Promise<EnrichedProjectContext> {
+  const hasCachedIntel =
+    input.locationIntelligence &&
+    !input.locationIntelligence.unavailable &&
+    input.locationIntelligence.coords;
+
   const [locationIntelligence, webContext] = await Promise.all([
-    buildLocationIntelligence({ location: input.location }),
+    hasCachedIntel
+      ? Promise.resolve(input.locationIntelligence!)
+      : buildLocationIntelligence({
+          location: input.location,
+          coords: input.geo?.coords,
+        }),
     fetchWebLocationContext(input.location),
   ]);
 

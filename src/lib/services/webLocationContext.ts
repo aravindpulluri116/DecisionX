@@ -3,10 +3,17 @@ export async function fetchWebLocationContext(location: string): Promise<string 
   const query = location.trim().split(",")[0]?.trim();
   if (!query) return null;
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8_000);
+
   try {
     const searchRes = await fetch(
       `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=1&format=json`,
-      { headers: { "User-Agent": "DecisionX/1.0 (decision intelligence)" }, next: { revalidate: 86400 } },
+      {
+        headers: { "User-Agent": "DecisionX/1.0 (decision intelligence)" },
+        next: { revalidate: 86400 },
+        signal: controller.signal,
+      },
     );
     if (!searchRes.ok) return null;
     const searchJson = (await searchRes.json()) as [string, string[]];
@@ -15,7 +22,11 @@ export async function fetchWebLocationContext(location: string): Promise<string 
 
     const summaryRes = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g, "_"))}`,
-      { headers: { "User-Agent": "DecisionX/1.0 (decision intelligence)" }, next: { revalidate: 86400 } },
+      {
+        headers: { "User-Agent": "DecisionX/1.0 (decision intelligence)" },
+        next: { revalidate: 86400 },
+        signal: controller.signal,
+      },
     );
     if (!summaryRes.ok) return null;
     const summary = (await summaryRes.json()) as { extract?: string; title?: string };
@@ -23,5 +34,7 @@ export async function fetchWebLocationContext(location: string): Promise<string 
     return `${summary.title ?? title}: ${summary.extract}`;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }

@@ -42,6 +42,7 @@ import { LocationMapPreview } from "./LocationMapPreview";
 import { useStakeholderSuggestions } from "./useStakeholderSuggestions";
 import { CouncilPicker } from "@/components/workspace/simulation/CouncilPicker";
 import { normalizeSpecialistSelection } from "@/lib/agents/selection";
+import { fetchWithTimeout, FetchTimeoutError } from "@/lib/http/fetch-with-timeout";
 import { AGENT_VISUALS } from "@/lib/workspace/agentVisuals";
 import { WizardStepRail, type WizardStep } from "./WizardStepRail";
 import { WizardFieldGroup } from "./WizardFieldGroup";
@@ -378,6 +379,12 @@ export function ProjectWizard() {
   };
 
   const launch = async () => {
+    if (selectedCouncilAgents.length === 0) {
+      toast.error("Select at least one AI agent");
+      setStep(3);
+      return;
+    }
+
     if (!validate()) {
       const errs = useWizardStore.getState().errors;
       if (errs.title || errs.description) setStep(1);
@@ -387,8 +394,8 @@ export function ProjectWizard() {
     }
 
     setLaunching(true);
-    setLaunchMessages(["Loading location data from OpenStreetMap…"]);
-    setLaunchStatus("Loading location data from OpenStreetMap…");
+    setLaunchMessages([]);
+    setLaunchStatus("Preparing project…");
 
     try {
       const body = {
@@ -400,14 +407,25 @@ export function ProjectWizard() {
         category: draft.category as ProjectCategory,
         stakeholders:
           selectedStakeholders.length > 0 ? selectedStakeholders : DEFAULT_STAKEHOLDERS,
+        geo:
+          draft.geo ??
+          (previewCoords
+            ? { coords: previewCoords, address: location }
+            : undefined),
+        locationIntelligence:
+          previewIntel && !previewIntel.unavailable ? previewIntel : undefined,
       };
 
-      setLaunchStatus("Enriching context and estimating population with AI…");
-      setLaunchMessages((m) => [...m, `Enriching context with ${AI_SPONSOR_NAME}…`]);
-      const enrichRes = await fetch("/api/projects/enrich", {
+      setLaunchStatus(`Estimating population with ${AI_SPONSOR_NAME}…`);
+      setLaunchMessages((m) => [...m, "Location context ready"]);
+      setLaunchMessages((m) => [...m, `Running ${AI_SPONSOR_NAME} metadata pass…`]);
+
+      const enrichRes = await fetchWithTimeout("/api/projects/enrich", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        timeoutMs: 75_000,
+        label: "Project enrichment",
       });
 
       if (!enrichRes.ok) {
@@ -415,14 +433,13 @@ export function ProjectWizard() {
         const apiFieldErrors = flattenApiFieldErrors(err.details);
         if (Object.keys(apiFieldErrors).length > 0) {
           setErrors(apiFieldErrors);
-          setLaunching(false);
-          setLaunchStatus(null);
           return;
         }
         throw new Error(typeof err.error === "string" ? err.error : "Project enrichment failed");
       }
 
       const enriched = (await enrichRes.json()) as EnrichedProjectContext;
+      setLaunchMessages((m) => [...m, "Metadata enriched"]);
 
       setLaunchStatus("Creating project…");
       setLaunchMessages((m) => [...m, "Creating project record…"]);
@@ -443,23 +460,30 @@ export function ProjectWizard() {
       );
 
       setLocationIntelligence(enriched.locationIntelligence);
-      setLaunchMessages((m) => [...m, "Starting simulation…"]);
+      setLaunchMessages((m) => [...m, "Opening workspace…"]);
+
+      const agents = normalizeSpecialistSelection(selectedCouncilAgents);
       reset();
       setWizardOpen(false);
 
-      await startSimulation({
+      router.push(`/workspace/${project.slug}`);
+
+      void startSimulation({
         project,
         params: {
           ...(enriched.scenarioParams as ScenarioParams),
-          selectedAgents: normalizeSpecialistSelection(selectedCouncilAgents),
+          selectedAgents: agents,
         },
         scenarioTitle: `${project.title} — Initial Analysis`,
-        navigateOnComplete: true,
+        navigateOnComplete: false,
       });
-
-      router.push(`/workspace/${project.slug}`);
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Unknown error";
+      const message =
+        e instanceof FetchTimeoutError
+          ? `${e.message}. Try again — location data from step 2 is reused to speed this up.`
+          : e instanceof Error
+            ? e.message
+            : "Unknown error";
       toast.error("Could not start project", {
         description: isDuplicateSlugError(message)
           ? "This project name is already in use. Try a slightly different title, or open the existing project from Workspace."
