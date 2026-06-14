@@ -92,6 +92,7 @@ export function useStartSimulation() {
   const reduced = usePrefersReducedMotion();
 
   const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
+  const setSimulationProposal = useWorkspaceStore((s) => s.setSimulationProposal);
   const setAgentRuns = useWorkspaceStore((s) => s.setAgentRuns);
   const clearLog = useWorkspaceStore((s) => s.clearLog);
   const setWorkspaceMode = useWorkspaceStore((s) => s.setWorkspaceMode);
@@ -104,6 +105,10 @@ export function useStartSimulation() {
       setWizardOpen(false);
       clearLog();
       setAgentRuns(initAgentRuns());
+      setSimulationProposal(
+        project.title,
+        project.locationIntelligence?.address ?? project.geo?.address ?? "",
+      );
       setSimulationTheaterOpen(true);
       setWorkspaceMode("canvas");
 
@@ -165,6 +170,7 @@ export function useStartSimulation() {
       router,
       queryClient,
       setSimulationTheaterOpen,
+      setSimulationProposal,
       setAgentRuns,
       clearLog,
       setWorkspaceMode,

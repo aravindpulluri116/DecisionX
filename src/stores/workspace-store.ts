@@ -22,6 +22,8 @@ type WorkspaceStore = {
   collapsedNodeIds: Set<string>;
   workspaceMode: WorkspaceMode;
   simulationTheaterOpen: boolean;
+  simulationProposalTitle: string;
+  simulationProposalLocation: string;
   activeSimulationId: string | null;
   activeSimulation: Simulation | null;
   activeReport: DecisionReport | null;
@@ -50,6 +52,7 @@ type WorkspaceStore = {
   toggleNodeCollapsed: (id: string) => void;
   setWorkspaceMode: (mode: WorkspaceMode) => void;
   setSimulationTheaterOpen: (open: boolean) => void;
+  setSimulationProposal: (title: string, location?: string) => void;
   setActiveSimulation: (sim: Simulation | null) => void;
   setActiveReport: (report: DecisionReport | null) => void;
   setAgentRuns: (runs: AgentRunState[]) => void;
@@ -84,6 +87,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   collapsedNodeIds: new Set(),
   workspaceMode: "canvas",
   simulationTheaterOpen: false,
+  simulationProposalTitle: "",
+  simulationProposalLocation: "",
   activeSimulationId: null,
   activeSimulation: null,
   activeReport: null,
@@ -117,6 +122,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   },
   setWorkspaceMode: (mode) => set({ workspaceMode: mode }),
   setSimulationTheaterOpen: (open) => set({ simulationTheaterOpen: open }),
+  setSimulationProposal: (title, location = "") =>
+    set({ simulationProposalTitle: title, simulationProposalLocation: location }),
   setActiveSimulation: (sim) =>
     set({ activeSimulation: sim, activeSimulationId: sim?.id ?? null }),
   setActiveReport: (report) => set({ activeReport: report }),
