@@ -13,6 +13,7 @@ import { parseSimulationSse } from "@/lib/simulation/parseSse";
 import type { DecisionProject, SimulationInput } from "@/types/simulation";
 import type { ScenarioParams } from "@/types/workspace";
 import { toast } from "sonner";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 type StartSimulationArgs = {
   project: DecisionProject;
@@ -179,8 +180,8 @@ export function useStartSimulation() {
       } catch (e) {
         if (e instanceof DOMException && e.name === "AbortError") {
           toast.error("Simulation timed out. Please try again.");
-        } else if (e instanceof Error && e.message.includes("ANTHROPIC_API_KEY")) {
-          toast.error("API key required", { description: e.message });
+        } else if (e instanceof Error && e.message.includes(AI_SPONSOR_NAME)) {
+          toast.error(`${AI_SPONSOR_NAME} unavailable`, { description: e.message });
         } else {
           toast.error("Simulation failed", {
             description: e instanceof Error ? e.message : undefined,

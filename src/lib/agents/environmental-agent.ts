@@ -1,5 +1,5 @@
 import type { AgentContext } from "@/agents/types";
-import { callAgent, deriveFindings } from "./claudeClient";
+import { callAgent, deriveFindings } from "./llmClient";
 import { AGENT_JSON_SCHEMAS, AGENT_SYSTEM_PROMPTS, buildProjectContext } from "./prompts";
 import { normalizeStandard } from "./normalize";
 import { standardAgentSchema } from "./schemas";

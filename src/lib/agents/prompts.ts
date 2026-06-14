@@ -1,5 +1,5 @@
 import type { AgentContext } from "@/agents/types";
-import type { AgentId } from "@/types/simulation";
+import type { AgentId, AgentResult } from "@/types/simulation";
 
 const HALLUCINATION_RULES = `
 RULES:
@@ -11,6 +11,25 @@ RULES:
 - When LOCATION INTELLIGENCE is provided, cite specific geo facts in evidence[] (e.g. schools/hospitals counts, density scores) and attribute to OpenStreetMap where applicable.
 - Return ONLY valid JSON matching the requested schema. No markdown, no prose outside JSON.
 `.trim();
+
+/** Compact specialist summaries for CDO — avoids huge JSON payloads that slow synthesis. */
+export function summarizePriorResults(
+  priorResults: Partial<Record<AgentId, AgentResult>>,
+): string {
+  return Object.entries(priorResults)
+    .filter((entry): entry is [AgentId, AgentResult] => Boolean(entry[1]))
+    .map(([id, result]) => {
+      const risks = result.risks.slice(0, 2).join(" | ") || "none noted";
+      const opps = result.opportunities.slice(0, 2).join(" | ") || "none noted";
+      return [
+        `[${id}] impactScore=${result.impactScore}`,
+        `summary: ${result.summary}`,
+        `risks: ${risks}`,
+        `opportunities: ${opps}`,
+      ].join("\n");
+    })
+    .join("\n\n");
+}
 
 export function buildProjectContext(ctx: AgentContext, includePrior = false): string {
   const { project, params, priorResults, enrichment } = ctx;
@@ -49,7 +68,7 @@ LOCATION INTELLIGENCE:
   }
 
   if (includePrior && Object.keys(priorResults).length > 0) {
-    block += `\n\nPRIOR AGENT OUTPUTS:\n${JSON.stringify(priorResults, null, 2)}`;
+    block += `\n\nPRIOR AGENT OUTPUTS (summarized):\n${summarizePriorResults(priorResults)}`;
   }
 
   if (ctx.platformImpactScores && ctx.platformViabilityIndex != null) {

@@ -1,4 +1,4 @@
-import { hasAnthropicKey } from "@/lib/config.server";
+import { hasAiProviderKey, getAiProviderNotConfiguredError } from "@/lib/config.server";
 import { enrichProjectContext } from "@/lib/services/enrichProjectContext";
 import { qualityProjectInputSchema } from "@/lib/validation/projectInput";
 import type { LocationIntelligence } from "@/types/geo";
@@ -14,8 +14,8 @@ const enrichBodySchema = qualityProjectInputSchema.and(
 );
 
 export async function POST(request: Request) {
-  if (!hasAnthropicKey()) {
-    return Response.json({ error: "ANTHROPIC_API_KEY is required." }, { status: 503 });
+  if (!hasAiProviderKey()) {
+    return Response.json({ error: getAiProviderNotConfiguredError() }, { status: 503 });
   }
 
   let body: unknown;

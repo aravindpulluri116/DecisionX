@@ -18,6 +18,7 @@ import { getProjectViability } from "@/lib/scoring/viability";
 import { DecisionVerdictBanner } from "../shared/DecisionVerdictBanner";
 import { formatBudgetCrore } from "@/lib/format/currency";
 import { cn } from "@/lib/utils";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 import type { ImpactScores, Scenario } from "@/types/workspace";
 import { ComparePlanB } from "./ComparePlanB";
 import { ReportPanel } from "../report/ReportPanel";
@@ -272,7 +273,7 @@ export function CompareView({ projectId }: CompareViewProps) {
             ) : projectionLoading && !projectedAlternative ? (
               <CompareEmptyState
                 icon={Sparkles}
-                title="Claude is projecting Plan B…"
+                title={`${AI_SPONSOR_NAME} is projecting Plan B…`}
                 description="Analyzing the CDO alternative against your simulated baseline."
               />
             ) : (

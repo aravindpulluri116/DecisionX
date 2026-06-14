@@ -53,13 +53,17 @@ export function getAgentTranscriptContent(run: AgentRunState): {
   }
 
   if (run.status === "running") {
+    const waitingQuote =
+      run.id === "chiefDecisionOfficer" && !latestFinding
+        ? "Chief Decision Officer is synthesizing specialist reports into the final verdict…"
+        : null;
     return {
-      quote: latestFinding,
+      quote: latestFinding ?? waitingQuote,
       summary: null,
       risk: null,
       opportunity: null,
       impactScore: null,
-      mode: latestFinding ? "streaming" : "waiting",
+      mode: latestFinding || waitingQuote ? "streaming" : "waiting",
     };
   }
 

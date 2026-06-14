@@ -1,4 +1,4 @@
-import { hasAnthropicKey } from "@/lib/config.server";
+import { hasAiProviderKey, getAiProviderNotConfiguredError } from "@/lib/config.server";
 import type { OrchestratorEvent } from "@/lib/orchestration/events";
 import { runSimulationPipeline } from "@/lib/orchestration/runSimulationServer";
 import type { SimulationInput } from "@/types/simulation";
@@ -74,9 +74,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid simulation input" }, { status: 400 });
   }
 
-  if (!hasAnthropicKey()) {
+  if (!hasAiProviderKey()) {
     return Response.json(
-      { error: "ANTHROPIC_API_KEY is required to run simulations." },
+      { error: getAiProviderNotConfiguredError() },
       { status: 503 },
     );
   }

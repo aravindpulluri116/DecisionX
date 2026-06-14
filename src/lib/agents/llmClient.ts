@@ -1,13 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { z } from "zod";
-import { getServerConfig } from "@/lib/config.server";
+import { getAiProviderNotConfiguredError, getServerConfig } from "@/lib/config.server";
 
 let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
   const { anthropicApiKey } = getServerConfig();
   if (!anthropicApiKey) {
-    throw new Error("ANTHROPIC_API_KEY is not configured");
+    throw new Error(getAiProviderNotConfiguredError());
   }
   if (!client) {
     client = new Anthropic({ apiKey: anthropicApiKey });

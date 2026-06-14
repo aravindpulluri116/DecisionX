@@ -1,11 +1,11 @@
 import { AGENT_LABELS } from "@/agents";
-import { hasAnthropicKey } from "@/lib/config.server";
+import { hasAiProviderKey, getAiProviderNotConfiguredError } from "@/lib/config.server";
 import { normalizeSpecialistSelection } from "@/lib/agents/selection";
 import type { AgentContext } from "@/agents/types";
 import { assembleGraphFromAgents } from "./graphAssembler";
 import { computeImpactFromAgents } from "@/lib/simulation/computeImpact";
 import { generateReport } from "@/lib/services/reportService";
-import { getProjectViability } from "@/lib/scoring/viability";
+import { getProjectViability, getDecisionVerdict } from "@/lib/scoring/viability";
 import type {
   AgentId,
   AgentResult,
@@ -81,14 +81,18 @@ async function finalizeSimulation(
   return simulation;
 }
 
-async function runClaudeAgent(
+async function runCouncilAgent(
   agentId: AgentId,
   ctx: AgentContext,
   emit: EventHandler,
+  options?: { preflightFinding?: string },
 ): Promise<AgentResult | null> {
   const label = AGENT_LABELS[agentId];
   await emit({ type: "agent:status", agentId, status: "running" });
   await emit({ type: "log", message: `${label} engaged` });
+  if (options?.preflightFinding) {
+    await emit({ type: "agent:finding", agentId, finding: options.preflightFinding });
+  }
 
   try {
     const { getAgentRunner } = await import("@/lib/agents");
@@ -113,8 +117,8 @@ export async function runSimulationPipeline(
   emit: EventHandler,
   options?: OrchestratorOptions,
 ): Promise<Simulation> {
-  if (!hasAnthropicKey()) {
-    throw new Error("ANTHROPIC_API_KEY is required to run simulations.");
+  if (!hasAiProviderKey()) {
+    throw new Error(getAiProviderNotConfiguredError());
   }
 
   const simulationId = options?.simulationId ?? crypto.randomUUID();
@@ -141,7 +145,7 @@ export async function runSimulationPipeline(
 
   await Promise.allSettled(
     specialistIds.map(async (agentId) => {
-      const result = await runClaudeAgent(agentId, baseCtx, emit);
+      const result = await runCouncilAgent(agentId, baseCtx, emit);
       if (result) {
         agentResults[agentId] = result;
         options?.onAgentComplete?.(simulationId, { ...agentResults });
@@ -153,6 +157,10 @@ export async function runSimulationPipeline(
 
   const platformImpactScores = computeImpactFromAgents(agentResults);
   const platformViabilityIndex = getProjectViability(platformImpactScores) ?? undefined;
+  const verdictLabel =
+    platformViabilityIndex != null ? getDecisionVerdict(platformViabilityIndex).label : null;
+
+  await emit({ type: "scores:ready", scores: platformImpactScores });
 
   const cdoCtx = buildAgentContext(
     enrichedInput,
@@ -160,7 +168,13 @@ export async function runSimulationPipeline(
     enrichment,
     { platformImpactScores, platformViabilityIndex },
   );
-  const cdoResult = await runClaudeAgent("chiefDecisionOfficer", cdoCtx, emit);
+  const cdoPreflight =
+    platformViabilityIndex != null
+      ? `Synthesizing ${specialistIds.length} specialist reports · preliminary viability ${platformViabilityIndex}/100 (${verdictLabel ?? "review"})…`
+      : `Synthesizing ${specialistIds.length} specialist reports into an executive verdict…`;
+  const cdoResult = await runCouncilAgent("chiefDecisionOfficer", cdoCtx, emit, {
+    preflightFinding: cdoPreflight,
+  });
   if (cdoResult) {
     agentResults.chiefDecisionOfficer = cdoResult;
     options?.onAgentComplete?.(simulationId, { ...agentResults });

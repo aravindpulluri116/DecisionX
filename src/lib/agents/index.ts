@@ -17,14 +17,14 @@ export const SPECIALIST_AGENT_IDS: AgentId[] = [
   "futureShock",
 ];
 
-export type ClaudeAgentRunResult = {
+export type AgentLlmRunResult = {
   result: AgentResult;
   findings: string[];
 };
 
-type AgentRunner = (ctx: AgentContext) => Promise<ClaudeAgentRunResult>;
+type AgentRunner = (ctx: AgentContext) => Promise<AgentLlmRunResult>;
 
-export const claudeAgentRunners: Record<AgentId, AgentRunner> = {
+export const agentRunners: Record<AgentId, AgentRunner> = {
   economic: runEconomicAgent,
   social: runSocialAgent,
   environmental: runEnvironmentalAgent,
@@ -35,5 +35,5 @@ export const claudeAgentRunners: Record<AgentId, AgentRunner> = {
 };
 
 export function getAgentRunner(agentId: AgentId): AgentRunner {
-  return claudeAgentRunners[agentId];
+  return agentRunners[agentId];
 }

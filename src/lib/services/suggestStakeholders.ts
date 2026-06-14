@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { callAgent } from "@/lib/agents/claudeClient";
+import { callAgent } from "@/lib/agents/llmClient";
 import { STAKEHOLDER_OPTIONS } from "@/lib/constants/stakeholders";
 import type { ProjectCategory } from "@/types/simulation";
 

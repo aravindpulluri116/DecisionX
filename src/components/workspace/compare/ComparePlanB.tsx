@@ -19,6 +19,7 @@ import {
 } from "@/lib/workspace/alternative-projection";
 import { getProjectViability } from "@/lib/scoring/viability";
 import { getDecisionVerdict } from "@/lib/workspace/impact-metrics";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import type { ImpactScores, Scenario } from "@/types/workspace";
 import { ReportPanel } from "../report/ReportPanel";
@@ -87,12 +88,12 @@ export function ComparePlanB({
           {isRefining && (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-signal/30 bg-signal/10 px-2.5 py-0.5 font-mono-data text-[9px] uppercase tracking-wider text-signal">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-signal" />
-              Claude refining…
+              {AI_SPONSOR_NAME} refining…
             </span>
           )}
           <span className="rounded-full border border-hairline bg-surface px-2.5 py-0.5 font-mono-data text-[9px] uppercase tracking-wider text-ink-muted">
             {projectionSource === "ai"
-              ? "Claude projection"
+              ? `${AI_SPONSOR_NAME} projection`
               : isRefining
                 ? "Quick estimate · refining"
                 : "Quick estimate"}
@@ -200,7 +201,7 @@ export function ComparePlanB({
       {alternative.bullets.length > 0 && (
         <ReportPanel
           label="Why Plan B"
-          hint={projectionSource === "ai" ? "Claude analysis" : "From CDO synthesis"}
+          hint={projectionSource === "ai" ? `${AI_SPONSOR_NAME} analysis` : "From CDO synthesis"}
         >
           <ul className="grid gap-2 sm:grid-cols-2">
             {alternative.bullets.map((bullet, i) => (

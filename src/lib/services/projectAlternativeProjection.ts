@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { callAgent } from "@/lib/agents/claudeClient";
+import { callAgent } from "@/lib/agents/llmClient";
 import { computeViabilityIndex } from "@/lib/workspace/impact-metrics";
 import {
   parseBudgetCroreFromText,

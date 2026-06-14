@@ -9,6 +9,8 @@ import process from "node:process";
 //   - NEXT_PUBLIC_*: public config readable from client and server
 //     (analytics IDs, public URLs). Never put secrets there.
 
+import { aiSponsorNotConfiguredMessage } from "@/lib/brand";
+
 export function getServerConfig() {
   return {
     nodeEnv: process.env.NODE_ENV,
@@ -17,6 +19,15 @@ export function getServerConfig() {
   };
 }
 
+/** Server-side: Anthropic Claude powers agents; UI shows {@link AI_SPONSOR_NAME}. */
 export function hasAnthropicKey(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY);
+}
+
+export function hasAiProviderKey(): boolean {
+  return hasAnthropicKey();
+}
+
+export function getAiProviderNotConfiguredError(): string {
+  return aiSponsorNotConfiguredMessage();
 }

@@ -1,4 +1,4 @@
-import { hasAnthropicKey } from "@/lib/config.server";
+import { hasAiProviderKey, getAiProviderNotConfiguredError } from "@/lib/config.server";
 import { suggestStakeholders } from "@/lib/services/suggestStakeholders";
 import { z } from "zod";
 import { PROJECT_CATEGORIES } from "@/lib/validation/projectInput";
@@ -13,8 +13,8 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  if (!hasAnthropicKey()) {
-    return Response.json({ error: "ANTHROPIC_API_KEY is required." }, { status: 503 });
+  if (!hasAiProviderKey()) {
+    return Response.json({ error: getAiProviderNotConfiguredError() }, { status: 503 });
   }
 
   let body: unknown;
