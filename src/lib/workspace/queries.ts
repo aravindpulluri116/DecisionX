@@ -640,6 +640,56 @@ export async function fetchDecisionReport(id: string): Promise<DecisionReport | 
   return data.content as DecisionReport;
 }
 
+export async function ensureProjectRecord(project: {
+  id: string;
+  slug: string;
+  title: string;
+  status: string;
+  impact_score: number;
+  risk_level: string;
+  project_type: string;
+  location: string;
+  description?: string;
+  category?: string;
+  stakeholders?: string[];
+  budget?: number;
+  timeline?: string;
+}): Promise<string> {
+  const db = getDbClient();
+  if (!db) {
+    throw new Error("Supabase is required. Configure NEXT_PUBLIC_SUPABASE_URL and anon key.");
+  }
+
+  const { data: byId } = await db.from("projects").select("id").eq("id", project.id).maybeSingle();
+  if (byId?.id) return byId.id as string;
+
+  const { data: bySlug } = await db.from("projects").select("id").eq("slug", project.slug).maybeSingle();
+  if (bySlug?.id) return bySlug.id as string;
+
+  const row = {
+    id: project.id,
+    slug: project.slug,
+    title: project.title,
+    status: project.status,
+    impact_score: project.impact_score,
+    risk_level: project.risk_level,
+    project_type: project.project_type,
+    location: project.location,
+    description: project.description ?? "",
+    category: project.category ?? "Transportation",
+    stakeholders: project.stakeholders ?? [],
+    budget: project.budget ?? 0,
+    timeline: project.timeline ?? "10 years",
+  };
+
+  const { data, error } = await db.from("projects").insert(row).select("id").single();
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to ensure project exists in database");
+  }
+
+  return data.id as string;
+}
+
 export async function insertProject(project: {
   id: string;
   slug: string;
@@ -685,9 +735,6 @@ export async function insertProject(project: {
       }
       const err = await res.json().catch(() => ({}));
       console.warn("[insertProject] API failed:", err);
-      if (res.status !== 503) {
-        return persistLocal();
-      }
     } catch (e) {
       console.warn("[insertProject] API error:", e);
     }
@@ -728,8 +775,8 @@ export async function insertProject(project: {
     await persistLocal();
     return data as Project;
   } catch (e) {
-    console.warn("[insertProject] Supabase client failed, using local storage:", e);
-    return persistLocal();
+    const message = e instanceof Error ? e.message : "Failed to insert project";
+    throw new Error(message);
   }
 }
 

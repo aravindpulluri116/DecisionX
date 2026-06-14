@@ -12,7 +12,7 @@ import { WorkspaceLoadingState } from "../shared/WorkspaceLoadingState";
 import { WorkspaceEmptyState } from "../shared/WorkspaceEmptyState";
 import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
-import { fetchActiveScenario, fetchProjectBySlug, fetchScenarios, linkOrphanSimulationRuns } from "@/lib/workspace/queries";
+import { fetchActiveScenario, ensureProjectRecord, fetchProjectBySlug, fetchScenarios, linkOrphanSimulationRuns } from "@/lib/workspace/queries";
 import { touchRecentProject } from "@/lib/workspace/mock-storage";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { toDecisionProject } from "@/lib/services/projectService";
@@ -108,6 +108,30 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
     queryFn: () => (project ? fetchActiveScenario(project.id) : null),
     enabled: Boolean(project?.id),
   });
+
+  useEffect(() => {
+    if (!project) return;
+    const p = toDecisionProject(project);
+    void ensureProjectRecord({
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      status: p.status,
+      impact_score: p.impact_score,
+      risk_level: p.risk_level,
+      project_type: p.project_type,
+      location: p.location,
+      description: p.description,
+      category: p.category,
+      stakeholders: p.stakeholders,
+      budget: p.budget,
+      timeline: p.timeline,
+    }).catch((e) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[WorkspaceShell] project sync failed:", e);
+      }
+    });
+  }, [project]);
 
   useEffect(() => {
     if (project?.location_intelligence) {

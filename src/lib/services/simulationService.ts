@@ -2,6 +2,7 @@ import type { DecisionReport, Simulation, SimulationInput } from "@/types/simula
 import type { Scenario } from "@/types/workspace";
 import {
   createScenario,
+  ensureProjectRecord,
   fetchDecisionReport,
   fetchReportForProject,
   fetchScenarios,
@@ -57,8 +58,24 @@ export async function persistSimulationAsScenario(
     throw new Error("Simulation missing graph or scores");
   }
 
+  const projectId = await ensureProjectRecord({
+    id: input.project.id,
+    slug: input.project.slug,
+    title: input.project.title,
+    status: input.project.status,
+    impact_score: input.project.impact_score,
+    risk_level: input.project.risk_level,
+    project_type: input.project.project_type,
+    location: input.project.location,
+    description: input.project.description,
+    category: input.project.category,
+    stakeholders: input.project.stakeholders,
+    budget: input.project.budget,
+    timeline: input.project.timeline,
+  });
+
   const scenario = await createScenario(
-    input.project.id,
+    projectId,
     input.project.title,
     title,
     input.params,
