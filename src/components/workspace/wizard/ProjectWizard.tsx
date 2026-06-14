@@ -99,8 +99,6 @@ function locationPreviewLine(intel: EnrichedProjectContext["locationIntelligence
 }
 
 function LaunchProgressPanel({ status, messages }: { status: string | null; messages: string[] }) {
-  const pct = Math.min(92, 12 + messages.length * 12);
-
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center py-8 text-center">
       <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-signal/25 bg-signal/10">
@@ -114,21 +112,12 @@ function LaunchProgressPanel({ status, messages }: { status: string | null; mess
         Launching your project
       </h3>
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-muted">
-        Enriching location data and starting Claude multi-agent simulation.
+        {status ?? "Preparing your decision workspace…"}
       </p>
 
-      <div className="mt-8 w-full max-w-md">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-hairline">
-          <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-signal to-environmental"
-            initial={{ width: "8%" }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          />
-        </div>
-        <p className="mt-2 font-mono-data text-[10px] uppercase tracking-wider text-ink-muted">
-          {pct}% complete
-        </p>
+      <div className="relative mx-auto mt-8 h-10 w-10">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-signal/20 border-t-signal" />
+        <div className="absolute inset-0 animate-dx-pulse rounded-full border border-signal/25" />
       </div>
 
       <div className="mt-8 w-full max-w-md space-y-2 rounded-2xl border border-hairline bg-surface/80 p-4 text-left shadow-elevated">

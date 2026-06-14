@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { DecisionNavigator } from "../navigator/DecisionNavigator";
-import { IntelligencePanel } from "../intelligence/IntelligencePanel";
-import { IntelligenceLoader } from "../shared/IntelligenceLoader";
-import { WorkspaceHud } from "../shared/WorkspaceHud";
 import { WorkspaceShellLayout } from "../shared/WorkspaceShellLayout";
 import { WorkspaceLoadingState } from "../shared/WorkspaceLoadingState";
 import { WorkspaceEmptyState } from "../shared/WorkspaceEmptyState";
+import { WorkspaceHud } from "../shared/WorkspaceHud";
+import { IntelligencePanel } from "../intelligence/IntelligencePanel";
+import { IntelligenceLoader } from "../shared/IntelligenceLoader";
 import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { fetchActiveScenario, ensureProjectRecord, fetchProjectBySlug, fetchScenarios, linkOrphanSimulationRuns } from "@/lib/workspace/queries";
@@ -262,6 +261,10 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
       <WorkspaceHud
         projectTitle={project.title}
         scenarioTitle={activeScenario?.title}
+        projectId={project.id}
+        projectSlug={projectSlug}
+        activeScenarioId={activeScenarioId}
+        onScenarioSelect={handleScenarioSelect}
         onRunSimulation={handleRunSimulation}
         onNewDecision={() => setWizardOpen(true)}
       />
@@ -276,18 +279,6 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
         {workspaceTab === "compare" && (
           <div className="h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
             <CompareView projectId={project.id} />
-          </div>
-        )}
-
-        {workspaceTab === "projects" && (
-          <div className="mx-auto h-full max-w-2xl overflow-hidden rounded-t-xl border-x border-t border-hairline/80 bg-surface/90 shadow-sm">
-            <DecisionNavigator
-              projectId={project.id}
-              projectSlug={projectSlug}
-              activeScenarioId={activeScenarioId}
-              onScenarioSelect={handleScenarioSelect}
-              variant="page"
-            />
           </div>
         )}
 

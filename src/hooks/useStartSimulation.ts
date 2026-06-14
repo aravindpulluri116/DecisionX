@@ -8,7 +8,6 @@ import type { OrchestratorEvent } from "@/lib/orchestration/events";
 import { persistSimulationAsScenario } from "@/lib/services/simulationService";
 import { projectToScenarioParams } from "@/lib/services/projectService";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { usePrefersReducedMotion } from "@/lib/motion";
 import { parseSimulationSse } from "@/lib/simulation/parseSse";
 import type { DecisionProject, SimulationInput } from "@/types/simulation";
 import type { ScenarioParams } from "@/types/workspace";
@@ -92,7 +91,6 @@ async function handleOrchestratorEvent(
 export function useStartSimulation() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const reduced = usePrefersReducedMotion();
 
   const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
   const setSimulationProposal = useWorkspaceStore((s) => s.setSimulationProposal);
@@ -164,11 +162,10 @@ export function useStartSimulation() {
         if (process.env.NODE_ENV !== "production") console.error(e);
       } finally {
         clearTimeout(timeoutId);
-        setTimeout(() => setSimulationTheaterOpen(false), reduced ? 0 : 1200);
+        setSimulationTheaterOpen(false);
       }
     },
     [
-      reduced,
       router,
       queryClient,
       setSimulationTheaterOpen,

@@ -125,7 +125,7 @@ export type DecisionReport = {
   sections: DecisionReportSections;
 };
 
-export type WorkspaceTab = "report" | "compare" | "projects" | "intelligence";
+export type WorkspaceTab = "report" | "compare" | "intelligence";
 
 export type SimulationInput = {
   project: DecisionProject;

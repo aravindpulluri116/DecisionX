@@ -2,7 +2,6 @@
 
 import {
   Brain,
-  FolderKanban,
   GitCompare,
   FileText,
   Play,
@@ -11,8 +10,10 @@ import {
 import Link from "next/link";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import type { WorkspaceTab } from "@/types/simulation";
+import type { Scenario } from "@/types/workspace";
 import { cn } from "@/lib/utils";
 import { ImpactScoreSummary } from "../intelligence/ImpactScoreStrip";
+import { WorkspaceHistoryMenu } from "./WorkspaceHistoryMenu";
 
 const TABS: {
   id: WorkspaceTab;
@@ -22,13 +23,16 @@ const TABS: {
 }[] = [
   { id: "report", label: "Report", short: "Report", icon: FileText },
   { id: "compare", label: "Compare", short: "Compare", icon: GitCompare },
-  { id: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
   { id: "intelligence", label: "Intelligence", short: "Intel", icon: Brain },
 ];
 
 type WorkspaceHudProps = {
   projectTitle: string;
   scenarioTitle?: string;
+  projectId: string;
+  projectSlug: string;
+  activeScenarioId: string | null;
+  onScenarioSelect: (scenario: Scenario) => void;
   onRunSimulation: () => void;
   onNewDecision: () => void;
 };
@@ -36,6 +40,10 @@ type WorkspaceHudProps = {
 export function WorkspaceHud({
   projectTitle,
   scenarioTitle,
+  projectId,
+  projectSlug,
+  activeScenarioId,
+  onScenarioSelect,
   onRunSimulation,
   onNewDecision,
 }: WorkspaceHudProps) {
@@ -73,6 +81,13 @@ export function WorkspaceHud({
         </div>
 
         <div className="ml-auto flex items-center gap-2">
+          <WorkspaceHistoryMenu
+            projectId={projectId}
+            projectSlug={projectSlug}
+            activeScenarioId={activeScenarioId}
+            onScenarioSelect={onScenarioSelect}
+          />
+
           <div className="hidden rounded-lg border border-hairline bg-background/60 px-2 py-1 md:block">
             <ImpactScoreSummary scores={selectedScenario?.impact_scores ?? null} />
           </div>
