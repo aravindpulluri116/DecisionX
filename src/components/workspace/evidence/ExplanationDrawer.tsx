@@ -2,7 +2,8 @@
 
 import { X } from "lucide-react";
 import type { EvidencePack, ExplanationTarget } from "@/types/evidence";
-import { ConfidenceBadge, ConfidenceMeter } from "./ConfidenceBadge";
+import { ConfidenceBadge, ConfidenceBasisPanel } from "./ConfidenceBadge";
+import { linkStrengthLabel } from "@/lib/evidence/buildEvidencePack";
 import { ReasoningTimeline } from "./ReasoningTimeline";
 import { cn } from "@/lib/utils";
 
@@ -22,16 +23,18 @@ export function ExplanationDrawer({ open, onClose, pack, target }: ExplanationDr
   if (target.type === "impact") {
     const exp = pack.impactExplanations.find((e) => e.metric === target.metric);
     if (exp) {
-      title = `${exp.label} impact — ${exp.score}`;
+      title = `${exp.label} projection — ${exp.score}`;
       body = (
         <ExplanationSections
           reasoning={exp.reasoning}
           evidence={exp.evidence}
           assumptions={exp.assumptions}
           uncertainties={exp.uncertainties}
-          confidence={exp.confidence}
           confidenceLevel={exp.confidenceLevel}
-          agents={exp.contributingAgents.map((id) => pack.agentTransparency.find((a) => a.agentId === id)?.label ?? id)}
+          confidenceBasis={exp.confidenceBasis}
+          agents={exp.contributingAgents.map(
+            (id) => pack.agentTransparency.find((a) => a.agentId === id)?.label ?? id,
+          )}
         />
       );
     }
@@ -46,15 +49,18 @@ export function ExplanationDrawer({ open, onClose, pack, target }: ExplanationDr
               <p className="text-sm text-ink">{exp.causedBy}</p>
             </Section>
           )}
+          {exp.linkStrength && (
+            <Section title="Chain strength">
+              <p className="text-sm text-ink-muted">{linkStrengthLabel(exp.linkStrength)}</p>
+            </Section>
+          )}
           <ExplanationSections
             reasoning={exp.reason}
             evidence={exp.evidence}
             assumptions={exp.assumptions}
             uncertainties={exp.uncertainties}
-            confidence={exp.confidence}
-            confidenceLevel={
-              exp.confidence >= 70 ? "high" : exp.confidence >= 45 ? "medium" : "low"
-            }
+            confidenceLevel={exp.confidenceLevel}
+            confidenceBasis={exp.confidenceBasis}
           />
         </>
       );
@@ -75,12 +81,12 @@ export function ExplanationDrawer({ open, onClose, pack, target }: ExplanationDr
             </ul>
           </Section>
           <ExplanationSections
-            reasoning={`Impact score ${agent.impactScore}/100 from specialist analysis.`}
+            reasoning={`Impact projection ${agent.impactScore}/100 from specialist analysis.`}
             evidence={agent.evidence}
             assumptions={agent.assumptions}
             uncertainties={agent.uncertainties}
-            confidence={agent.confidence}
             confidenceLevel={agent.confidenceLevel}
+            confidenceBasis={agent.confidenceBasis}
           />
         </>
       );
@@ -99,8 +105,8 @@ export function ExplanationDrawer({ open, onClose, pack, target }: ExplanationDr
             evidence={step.evidence}
             assumptions={step.assumptions}
             uncertainties={step.uncertainties}
-            confidence={step.confidence}
             confidenceLevel={step.confidenceLevel}
+            confidenceBasis={step.confidenceBasis}
           />
           <Section title="Reasoning chain">
             <ReasoningTimeline steps={pack.reasoningChain} activeStepId={step.id} compact />
@@ -161,16 +167,16 @@ function ExplanationSections({
   evidence,
   assumptions,
   uncertainties,
-  confidence,
   confidenceLevel,
+  confidenceBasis,
   agents,
 }: {
   reasoning: string;
   evidence: EvidencePack["impactExplanations"][0]["evidence"];
   assumptions: string[];
   uncertainties: string[];
-  confidence: number;
-  confidenceLevel: "low" | "medium" | "high";
+  confidenceLevel: EvidencePack["impactExplanations"][0]["confidenceLevel"];
+  confidenceBasis: EvidencePack["impactExplanations"][0]["confidenceBasis"];
   agents?: string[];
 }) {
   return (
@@ -178,16 +184,14 @@ function ExplanationSections({
       <Section title="Reasoning">
         <p className="text-sm leading-relaxed text-ink">{reasoning}</p>
         {agents && agents.length > 0 && (
-          <p className="mt-2 text-[11px] text-ink-muted">
-            Contributing agents: {agents.join(", ")}
-          </p>
+          <p className="mt-2 text-[11px] text-ink-muted">Contributing agents: {agents.join(", ")}</p>
         )}
       </Section>
 
       <Section title="Confidence">
-        <ConfidenceMeter score={confidence} level={confidenceLevel} />
+        <ConfidenceBasisPanel level={confidenceLevel} basis={confidenceBasis} />
         <p className="mt-2 text-[10px] text-ink-muted italic">
-          This is a projection, not a verified outcome.
+          Derived from data availability and agent agreement — not a measured probability.
         </p>
       </Section>
 
@@ -198,11 +202,7 @@ function ExplanationSections({
               <li key={i} className="rounded-lg border border-hairline bg-background/60 px-3 py-2">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-ink">{e.title}</p>
-                  <ConfidenceBadge
-                    level={e.confidence >= 70 ? "high" : e.confidence >= 45 ? "medium" : "low"}
-                    score={e.confidence}
-                    compact
-                  />
+                  <ConfidenceBadge level={e.confidenceLevel} compact />
                 </div>
                 <p className="mt-1 text-[11px] leading-snug text-ink-muted">{e.description}</p>
                 <p className="mt-1 text-[10px] text-ink-muted/80">Source: {e.source}</p>
@@ -225,7 +225,7 @@ function ExplanationSections({
       )}
 
       {uncertainties.length > 0 && (
-        <Section title="Uncertainty">
+        <Section title="Known unknowns">
           <ul className="space-y-1">
             {uncertainties.map((u) => (
               <li key={u} className="text-[11px] text-ink-muted">

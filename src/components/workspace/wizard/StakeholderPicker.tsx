@@ -57,7 +57,7 @@ export function StakeholderPicker({
     );
 
   return (
-    <div className="mt-2 space-y-4">
+    <div className="space-y-4">
       {(loading || aiSuggested.length > 0) && (
         <div
           className={cn(

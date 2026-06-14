@@ -5,7 +5,8 @@ import { FileText, ShieldCheck } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useScenarioReport, useScenarioSimulation } from "@/hooks/useSimulationQueries";
 import { useEvidencePack } from "@/hooks/useEvidencePack";
-import { ConfidenceBadge } from "../evidence/ConfidenceBadge";
+import { buildStakeholderTrustView } from "@/lib/trust/stakeholderSentiment";
+import { linkStrengthLabel } from "@/lib/evidence/buildEvidencePack";
 import {
   parseAlternative,
   parseConsequenceChain,
@@ -18,6 +19,7 @@ import { ReportInsightsGrid } from "./ReportInsightsGrid";
 import { ReportActions } from "./ReportActions";
 import { ReportAlternative } from "./ReportAlternative";
 import { ReportOpenQuestions } from "./ReportOpenQuestions";
+import { ConfidenceBadge } from "@/components/workspace/evidence/ConfidenceBadge";
 
 export function ReportView({ projectId }: { projectId: string }) {
   const activeReport = useWorkspaceStore((s) => s.activeReport);
@@ -63,14 +65,14 @@ export function ReportView({ projectId }: { projectId: string }) {
       report.sections.futureOutlook,
     );
 
+    const stakeholderView = buildStakeholderTrustView(simulation?.agentResults?.stakeholder);
+
     return {
       actions,
       alternative,
       risks,
       consequenceSteps,
-      supportScore: stakeholderRaw?.supportScore,
-      oppositionScore: stakeholderRaw?.oppositionScore,
-      affectedGroups: stakeholderRaw?.affectedGroups,
+      stakeholderView,
     };
   }, [report, simulation]);
 
@@ -120,18 +122,12 @@ export function ReportView({ projectId }: { projectId: string }) {
             <p className="min-w-0 flex-1 text-xs text-ink-muted">
               {evidencePack.trustSummary.predictionReliability}
             </p>
-            <ConfidenceBadge
-              level={evidencePack.trustSummary.overallConfidenceLevel}
-              score={evidencePack.trustSummary.overallConfidence}
-              compact
-            />
+            <ConfidenceBadge level={evidencePack.trustSummary.overallConfidenceLevel} compact />
           </div>
         )}
 
         <ReportInsightsGrid
-          supportScore={structured.supportScore}
-          oppositionScore={structured.oppositionScore}
-          affectedGroups={structured.affectedGroups}
+          stakeholderView={structured.stakeholderView}
           stakeholderSummary={report.sections.stakeholderAnalysis}
           risks={structured.risks}
           consequenceSteps={structured.consequenceSteps}
@@ -151,11 +147,12 @@ export function ReportView({ projectId }: { projectId: string }) {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-sm font-medium text-ink">{c.label}</h3>
-                    <ConfidenceBadge
-                      level={c.confidence >= 70 ? "high" : c.confidence >= 45 ? "medium" : "low"}
-                      score={c.confidence}
-                      compact
-                    />
+                  <div className="flex flex-col items-end gap-1">
+                    <ConfidenceBadge level={c.confidenceLevel} compact />
+                    {c.linkStrength && (
+                      <span className="text-[9px] text-ink-muted">{linkStrengthLabel(c.linkStrength)}</span>
+                    )}
+                  </div>
                   </div>
                   <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-ink-muted">{c.reason}</p>
                 </button>

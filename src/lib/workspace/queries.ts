@@ -13,6 +13,81 @@ import type {
   WorkspaceGraph,
 } from "@/types/workspace";
 import { withTimeout } from "@/lib/supabase/with-timeout";
+import { computeViabilityIndex } from "@/lib/workspace/impact-metrics";
+
+type ScenarioScoreRow = {
+  project_id: string;
+  impact_scores: unknown;
+  is_active: boolean;
+  created_at: string;
+};
+
+function normalizeImpactScores(scores: unknown): ImpactScores | null {
+  if (!scores || typeof scores !== "object" || Array.isArray(scores)) return null;
+  const s = scores as Record<string, unknown>;
+  if (typeof s.economic !== "number") return null;
+  return {
+    economic: s.economic as number,
+    social: (s.social as number) ?? 0,
+    environmental: (s.environmental as number) ?? 0,
+    infrastructure: (s.infrastructure as number) ?? 0,
+    politicalRisk: (s.politicalRisk as number) ?? (s.political_risk as number) ?? 0,
+    publicAcceptance: (s.publicAcceptance as number) ?? (s.public_acceptance as number) ?? 0,
+  };
+}
+
+function pickScenarioScoresForProject(rows: ScenarioScoreRow[], projectId: string): ImpactScores | null {
+  const list = rows.filter((r) => r.project_id === projectId);
+  const active = list.find((r) => r.is_active);
+  const activeScores = active ? normalizeImpactScores(active.impact_scores) : null;
+  if (activeScores) return activeScores;
+
+  const sorted = [...list].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
+  for (const row of sorted) {
+    const scores = normalizeImpactScores(row.impact_scores);
+    if (scores) return scores;
+  }
+  return null;
+}
+
+async function hydrateProjectImpactScores(projects: Project[]): Promise<Project[]> {
+  if (!projects.length) return projects;
+
+  const scenarioRows: ScenarioScoreRow[] = [];
+  const supabase = createClient();
+
+  if (supabase) {
+    const ids = projects.map((p) => p.id);
+    const data = await querySupabase(() =>
+      supabase
+        .from("scenarios")
+        .select("project_id, impact_scores, is_active, created_at")
+        .in("project_id", ids)
+        .order("created_at", { ascending: false }),
+    );
+    if (Array.isArray(data)) scenarioRows.push(...(data as ScenarioScoreRow[]));
+  }
+
+  if (typeof window !== "undefined") {
+    const { loadCustomScenarios } = await import("./mock-storage");
+    for (const s of loadCustomScenarios()) {
+      scenarioRows.push({
+        project_id: s.project_id,
+        impact_scores: s.impact_scores,
+        is_active: s.is_active,
+        created_at: s.created_at,
+      });
+    }
+  }
+
+  return projects.map((project) => {
+    const scores = pickScenarioScoresForProject(scenarioRows, project.id);
+    if (!scores) return project;
+    return { ...project, impact_score: computeViabilityIndex(scores) };
+  });
+}
 
 /** Browser anon client in the app; service role (or anon) on the server for reliable writes. */
 function getDbClient() {
@@ -49,12 +124,13 @@ export async function fetchProjects(): Promise<Project[]> {
     const bySlug = new Map<string, Project>();
     for (const p of local) bySlug.set(p.slug, p);
     for (const p of rows) bySlug.set(p.slug, p);
-    return [...bySlug.values()].sort(
+    const merged = [...bySlug.values()].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
+    return hydrateProjectImpactScores(merged);
   }
 
-  return rows;
+  return hydrateProjectImpactScores(rows);
 }
 
 export async function fetchProjectBySlug(slug: string): Promise<Project | null> {
@@ -688,6 +764,21 @@ export async function ensureProjectRecord(project: {
   }
 
   return data.id as string;
+}
+
+export async function updateProjectImpactScore(projectId: string, impactScore: number): Promise<void> {
+  const score = Math.min(100, Math.max(0, Math.round(impactScore)));
+  const db = getDbClient();
+  if (db) {
+    const { error } = await db.from("projects").update({ impact_score: score }).eq("id", projectId);
+    if (error) console.error("[updateProjectImpactScore]", error.message);
+  }
+
+  if (typeof window !== "undefined") {
+    const { loadCustomProjects, persistCustomProject } = await import("./mock-storage");
+    const existing = loadCustomProjects().find((p) => p.id === projectId);
+    if (existing) persistCustomProject({ ...existing, impact_score: score });
+  }
 }
 
 export async function insertProject(project: {

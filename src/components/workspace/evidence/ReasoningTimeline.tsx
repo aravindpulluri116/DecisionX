@@ -60,7 +60,7 @@ export function ReasoningTimeline({
                 <p className={cn("font-medium text-ink", compact ? "text-[11px]" : "text-xs")}>
                   {step.title}
                 </p>
-                <ConfidenceBadge level={step.confidenceLevel} score={step.confidence} compact />
+                <ConfidenceBadge level={step.confidenceLevel} compact />
               </div>
               {!compact && (
                 <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-ink-muted">

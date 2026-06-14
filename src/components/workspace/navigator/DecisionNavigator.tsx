@@ -104,7 +104,7 @@ export function DecisionNavigator({
 
   if (collapsed) {
     return (
-      <div className="flex h-full w-full flex-col border-r border-hairline bg-surface">
+      <div className="flex h-full min-h-0 w-full flex-col border-r border-hairline bg-surface">
         <div className="border-b border-hairline p-2">
           <button
             type="button"
@@ -116,7 +116,7 @@ export function DecisionNavigator({
             <span className="text-[10px] font-medium uppercase tracking-wide">New</span>
           </button>
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="space-y-3 p-2">
             {projects.length === 0 ? (
               <p className="px-2 text-[10px] text-ink-muted">No projects yet — create one to begin.</p>
@@ -151,7 +151,7 @@ export function DecisionNavigator({
   return (
     <div
       className={cn(
-        "flex h-full flex-col bg-surface/95",
+        "flex h-full min-h-0 flex-col bg-surface/95",
         variant === "sidebar" && "border-r border-hairline",
       )}
     >
@@ -169,7 +169,7 @@ export function DecisionNavigator({
         </button>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-6 p-4">
           <section>
             <h2 className="mb-3 flex items-center gap-1.5 px-1 font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">

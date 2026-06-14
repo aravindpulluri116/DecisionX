@@ -2,7 +2,7 @@
 
 import { ShieldCheck } from "lucide-react";
 import type { EvidencePack } from "@/types/evidence";
-import { ConfidenceBadge, ConfidenceMeter } from "./ConfidenceBadge";
+import { ConfidenceBadge, ConfidenceBasisPanel } from "./ConfidenceBadge";
 import { CONFIDENCE_DESCRIPTIONS } from "@/lib/evidence/confidence";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -31,9 +31,9 @@ export function TrustPanel({ pack, onSelectImpact, onSelectAgent }: TrustPanelPr
           </div>
         </div>
         <div className="mt-3">
-          <ConfidenceMeter
-            score={trustSummary.overallConfidence}
+          <ConfidenceBasisPanel
             level={trustSummary.overallConfidenceLevel}
+            basis={trustSummary.confidenceBasis}
             label="Overall confidence"
           />
         </div>
@@ -87,7 +87,7 @@ export function TrustPanel({ pack, onSelectImpact, onSelectAgent }: TrustPanelPr
                 className="flex w-full items-center justify-between gap-2 rounded-lg border border-hairline bg-surface px-2.5 py-2 text-left transition-colors hover:border-signal/30 hover:bg-signal/5"
               >
                 <span className="truncate text-[11px] font-medium text-ink">{agent.label}</span>
-                <ConfidenceBadge level={agent.confidenceLevel} score={agent.confidence} compact />
+                <ConfidenceBadge level={agent.confidenceLevel} compact />
               </button>
             ))}
           </div>
@@ -96,7 +96,7 @@ export function TrustPanel({ pack, onSelectImpact, onSelectAgent }: TrustPanelPr
 
       <section>
         <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-ink-muted">
-          Impact scores — tap to inspect
+          Impact projections — tap to inspect
         </p>
         <div className="space-y-1">
           {impactExplanations.map((exp) => (

@@ -25,8 +25,9 @@ function baseFields(output: {
     assumptions: output.assumptions ?? [],
     evidence: output.evidence ?? [],
     uncertainties: output.uncertainties ?? [],
-    confidenceLevel: (output.confidenceLevel ?? "medium") as ConfidenceLevel,
-    confidence: output.confidence ?? 50,
+    /** UI uses deriveConfidence(); stored for legacy compatibility only */
+    confidenceLevel: "medium" as ConfidenceLevel,
+    confidence: 0,
   };
 }
 
@@ -43,19 +44,18 @@ export function normalizeStandard(agentId: AgentId, output: StandardAgentInput):
 }
 
 export function normalizeStakeholder(output: StakeholderAgentInput): AgentResult {
-  // The raw StakeholderAgentOutput may carry explicit risks/opportunities arrays
-  // (Claude follows the prompt rules). Fall back to group-based labels only if absent.
   const rawAny = output as Record<string, unknown>;
   const claudeRisks: string[] = Array.isArray(rawAny.risks)
     ? (rawAny.risks as string[])
     : output.affectedGroups
         .slice(0, 3)
-        .map((g) => `Opposition risk: ${g} community may resist project disruptions`);
+        .map((g) => `Opposition risk: ${g} may resist project disruptions`);
+
   const claudeOpps: string[] = Array.isArray(rawAny.opportunities)
     ? (rawAny.opportunities as string[])
     : output.affectedGroups
         .slice(0, 3)
-        .map((g) => `Engagement opportunity with ${g} (support score: ${output.supportScore})`);
+        .map((g) => `Engagement opportunity with ${g}`);
 
   return {
     summary: output.summary,
@@ -66,8 +66,8 @@ export function normalizeStakeholder(output: StakeholderAgentInput): AgentResult
       ? (rawAny.recommendations as string[])
       : [
           `Engage ${output.affectedGroups[0] ?? "key stakeholders"} through structured consultation`,
-          `Address opposition concerns — current opposition score: ${output.oppositionScore}/100`,
-          `Build support coalition — current support score: ${output.supportScore}/100`,
+          `Address opposition concerns raised by affected groups`,
+          `Build support coalition among groups with moderate or strong support`,
         ],
     ...baseFields(output),
     raw: { agentId: "stakeholder", ...output },

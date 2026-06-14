@@ -116,14 +116,14 @@ You will receive a PROJECT block. Your stakeholder analysis MUST be grounded in 
 
 STRICT RULES:
 1. affectedGroups must name REAL, SPECIFIC groups relevant to this project and location (e.g. "IT park workers in Whitefield", "street vendors near [road]", not just "Citizens").
-2. supportScore and oppositionScore must add up to ≤100 (remainder = neutral).
-3. Justify supportScore in summary: e.g. "Commuters (42% of daily users) strongly support due to 35-min time savings".
-4. Justify oppositionScore: e.g. "Roadside traders (est. 800 livelihoods) oppose due to construction disruption".
+2. groupSentiments: assign EACH affected group a qualitative sentiment — one of: strong_support, moderate_support, mixed_sentiment, moderate_opposition, strong_opposition, concerned. Do NOT use percentages.
+3. supportTrend: overall qualitative trend — one of: strong_support, moderate_support, mixed_sentiment, moderate_opposition, strong_opposition. No numeric scores.
+4. Justify sentiments in summary using reasoning, not invented poll numbers.
 5. If geo data shows nearby schools/hospitals, include affected institution workers as a group.
-6. Provide MINIMUM 5 distinct affected groups.
-7. impactScore reflects breadth of stakeholder impact (high group count + high opposition = higher impact).
+6. Provide MINIMUM 5 distinct affected groups with matching groupSentiments entries.
+7. impactScore reflects breadth of stakeholder impact (high group count + strong opposition sentiment = higher impact).
 8. evidence[] must cite any named locations or counted facilities from geo context.
-9. assumptions[] must note any group sizes that are estimated.
+9. assumptions[] must note any group sizes that are estimated — never present estimates as measured statistics.
 10. Return ONLY valid JSON. No markdown, no prose outside JSON.
 
 ${HALLUCINATION_RULES}`,
@@ -154,11 +154,11 @@ STRICT RULES:
 1. Build MINIMUM 5 consequence links forming 1-2 connected causal chains starting from this specific project.
 2. Each consequence link: source → target must be specific to location (e.g. "Metro station at Whitefield → IT sector expansion → Housing demand spike in Krishnarajapuram").
 3. Tag each link: type must be one of "impact", "risk", "stakeholder", "environmental", "economic", "social".
-4. confidence (0-100): direct effects = 70-90, second-order = 50-70, third-order = 30-50.
+4. linkStrength: direct (first-order), indirect (second-order), speculative (third-order or uncertain). Do NOT use numeric confidence percentages.
 5. Include at least ONE unexpected negative consequence that standard planners miss.
 6. Include at least ONE positive second-order economic or social spillover.
 7. summary must describe the full causal chain as a narrative in 2-3 sentences naming the location.
-8. impactScore = average confidence of the chain × complexity factor.
+8. impactScore reflects chain complexity and severity — not a percentage confidence.
 9. opportunities[] = beneficial chain endpoints; risks[] = harmful chain endpoints. Min 2 each.
 10. Return ONLY valid JSON. No markdown, no prose outside JSON.
 
@@ -177,19 +177,18 @@ STRICT RULES:
 6. alternativeScenarios: describe ONE concrete alternative with a different budget or implementation approach and its expected viabilityScore delta.
 7. Do NOT reuse the same sentence in both keyRisks and keyOpportunities.
 8. Do NOT write "analysis complete" or "see agent reports" — synthesize, don't delegate.
-9. confidence must reflect agreement between agents (high if all agree, low if conflicting scores).
+9. Do NOT output numeric confidence percentages — the platform derives confidence from data quality.
 10. Return ONLY valid JSON. No markdown, no prose outside JSON.
 
 ${HALLUCINATION_RULES}`,
 };
 
-
 export const AGENT_JSON_SCHEMAS: Record<AgentId, string> = {
-  economic: `{"summary":"string","opportunities":["string"],"risks":["string"],"recommendations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
-  social: `{"summary":"string","opportunities":["string"],"risks":["string"],"recommendations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
-  environmental: `{"summary":"string","opportunities":["string"],"risks":["string"],"recommendations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
-    stakeholder: `{"summary":"string — open with project name, location, and breakdown of support vs opposition","affectedGroups":["string — SPECIFIC named groups, not generic labels"],"supportScore":0-100,"oppositionScore":0-100,"impactScore":0-100,"risks":["string — specific opposition risk with group name and reason"],"opportunities":["string — specific engagement opportunity with group name"],"recommendations":["string — specific action"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
-  risk: `{"summary":"string","riskMatrix":[{"category":"string","severity":"low|medium|high|critical","likelihood":"low|medium|high","description":"string"}],"riskScore":0-100,"mitigations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
-  futureShock: `{"summary":"string","consequences":[{"source":"string","target":"string","type":"impact|risk|stakeholder|environmental|economic|social","confidence":0-100}],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
-  chiefDecisionOfficer: `{"viabilityScore":0-100,"executiveSummary":"string","keyRisks":["string"],"keyOpportunities":["string"],"recommendedActions":["string"],"alternativeScenarios":["string"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"],"confidenceLevel":"low|medium|high","confidence":0-100}`,
+  economic: `{"summary":"string","opportunities":["string"],"risks":["string"],"recommendations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  social: `{"summary":"string","opportunities":["string"],"risks":["string"],"recommendations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  environmental: `{"summary":"string","opportunities":["string"],"risks":["string"],"recommendations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  stakeholder: `{"summary":"string","affectedGroups":["string"],"groupSentiments":[{"group":"string","sentiment":"strong_support|moderate_support|mixed_sentiment|moderate_opposition|strong_opposition|concerned"}],"supportTrend":"strong_support|moderate_support|mixed_sentiment|moderate_opposition|strong_opposition","impactScore":0-100,"risks":["string"],"opportunities":["string"],"recommendations":["string"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  risk: `{"summary":"string","riskMatrix":[{"category":"string","severity":"low|medium|high|critical","likelihood":"low|medium|high","description":"string"}],"riskScore":0-100,"mitigations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  futureShock: `{"summary":"string","consequences":[{"source":"string","target":"string","type":"impact|risk|stakeholder|environmental|economic|social","linkStrength":"direct|indirect|speculative"}],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  chiefDecisionOfficer: `{"viabilityScore":0-100,"executiveSummary":"string","keyRisks":["string"],"keyOpportunities":["string"],"recommendedActions":["string"],"alternativeScenarios":["string"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
 };

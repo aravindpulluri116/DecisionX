@@ -71,6 +71,7 @@ async function handleOrchestratorEvent(
       const scenario = await persistSimulationAsScenario(ctx.input, event.simulation, title);
       setSelectedScenario(scenario);
       await ctx.queryClient.invalidateQueries({ queryKey: ["scenarios", ctx.project.id] });
+      await ctx.queryClient.invalidateQueries({ queryKey: ["projects"] });
       await ctx.queryClient.invalidateQueries({ queryKey: ["workspace-graph", scenario.id] });
       if (ctx.navigateOnComplete && ctx.project.slug) {
         ctx.router.push(`/workspace/${ctx.project.slug}`);
