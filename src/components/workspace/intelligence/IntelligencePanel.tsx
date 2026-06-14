@@ -34,7 +34,7 @@ export function IntelligencePanel({ variant = "sidebar" }: IntelligencePanelProp
   return (
     <div
       className={cn(
-        "flex h-full min-w-0 flex-col bg-surface/95 backdrop-blur-sm",
+        "flex h-full min-h-0 min-w-0 flex-col bg-surface/95 backdrop-blur-sm",
         variant === "sidebar" && "border-l border-hairline",
       )}
     >
@@ -64,7 +64,7 @@ export function IntelligencePanel({ variant = "sidebar" }: IntelligencePanelProp
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-4 p-4">
           {tab === "overview" ? (
             <>

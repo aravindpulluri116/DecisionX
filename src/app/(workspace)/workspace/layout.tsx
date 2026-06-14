@@ -3,7 +3,7 @@ import { WorkspaceProviders } from "@/components/workspace/shell/WorkspaceProvid
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   return (
     <WorkspaceProviders>
-      <div className="h-screen overflow-hidden">{children}</div>
+      <div className="min-h-screen">{children}</div>
     </WorkspaceProviders>
   );
 }

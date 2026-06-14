@@ -33,7 +33,8 @@ type ProjectCardProps = {
 export function ProjectCard({ project, className }: ProjectCardProps) {
   const risk = riskStyles[project.risk_level];
   const category = project.category ?? project.project_type ?? "Decision";
-  const impact = Math.min(100, Math.max(0, project.impact_score ?? 0));
+  const impact = project.impact_score ?? 0;
+  const hasImpact = impact > 0;
 
   return (
     <Link
@@ -82,14 +83,27 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
           <span className="font-mono-data text-[9px] uppercase tracking-wider text-ink-muted">
             Impact score
           </span>
-          <span className="font-display text-sm font-semibold tabular-nums text-ink">{impact}</span>
+          {hasImpact ? (
+            <span className="font-display text-sm font-semibold tabular-nums text-ink">{impact}</span>
+          ) : (
+            <span className="font-mono-data text-[10px] uppercase tracking-wide text-ink-muted">
+              Pending
+            </span>
+          )}
         </div>
         <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-hairline">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-signal to-environmental transition-all"
-            style={{ width: `${impact}%` }}
-          />
+          {hasImpact ? (
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-signal to-environmental transition-all"
+              style={{ width: `${Math.min(100, impact)}%` }}
+            />
+          ) : (
+            <div className="h-full w-full rounded-full bg-hairline/80" />
+          )}
         </div>
+        {!hasImpact && (
+          <p className="mt-1 font-mono-data text-[9px] text-ink-muted">Run a simulation to score</p>
+        )}
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-hairline pt-3">
