@@ -1,6 +1,7 @@
 import type { AgentId } from "@/types/simulation";
 import type { DecisionReport, Simulation } from "@/types/simulation";
 import { getCdoRaw } from "@/lib/agents/normalize";
+import { getProjectViability } from "@/lib/scoring/viability";
 import { saveReport } from "./simulationService";
 
 export function generateReport(simulation: Simulation, projectTitle: string): DecisionReport {
@@ -61,7 +62,7 @@ export function generateReport(simulation: Simulation, projectTitle: string): De
           "Establish continuous monitoring",
           "Review quarterly with Decision Intelligence board",
         ],
-      viabilityScore: cdoRaw?.viabilityScore ?? cdo?.impactScore,
+      viabilityScore: getProjectViability(scores) ?? undefined,
       alternativeScenarios: cdoRaw?.alternativeScenarios ?? [],
       assumptions: allAssumptions,
       uncertainties: allUncertainties,

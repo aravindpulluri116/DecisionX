@@ -39,13 +39,19 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 md:flex">
           <Link
+            href="/agents"
+            className="rounded-md px-3 py-1.5 font-mono-data text-[11px] uppercase tracking-[0.18em] text-ink-muted transition-colors hover:bg-signal/5 hover:text-ink"
+          >
+            Agents
+          </Link>
+          <Link
             href="/workspace"
             className="rounded-md px-3 py-1.5 font-mono-data text-[11px] uppercase tracking-[0.18em] text-ink-muted transition-colors hover:bg-signal/5 hover:text-signal"
           >
             Platform
           </Link>
           <a
-            href="#simulator"
+            href="/#simulator"
             className="rounded-md px-3 py-1.5 font-mono-data text-[11px] uppercase tracking-[0.18em] text-ink-muted transition-colors hover:bg-signal/5 hover:text-ink"
           >
             Simulator

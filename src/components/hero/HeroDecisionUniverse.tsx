@@ -9,6 +9,14 @@ import { decisions } from "@/lib/mock/decisions";
 import { DecisionUniverseScene } from "./DecisionUniverseScene";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { usePrefersReducedMotion } from "@/lib/motion";
+import { Badge } from "@/components/ui/badge";
+import { BlurText, CountUp, ShinyText } from "@/components/react-bits";
+
+const HERO_STATS = [
+  { k: "Modeled chains", to: 12408, separator: ",", prefix: "", suffix: "", decimals: 0 },
+  { k: "Stakeholders mapped", to: 2.4, separator: "", prefix: "", suffix: "M", decimals: 1 },
+  { k: "Decision accuracy", to: 38, separator: "", prefix: "+", suffix: "%", decimals: 0 },
+] as const;
 
 export function HeroDecisionUniverse() {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -41,15 +49,18 @@ export function HeroDecisionUniverse() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-hairline bg-surface/80 px-4 py-2 shadow-sm backdrop-blur"
+            className="mb-6"
           >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-dx-pulse rounded-full bg-signal opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
-            </span>
-            <span className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+            <Badge
+              variant="outline"
+              className="gap-2 border-hairline bg-surface/80 px-4 py-2 font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted shadow-sm backdrop-blur"
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-dx-pulse rounded-full bg-signal opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
               Decision intelligence platform
-            </span>
+            </Badge>
           </motion.div>
 
           <motion.h1
@@ -59,18 +70,41 @@ export function HeroDecisionUniverse() {
             className="font-display text-[clamp(2.6rem,6.4vw,5.2rem)] font-bold leading-[0.95] tracking-[-0.035em] text-ink"
           >
             Every decision<br />
-            creates <span className="text-gradient-signal">consequences</span>.
+            creates{" "}
+            {reduced ? (
+              <span className="text-gradient-signal">consequences</span>
+            ) : (
+              <ShinyText
+                text="consequences"
+                className="text-gradient-signal font-bold"
+                color="oklch(0.52 0.22 262)"
+                shineColor="oklch(0.93 0.01 248)"
+                speed={2.5}
+                spread={110}
+              />
+            )}
+            .
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="mt-7 max-w-xl text-[17px] leading-[1.55] text-ink-muted"
-          >
-            DecisionX helps governments, planners, and organizations measure economic,
-            social, environmental, and stakeholder impacts — before implementation.
-          </motion.p>
+          {reduced ? (
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="mt-7 max-w-xl text-[17px] leading-[1.55] text-ink-muted"
+            >
+              DecisionX helps governments, planners, and organizations measure economic, social,
+              environmental, and stakeholder impacts — before implementation.
+            </motion.p>
+          ) : (
+            <BlurText
+              text="DecisionX helps governments, planners, and organizations measure economic, social, environmental, and stakeholder impacts — before implementation."
+              animateBy="words"
+              delay={45}
+              direction="bottom"
+              className="m-0 mt-7 max-w-xl text-[17px] leading-[1.55] text-ink-muted"
+            />
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -101,17 +135,25 @@ export function HeroDecisionUniverse() {
             transition={{ duration: 1, delay: 0.6 }}
             className="mt-14 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-elevated"
           >
-            {[
-              { k: "Modeled chains", v: "12,408" },
-              { k: "Stakeholders mapped", v: "2.4M" },
-              { k: "Decision accuracy", v: "+38%" },
-            ].map((s) => (
+            {HERO_STATS.map((s) => (
               <div key={s.k} className="group bg-surface px-4 py-4 transition-colors hover:bg-signal/5">
                 <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
                   {s.k}
                 </div>
                 <div className="mt-1 font-display text-2xl font-semibold tracking-tight text-ink transition-colors group-hover:text-signal">
-                  {s.v}
+                  {reduced ? (
+                    `${s.prefix}${s.to}${s.suffix}`
+                  ) : (
+                    <CountUp
+                      to={s.to}
+                      prefix={s.prefix}
+                      suffix={s.suffix}
+                      separator={s.separator}
+                      decimals={s.decimals}
+                      duration={1.8}
+                      delay={0.2}
+                    />
+                  )}
                 </div>
               </div>
             ))}

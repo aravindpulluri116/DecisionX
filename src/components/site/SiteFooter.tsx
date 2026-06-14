@@ -22,7 +22,15 @@ export function SiteFooter() {
             </div>
           </div>
           {[
-            { title: "Platform", links: ["Simulator", "Report", "Intelligence", "Compare"] },
+            {
+              title: "Platform",
+              links: [
+                { label: "Agents", href: "/agents" },
+                { label: "Simulator", href: "/#simulator" },
+                { label: "Workspace", href: "/workspace" },
+                { label: "Intelligence", href: "/workspace" },
+              ],
+            },
             { title: "Sectors", links: ["Public sector", "Mobility", "Energy", "Climate"] },
             { title: "Company", links: ["About", "Research", "Press", "Contact"] },
           ].map((col) => (
@@ -31,13 +39,19 @@ export function SiteFooter() {
                 {col.title}
               </div>
               <ul className="mt-4 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="text-sm text-ink transition-colors hover:text-signal">
-                      {l}
-                    </a>
-                  </li>
-                ))}
+                {col.links.map((l) => {
+                  const link = typeof l === "string" ? { label: l, href: "#" } : l;
+                  return (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-ink transition-colors hover:text-signal"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

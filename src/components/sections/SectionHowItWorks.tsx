@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { SectionLabel } from "@/components/site/SectionLabel";
+import { FadeContent } from "@/components/react-bits";
 
 const steps = [
   {
@@ -36,13 +37,15 @@ export function SectionHowItWorks() {
     <section className="relative border-b border-hairline bg-background">
       <div className="mesh-bg absolute inset-0 opacity-50" />
       <div className="relative mx-auto max-w-[1400px] px-6 py-28">
-        <div className="max-w-2xl">
-          <SectionLabel index="03" title="How DecisionX works" />
-          <h2 className="mt-6 font-display text-[clamp(2rem,4.2vw,3.5rem)] font-bold leading-[1] tracking-[-0.03em]">
-            Five stages,<br />
-            <span className="text-ink-muted">one decision packet.</span>
-          </h2>
-        </div>
+        <FadeContent blur duration={800}>
+          <div className="max-w-2xl">
+            <SectionLabel index="03" title="How DecisionX works" />
+            <h2 className="mt-6 font-display text-[clamp(2rem,4.2vw,3.5rem)] font-bold leading-[1] tracking-[-0.03em]">
+              Five stages,<br />
+              <span className="text-ink-muted">one decision packet.</span>
+            </h2>
+          </div>
+        </FadeContent>
 
         <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-elevated md:grid-cols-5">
           {steps.map((s, i) => (

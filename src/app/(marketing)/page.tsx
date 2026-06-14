@@ -4,6 +4,7 @@ import { HeroDecisionUniverse } from "@/components/hero/HeroDecisionUniverse";
 import { SectionProblem } from "@/components/sections/SectionProblem";
 import { SectionRippleEffect } from "@/components/sections/SectionRippleEffect";
 import { SectionHowItWorks } from "@/components/sections/SectionHowItWorks";
+import { SectionAgentsPreview } from "@/components/sections/SectionAgentsPreview";
 import { SectionSimulator } from "@/components/sections/SectionSimulator";
 import { SectionDashboardPreview } from "@/components/sections/SectionDashboardPreview";
 import { SectionFinalCTA } from "@/components/sections/SectionFinalCTA";
@@ -18,6 +19,7 @@ export default function HomePage() {
         <SectionProblem />
         <SectionRippleEffect />
         <SectionHowItWorks />
+        <SectionAgentsPreview />
         <SectionSimulator />
         <SectionDashboardPreview />
         <SectionFinalCTA />
