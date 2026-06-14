@@ -1,4 +1,5 @@
 import type { ProjectGeo, LocationIntelligence } from "./geo";
+import type { AgentId } from "./simulation";
 
 export type NodeType = "decision" | "impact" | "risk" | "stakeholder" | "environmental";
 
@@ -36,6 +37,8 @@ export type ScenarioParams = {
   timeline: string;
   projectType: string;
   policyType: string;
+  /** Specialist agents to run (CDO is always included). */
+  selectedAgents?: AgentId[];
 };
 
 export type ImpactScores = {

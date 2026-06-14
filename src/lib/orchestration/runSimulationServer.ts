@@ -1,5 +1,6 @@
-import { AGENT_LABELS, AGENT_ORDER } from "@/agents";
+import { AGENT_LABELS } from "@/agents";
 import { hasAnthropicKey } from "@/lib/config.server";
+import { normalizeSpecialistSelection } from "@/lib/agents/selection";
 import type { AgentContext } from "@/agents/types";
 import { assembleGraphFromAgents } from "./graphAssembler";
 import { computeImpactFromAgents } from "@/lib/simulation/computeImpact";
@@ -127,13 +128,16 @@ export async function runSimulationPipeline(
     type: "log",
     message: `Initializing multi-agent analysis for ${enrichedInput.project.title}...`,
   });
-  await emit({ type: "log", message: "Launching 6 specialist agents in parallel..." });
+  const specialistIds = normalizeSpecialistSelection(input.params.selectedAgents);
+  await emit({
+    type: "log",
+    message: `Launching ${specialistIds.length} specialist agent${specialistIds.length === 1 ? "" : "s"} in parallel...`,
+  });
 
-  const { SPECIALIST_AGENT_IDS } = await import("@/lib/agents");
   const baseCtx = buildAgentContext(enrichedInput, {}, enrichment);
 
   await Promise.allSettled(
-    SPECIALIST_AGENT_IDS.map(async (agentId) => {
+    specialistIds.map(async (agentId) => {
       const result = await runClaudeAgent(agentId, baseCtx, emit);
       if (result) {
         agentResults[agentId] = result;

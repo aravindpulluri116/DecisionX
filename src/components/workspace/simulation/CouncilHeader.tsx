@@ -12,7 +12,7 @@ export function CouncilHeader({ className = "" }: CouncilHeaderProps) {
   const spoken = agentRuns.filter(
     (a) => a.status === "completed" || a.findings.length > 0,
   ).length;
-  const total = agentRuns.length || 7;
+  const total = agentRuns.length;
   const pct = total > 0 ? (spoken / total) * 100 : 0;
   const running = agentRuns.some((a) => a.status === "running");
 

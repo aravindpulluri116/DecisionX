@@ -43,6 +43,19 @@ const simulationInputSchema = z.object({
     timeline: z.string(),
     projectType: z.string(),
     policyType: z.string(),
+    selectedAgents: z
+      .array(
+        z.enum([
+          "economic",
+          "social",
+          "environmental",
+          "stakeholder",
+          "risk",
+          "futureShock",
+          "chiefDecisionOfficer",
+        ]),
+      )
+      .optional(),
   }),
   scenarioTitle: z.string().optional(),
 });

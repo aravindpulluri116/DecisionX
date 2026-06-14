@@ -1,5 +1,4 @@
 import type { AgentRunState } from "@/types/simulation";
-import { AGENT_ORDER } from "@/agents";
 
 export type ConsensusLabel = "ANALYZING..." | "PROCEED" | "PROCEED WITH MITIGATION" | "RECONSIDER";
 
@@ -63,8 +62,7 @@ export function affinityStrength(a: AgentRunState, b: AgentRunState): number {
 }
 
 export function orderedAgentRuns(agentRuns: AgentRunState[]): AgentRunState[] {
-  const byId = new Map(agentRuns.map((r) => [r.id, r]));
-  return AGENT_ORDER.map((id) => byId.get(id)).filter(Boolean) as AgentRunState[];
+  return agentRuns;
 }
 
 export function activeAgentId(

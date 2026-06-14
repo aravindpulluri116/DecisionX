@@ -42,6 +42,26 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
+  const { data: existingById } = await admin
+    .from("projects")
+    .select("*")
+    .eq("id", parsed.data.id)
+    .maybeSingle();
+
+  if (existingById) {
+    return Response.json(existingById);
+  }
+
+  const { data: existingBySlug } = await admin
+    .from("projects")
+    .select("*")
+    .eq("slug", parsed.data.slug)
+    .maybeSingle();
+
+  if (existingBySlug) {
+    return Response.json(existingBySlug);
+  }
+
   const qualityErrors = validateProjectInputQuality({
     title: parsed.data.title,
     description: parsed.data.description,
@@ -58,25 +78,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: existingBySlug } = await admin
-    .from("projects")
-    .select("*")
-    .eq("slug", parsed.data.slug)
-    .maybeSingle();
-
-  if (existingBySlug) {
-    return Response.json(existingBySlug);
-  }
-
   const { data, error } = await admin.from("projects").insert(parsed.data).select().single();
 
-  if (error?.code === "23505" && String(error.message).includes("slug")) {
-    const { data: raced } = await admin
+  if (error?.code === "23505") {
+    const { data: racedById } = await admin
+      .from("projects")
+      .select("*")
+      .eq("id", parsed.data.id)
+      .maybeSingle();
+    if (racedById) return Response.json(racedById);
+
+    const { data: racedBySlug } = await admin
       .from("projects")
       .select("*")
       .eq("slug", parsed.data.slug)
       .maybeSingle();
-    if (raced) return Response.json(raced);
+    if (racedBySlug) return Response.json(racedBySlug);
   }
 
   if (error) {

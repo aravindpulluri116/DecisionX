@@ -37,9 +37,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ScenarioParams } from "@/types/workspace";
-import type { ProjectCategory } from "@/types/simulation";
+import type { AgentId, ProjectCategory } from "@/types/simulation";
 import { LocationMapPreview } from "./LocationMapPreview";
 import { StakeholderPicker, useStakeholderSuggestions } from "./StakeholderPicker";
+import { AgentCouncilPicker } from "@/components/workspace/simulation/AgentCouncilPicker";
+import { defaultSelectedSpecialists } from "@/lib/agents/selection";
 import { WizardStepRail, type WizardStep } from "./WizardStepRail";
 import { WizardFieldGroup } from "./WizardFieldGroup";
 import { AI_SPONSOR_NAME } from "@/lib/brand";
@@ -266,6 +268,9 @@ export function ProjectWizard() {
   const [mapCoords, setMapCoords] = useState<GeoCoordinates | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [enriching, setEnriching] = useState(false);
+  const [selectedCouncilAgents, setSelectedCouncilAgents] = useState<AgentId[]>(
+    defaultSelectedSpecialists(),
+  );
 
   const selectedStakeholders = draft.stakeholders ?? [];
   const location = draft.location?.trim() ?? "";
@@ -367,6 +372,7 @@ export function ProjectWizard() {
   const close = () => {
     if (launching) return;
     setMapCoords(null);
+    setSelectedCouncilAgents(defaultSelectedSpecialists());
     reset();
     setWizardOpen(false);
   };
@@ -446,7 +452,10 @@ export function ProjectWizard() {
 
       await startSimulation({
         project,
-        params: enriched.scenarioParams as ScenarioParams,
+        params: {
+          ...(enriched.scenarioParams as ScenarioParams),
+          selectedAgents: selectedCouncilAgents,
+        },
         scenarioTitle: `${project.title} — Initial Analysis`,
         navigateOnComplete: true,
       });
@@ -806,7 +815,16 @@ export function ProjectWizard() {
                         </div>
 
                         <div className="border-t border-hairline bg-background/60 px-5 py-4">
-                          <div className="flex flex-wrap gap-2">
+                          <WizardFieldGroup
+                            label="AI council"
+                            helper="Pick specialists for this run. The live chamber shows only these agents."
+                          >
+                            <AgentCouncilPicker
+                              value={selectedCouncilAgents}
+                              onChange={setSelectedCouncilAgents}
+                            />
+                          </WizardFieldGroup>
+                          <div className="mt-4 flex flex-wrap gap-2">
                             {["7 AI agents", "OpenStreetMap geo", "Live streaming"].map((tag) => (
                               <span
                                 key={tag}

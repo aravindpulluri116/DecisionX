@@ -12,7 +12,7 @@ import type {
   ScenarioParams,
   WorkspaceGraph,
 } from "@/types/workspace";
-import { isDuplicateSlugError } from "@/lib/workspace/project-slug";
+import { isDuplicateProjectKeyError, isDuplicateSlugError } from "@/lib/workspace/project-slug";
 import { withTimeout } from "@/lib/supabase/with-timeout";
 import { getProjectViability } from "@/lib/scoring/viability";
 
@@ -732,17 +732,6 @@ export async function ensureProjectRecord(project: {
   budget?: number;
   timeline?: string;
 }): Promise<string> {
-  const db = getDbClient();
-  if (!db) {
-    throw new Error("Supabase is required. Configure NEXT_PUBLIC_SUPABASE_URL and anon key.");
-  }
-
-  const { data: byId } = await db.from("projects").select("id").eq("id", project.id).maybeSingle();
-  if (byId?.id) return byId.id as string;
-
-  const { data: bySlug } = await db.from("projects").select("id").eq("slug", project.slug).maybeSingle();
-  if (bySlug?.id) return bySlug.id as string;
-
   const row = {
     id: project.id,
     slug: project.slug,
@@ -759,9 +748,49 @@ export async function ensureProjectRecord(project: {
     timeline: project.timeline ?? "10 years",
   };
 
+  // Browser: use service-role API — anon client cannot see rows RLS hides, causing duplicate inserts.
+  if (typeof window !== "undefined") {
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(row),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { id: string };
+        return data.id;
+      }
+      const err = (await res.json().catch(() => ({}))) as { error?: string };
+      if (typeof err.error === "string" && isDuplicateProjectKeyError(err.error)) {
+        return project.id;
+      }
+      console.warn("[ensureProjectRecord] API failed:", err);
+    } catch (e) {
+      console.warn("[ensureProjectRecord] API error:", e);
+    }
+    return project.id;
+  }
+
+  const db = getDbClient();
+  if (!db) {
+    throw new Error("Supabase is required. Configure NEXT_PUBLIC_SUPABASE_URL and anon key.");
+  }
+
+  const { data: byId } = await db.from("projects").select("id").eq("id", project.id).maybeSingle();
+  if (byId?.id) return byId.id as string;
+
+  const { data: bySlug } = await db.from("projects").select("id").eq("slug", project.slug).maybeSingle();
+  if (bySlug?.id) return bySlug.id as string;
+
   const { data, error } = await db.from("projects").insert(row).select("id").single();
-  if (error || !data) {
-    throw new Error(error?.message ?? "Failed to ensure project exists in database");
+  if (error) {
+    if (isDuplicateProjectKeyError(error.message ?? "", error.code)) {
+      return project.id;
+    }
+    throw new Error(error.message ?? "Failed to ensure project exists in database");
+  }
+  if (!data) {
+    throw new Error("Failed to ensure project exists in database");
   }
 
   return data.id as string;

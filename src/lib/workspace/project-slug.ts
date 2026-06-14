@@ -24,3 +24,11 @@ export async function resolveUniqueSlug(
 export function isDuplicateSlugError(message: string): boolean {
   return message.includes("projects_slug_key") || message.includes("duplicate key") && message.includes("slug");
 }
+
+export function isDuplicateProjectKeyError(message: string, code?: string): boolean {
+  return (
+    code === "23505" ||
+    message.includes("projects_pkey") ||
+    isDuplicateSlugError(message)
+  );
+}

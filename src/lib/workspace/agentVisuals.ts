@@ -114,12 +114,28 @@ export function getActiveAgentId(runs: AgentRunState[]): AgentId | null {
   return queued?.id ?? null;
 }
 
+/** Degrees from top (12 o'clock), clockwise — evenly spaced for the active council size. */
+export function seatAngleForIndex(index: number, total: number): number {
+  if (total <= 0) return 0;
+  return (360 / total) * index;
+}
+
 export function seatPosition(angleDeg: number, radius: number, cx: number, cy: number) {
   const rad = ((angleDeg - 90) * Math.PI) / 180;
   return {
     x: cx + radius * Math.cos(rad),
     y: cy + radius * Math.sin(rad),
   };
+}
+
+export function seatPositionForIndex(
+  index: number,
+  total: number,
+  radius: number,
+  cx: number,
+  cy: number,
+) {
+  return seatPosition(seatAngleForIndex(index, total), radius, cx, cy);
 }
 
 /** Evenly space council seats from live agent run list (count and order from orchestration). */

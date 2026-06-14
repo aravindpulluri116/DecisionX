@@ -1,5 +1,6 @@
 import type { DecisionProject, ProjectCategory } from "@/types/simulation";
 import type { Project, ScenarioParams } from "@/types/workspace";
+import { defaultSelectedSpecialists } from "@/lib/agents/selection";
 import {
   fetchProjects,
   fetchProjectBySlug,
@@ -157,6 +158,7 @@ export function projectToScenarioParams(project: DecisionProject): ScenarioParam
     timeline: timelineYears,
     projectType: project.category,
     policyType: project.category,
+    selectedAgents: defaultSelectedSpecialists(),
   };
 }
 

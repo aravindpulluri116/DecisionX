@@ -58,148 +58,142 @@ export function AgentRoundtable() {
     [proposalTitle],
   );
 
-  const runById = useMemo(
-    () => Object.fromEntries(agentRuns.map((r) => [r.id, r])),
-    [agentRuns],
-  );
-
   return (
     <svg
       viewBox={`0 0 ${SIZE} ${SIZE}`}
       className="mx-auto h-auto w-full max-w-2xl"
       aria-label="Agent council roundtable"
     >
-        <defs>
-          <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="var(--signal-soft)" />
-            <stop offset="100%" stopColor="transparent" />
-          </radialGradient>
-        </defs>
+      <defs>
+        <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--signal-soft)" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+      </defs>
 
-        <circle
-          cx={CX}
-          cy={CY}
-          r={RADIUS + 8}
-          fill="none"
-          stroke="var(--signal-soft)"
-          strokeWidth="1"
-          strokeDasharray="4 8"
-        />
+      <circle
+        cx={CX}
+        cy={CY}
+        r={RADIUS + 8}
+        fill="none"
+        stroke="var(--signal-soft)"
+        strokeWidth="1"
+        strokeDasharray="4 8"
+      />
 
-        {seats
-          .filter(({ run }) => run.status === "completed")
-          .map(({ run, x, y, visual }) => (
+      {seats
+        .filter(({ run }) => run.status === "completed")
+        .map(({ run, x, y, visual }) => (
+          <line
+            key={`link-${run.id}`}
+            x1={x}
+            y1={y}
+            x2={CX}
+            y2={CY}
+            stroke={visual.color}
+            strokeWidth="1"
+            strokeOpacity={0.2}
+          />
+        ))}
+
+      {activeId &&
+        (() => {
+          const seat = seats.find((s) => s.run.id === activeId);
+          if (!seat || seat.run.status !== "running") return null;
+          return (
             <line
-              key={`link-${run.id}`}
-              x1={x}
-              y1={y}
+              key={`beam-${activeId}`}
+              x1={seat.x}
+              y1={seat.y}
               x2={CX}
               y2={CY}
-              stroke={visual.color}
-              strokeWidth="1"
-              strokeOpacity={0.2}
-            />
-          ))}
-
-        {activeId &&
-          runById[activeId]?.status === "running" &&
-          (() => {
-            const seat = seats.find((s) => s.run.id === activeId);
-            if (!seat) return null;
-            return (
-              <line
-                key={`beam-${activeId}`}
-                x1={seat.x}
-                y1={seat.y}
-                x2={CX}
-                y2={CY}
-                stroke={seat.visual.color}
-                strokeWidth="2"
-                strokeOpacity={0.55}
-                className={cn(!reduced && "animate-dx-beam")}
-              />
-            );
-          })()}
-
-        <circle cx={CX} cy={CY} r={CORE_GLOW_R} fill="url(#coreGlow)" />
-        <circle
-          cx={CX}
-          cy={CY}
-          r={CORE_R}
-          fill="var(--surface)"
-          stroke="var(--signal)"
-          strokeWidth="2"
-          className={cn(anyRunning && !reduced && "animate-dx-pulse")}
-          style={{ filter: "drop-shadow(0 2px 12px var(--signal-soft))" }}
-        />
-        <text
-          x={CX}
-          y={titleLine2 ? CY - 18 : CY - 6}
-          textAnchor="middle"
-          fill="var(--signal)"
-          fontSize="10"
-          fontFamily="var(--font-mono)"
-          letterSpacing="0.12em"
-        >
-          PROPOSAL
-        </text>
-        <text
-          x={CX}
-          y={titleLine2 ? CY + 4 : CY + 14}
-          textAnchor="middle"
-          fill="var(--ink)"
-          fontSize="11"
-          fontFamily="var(--font-display)"
-          fontWeight="600"
-        >
-          {titleLine1}
-        </text>
-        {titleLine2 && (
-          <text
-            x={CX}
-            y={CY + 20}
-            textAnchor="middle"
-            fill="var(--ink-muted)"
-            fontSize="10"
-            fontFamily="var(--font-display)"
-          >
-            {titleLine2}
-          </text>
-        )}
-        {proposalLocation && (
-          <text
-            x={CX}
-            y={CY + (titleLine2 ? 34 : 28)}
-            textAnchor="middle"
-            fill="var(--ink-muted)"
-            fontSize="8"
-            fontFamily="var(--font-mono)"
-          >
-            {truncate(proposalLocation, 36)}
-          </text>
-        )}
-
-        {seats.map(({ run, visual, x, y, isCdo }) => {
-          const status = (run.status ?? "queued") as AgentStatus;
-          const isActive = activeId === run.id && status === "running";
-          const subtitle = seatSubtitle(run);
-
-          return (
-            <AgentSeat
-              key={run.id}
-              x={x}
-              y={y}
-              visual={visual}
-              status={status}
-              isActive={isActive}
-              isCdo={isCdo}
-              reduced={reduced}
-              label={shortSeatLabel(run)}
-              subtitle={subtitle}
-              findingsCount={run.findings.length}
+              stroke={seat.visual.color}
+              strokeWidth="2"
+              strokeOpacity={0.55}
+              className={cn(!reduced && "animate-dx-beam")}
             />
           );
-        })}
+        })()}
+
+      <circle cx={CX} cy={CY} r={CORE_GLOW_R} fill="url(#coreGlow)" />
+      <circle
+        cx={CX}
+        cy={CY}
+        r={CORE_R}
+        fill="var(--surface)"
+        stroke="var(--signal)"
+        strokeWidth="2"
+        className={cn(anyRunning && !reduced && "animate-dx-pulse")}
+        style={{ filter: "drop-shadow(0 2px 12px var(--signal-soft))" }}
+      />
+      <text
+        x={CX}
+        y={titleLine2 ? CY - 18 : CY - 6}
+        textAnchor="middle"
+        fill="var(--signal)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        letterSpacing="0.12em"
+      >
+        PROPOSAL
+      </text>
+      <text
+        x={CX}
+        y={titleLine2 ? CY + 4 : CY + 14}
+        textAnchor="middle"
+        fill="var(--ink)"
+        fontSize="11"
+        fontFamily="var(--font-display)"
+        fontWeight="600"
+      >
+        {titleLine1}
+      </text>
+      {titleLine2 && (
+        <text
+          x={CX}
+          y={CY + 20}
+          textAnchor="middle"
+          fill="var(--ink-muted)"
+          fontSize="10"
+          fontFamily="var(--font-display)"
+        >
+          {titleLine2}
+        </text>
+      )}
+      {proposalLocation && (
+        <text
+          x={CX}
+          y={CY + (titleLine2 ? 34 : 28)}
+          textAnchor="middle"
+          fill="var(--ink-muted)"
+          fontSize="8"
+          fontFamily="var(--font-mono)"
+        >
+          {truncate(proposalLocation, 36)}
+        </text>
+      )}
+
+      {seats.map(({ run, visual, x, y, isCdo }) => {
+        const status = (run.status ?? "queued") as AgentStatus;
+        const isActive = activeId === run.id && status === "running";
+        const subtitle = seatSubtitle(run);
+
+        return (
+          <AgentSeat
+            key={run.id}
+            x={x}
+            y={y}
+            visual={visual}
+            status={status}
+            isActive={isActive}
+            isCdo={isCdo}
+            reduced={reduced}
+            label={shortSeatLabel(run)}
+            subtitle={subtitle}
+            findingsCount={run.findings.length}
+          />
+        );
+      })}
     </svg>
   );
 }

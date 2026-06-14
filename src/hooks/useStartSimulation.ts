@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { initAgentRuns } from "@/lib/orchestration/agentRuns";
+import { resolveSimulationAgentOrder } from "@/lib/agents/selection";
 import type { OrchestratorEvent } from "@/lib/orchestration/events";
 import { persistSimulationAsScenario } from "@/lib/services/simulationService";
 import { projectToScenarioParams } from "@/lib/services/projectService";
@@ -104,8 +105,9 @@ export function useStartSimulation() {
       setBuilderOpen(false);
       setWizardOpen(false);
       clearLog();
+      const councilAgents = resolveSimulationAgentOrder(params);
       setAgentRuns(
-        initAgentRuns({ stakeholders: project.stakeholders }),
+        initAgentRuns({ agentIds: councilAgents, stakeholders: project.stakeholders }),
       );
       setSimulationProposal(
         project.title,

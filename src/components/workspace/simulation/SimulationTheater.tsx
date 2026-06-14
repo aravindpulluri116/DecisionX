@@ -58,7 +58,7 @@ export function SimulationTheater() {
                   <AgentRoundtable />
                 </div>
 
-                <div className="hidden min-h-[320px] w-full shrink-0 md:flex md:max-w-sm md:flex-col md:border-l md:border-hairline md:pl-6 lg:max-w-md">
+                <div className="hidden min-h-[380px] w-full shrink-0 md:flex md:max-w-[22rem] md:flex-col md:border-l md:border-hairline md:pl-6 lg:max-w-md">
                   <CouncilTranscript />
                 </div>
 

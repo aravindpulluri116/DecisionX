@@ -23,6 +23,9 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useStartSimulation } from "@/hooks/useStartSimulation";
 import { useGeoEnrichmentPreview } from "@/hooks/useGeoQueries";
 import { toDecisionProject } from "@/lib/services/projectService";
+import { defaultSelectedSpecialists } from "@/lib/agents/selection";
+import { AgentCouncilPicker } from "@/components/workspace/simulation/AgentCouncilPicker";
+import type { AgentId } from "@/types/simulation";
 import type { Project, ScenarioParams } from "@/types/workspace";
 import { BUDGET_UNIT_SHORT } from "@/lib/format/currency";
 
@@ -94,6 +97,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
   const [timeline, setTimeline] = useState(project.timeline ?? "10 years");
   const [projectType, setProjectType] = useState(project.project_type);
   const [policyType, setPolicyType] = useState(project.category ?? "Infrastructure");
+  const [selectedAgents, setSelectedAgents] = useState<AgentId[]>(defaultSelectedSpecialists());
 
   useEffect(() => {
     if (!builderOpen) return;
@@ -109,6 +113,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
       setTimeline(prior.timeline);
       setProjectType(prior.projectType);
       setPolicyType(prior.policyType);
+      setSelectedAgents(prior.selectedAgents ?? defaultSelectedSpecialists());
       return;
     }
 
@@ -118,6 +123,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
     setTimeline(project.timeline ?? "10 years");
     setProjectType(project.project_type);
     setPolicyType(project.category ?? "Infrastructure");
+    setSelectedAgents(defaultSelectedSpecialists());
   }, [builderOpen, selectedScenario, project]);
 
   const { data: locationPreview } = useGeoEnrichmentPreview(location, undefined, true);
@@ -130,6 +136,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
       timeline,
       projectType,
       policyType,
+      selectedAgents,
     };
 
     setBuilderOpen(false);
@@ -277,6 +284,17 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="font-mono-data text-[10px] uppercase tracking-[0.15em]">
+              AI council
+            </Label>
+            <p className="text-xs text-ink-muted">
+              Choose which specialists join this simulation. Only selected agents appear in the live
+              council animation.
+            </p>
+            <AgentCouncilPicker value={selectedAgents} onChange={setSelectedAgents} />
           </div>
 
           <button
