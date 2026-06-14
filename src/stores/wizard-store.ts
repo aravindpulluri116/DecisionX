@@ -34,8 +34,8 @@ const initialDraft: Partial<DecisionProject> = {
   description: "",
   location: "",
   budget: undefined,
-  timeline: "10 years",
-  category: "Transportation",
+  timeline: undefined,
+  category: undefined,
   stakeholders: [],
 };
 
@@ -89,6 +89,9 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
     const all = validateProjectInputQuality(draftAsInput(draft));
     if (!draft.category && step >= 2) {
       all.category = "Category is required";
+    }
+    if (!draft.timeline?.trim() && step >= 3) {
+      all.timeline = "Timeline is required";
     }
     const errors = pickErrors(all, STEP_FIELDS[step]);
     set({ errors });
