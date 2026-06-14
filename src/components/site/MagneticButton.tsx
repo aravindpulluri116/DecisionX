@@ -35,7 +35,7 @@ export function MagneticButton({ children, onClick, variant = "primary", classNa
     "group relative inline-flex items-center gap-3 overflow-hidden px-6 py-3.5 text-sm font-medium transition-all duration-300";
   const styles =
     variant === "primary"
-      ? "bg-ink text-background shadow-[0_2px_16px_oklch(0.18_0.045_264/0.15)] hover:bg-signal hover:shadow-[0_4px_24px_oklch(0.52_0.22_262/0.25)]"
+      ? "bg-strong text-strong-foreground shadow-[0_2px_16px_var(--shadow-elevated)] hover:bg-signal hover:shadow-[0_4px_24px_color-mix(in_oklch,var(--signal)_25%,transparent)]"
       : "border border-ink/15 text-ink hover:border-signal/40 hover:bg-signal/5";
 
   return (

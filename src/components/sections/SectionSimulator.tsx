@@ -117,7 +117,7 @@ export function SectionSimulator() {
                     key={r}
                     onClick={() => setRoute(r)}
                     className={`py-2 text-xs transition-colors ${
-                      r === route ? "bg-ink text-background" : "bg-surface hover:bg-background"
+                      r === route ? "bg-strong text-strong-foreground" : "bg-surface hover:bg-background"
                     }`}
                   >
                     V-{r}

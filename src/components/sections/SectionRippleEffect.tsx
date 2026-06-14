@@ -31,7 +31,7 @@ export function SectionRippleEffect() {
                   onClick={() => setActiveId(d.id)}
                   className={`group flex flex-col items-start gap-1 px-4 py-3.5 text-left transition-all ${
                     d.id === activeId
-                      ? "bg-ink text-background shadow-inner"
+                      ? "bg-strong text-strong-foreground shadow-inner"
                       : "bg-surface hover:bg-signal/5"
                   }`}
                 >

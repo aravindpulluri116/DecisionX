@@ -90,7 +90,7 @@ function MiniViz({ i }: { i: number }) {
           return (
             <div
               key={k}
-              className={`flex-1 transition-colors ${active ? "bg-ink" : "bg-ink/12"}`}
+              className={`flex-1 transition-colors ${active ? "bg-strong" : "bg-strong/12"}`}
               style={{ height: `${h}%` }}
             />
           );
