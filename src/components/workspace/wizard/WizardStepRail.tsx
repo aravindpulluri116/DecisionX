@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export const WIZARD_STEPS = [
   { n: 1, id: "define", label: "Define", hint: "Title & scope" },
   { n: 2, id: "location", label: "Location", hint: "Place & category" },
-  { n: 3, id: "parameters", label: "Parameters", hint: "Budget & council" },
+  { n: 3, id: "parameters", label: "Parameters", hint: "Budget & agents" },
   { n: 4, id: "launch", label: "Launch", hint: "Review & run" },
 ] as const;
 

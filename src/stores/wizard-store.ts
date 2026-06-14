@@ -62,7 +62,7 @@ function pickErrors(all: Record<string, string>, fields: string[]): Record<strin
 const STEP_FIELDS: Record<WizardStep, string[]> = {
   1: ["title", "description"],
   2: ["location", "category"],
-  3: ["budget", "timeline", "stakeholders"],
+  3: ["budget", "timeline"],
   4: ["title", "description", "location", "category", "budget", "timeline", "stakeholders"],
 };
 

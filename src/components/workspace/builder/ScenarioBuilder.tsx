@@ -295,7 +295,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
 
           <div className="space-y-2">
             <Label className="font-mono-data text-[10px] uppercase tracking-[0.15em]">
-              AI council
+              AI agents
             </Label>
             <AgentCouncilPicker value={selectedAgents} onChange={setSelectedAgents} />
           </div>

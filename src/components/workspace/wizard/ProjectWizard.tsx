@@ -49,6 +49,9 @@ import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 const TIMELINES = ["2 years", "5 years", "10 years", "15 years"];
 
+/** Backend metadata only — not shown in the agent picker. */
+const DEFAULT_STAKEHOLDERS = ["Citizens", "Government", "Businesses"];
+
 const CATEGORY_ICONS: Record<ProjectCategory, typeof Train> = {
   Transportation: Train,
   "Urban Development": Building2,
@@ -71,7 +74,7 @@ const STEP_META: Record<WizardStep, { title: string; subtitle: string; icon: typ
   },
   3: {
     title: "Parameters",
-    subtitle: "Set budget, timeline, and configure your AI council.",
+    subtitle: "Set budget, timeline, and choose which AI agents run.",
     icon: IndianRupee,
   },
   4: {
@@ -163,7 +166,6 @@ type DraftPreviewProps = {
   category?: string;
   budget?: number;
   timeline?: string;
-  stakeholders: string[];
   councilAgents: AgentId[];
 };
 
@@ -174,7 +176,6 @@ function WizardDraftPreview({
   category,
   budget,
   timeline,
-  stakeholders,
   councilAgents,
 }: DraftPreviewProps) {
   const filled = [title, description, location, category, budget, timeline].filter(Boolean).length;
@@ -202,12 +203,8 @@ function WizardDraftPreview({
         <PreviewRow icon={Calendar} label="Timeline" value={timeline || "—"} />
         <PreviewRow
           icon={Users}
-          label="Council"
-          value={
-            councilAgents.length > 0 || stakeholders.length > 0
-              ? `${councilAgents.length} agents · ${stakeholders.length} groups`
-              : "—"
-          }
+          label="AI agents"
+          value={councilAgents.length > 0 ? `${councilAgents.length} selected` : "—"}
         />
       </div>
 
@@ -294,13 +291,7 @@ export function ProjectWizard() {
     [updateDraft],
   );
 
-  const {
-    loading: stakeholdersLoading,
-    rationale: stakeholdersRationale,
-    aiSuggested,
-    error: stakeholdersError,
-    markUserEdited: markStakeholdersEdited,
-  } = useStakeholderSuggestions({
+  useStakeholderSuggestions({
     enabled: step === 3 && open,
     title: draft.title ?? "",
     description: draft.description ?? "",
@@ -312,10 +303,10 @@ export function ProjectWizard() {
   });
 
   useEffect(() => {
-    if (stakeholdersError) {
-      toast.error("Could not auto-select stakeholders", { description: stakeholdersError });
-    }
-  }, [stakeholdersError]);
+    if (step !== 3 || !open) return;
+    if ((draft.stakeholders?.length ?? 0) > 0) return;
+    updateDraft({ stakeholders: DEFAULT_STAKEHOLDERS });
+  }, [step, open, draft.stakeholders?.length, updateDraft]);
 
   const handleMapCoordsChange = useCallback(
     (coords: GeoCoordinates) => {
@@ -407,7 +398,8 @@ export function ProjectWizard() {
         budget: draft.budget!,
         timeline: draft.timeline!,
         category: draft.category as ProjectCategory,
-        stakeholders: selectedStakeholders,
+        stakeholders:
+          selectedStakeholders.length > 0 ? selectedStakeholders : DEFAULT_STAKEHOLDERS,
       };
 
       setLaunchStatus("Enriching context and estimating population with AI…");
@@ -524,7 +516,6 @@ export function ProjectWizard() {
             category={draft.category}
             budget={draft.budget}
             timeline={draft.timeline}
-            stakeholders={selectedStakeholders}
             councilAgents={selectedCouncilAgents}
           />
         </aside>
@@ -748,25 +739,18 @@ export function ProjectWizard() {
                         </WizardFieldGroup>
 
                         <WizardFieldGroup
-                          label="AI council"
-                          error={errors.stakeholders}
+                          label="AI agents"
                           helper={
-                            stakeholdersLoading
-                              ? `${AI_SPONSOR_NAME} is assembling specialists and affected groups…`
-                              : `${selectedCouncilAgents.length} specialists · ${selectedStakeholders.length} affected groups`
+                            selectedCouncilAgents.length > 0
+                              ? `${selectedCouncilAgents.length} selected — tap to add or remove`
+                              : "Pick at least one agent for the simulation"
                           }
                           required
                         >
                           <CouncilPicker
                             agents={selectedCouncilAgents}
                             onAgentsChange={setSelectedCouncilAgents}
-                            stakeholders={selectedStakeholders}
-                            onStakeholdersChange={(stakeholders) => updateDraft({ stakeholders })}
-                            onUserEdit={markStakeholdersEdited}
                             disabled={launching}
-                            aiSuggested={aiSuggested}
-                            aiRationale={stakeholdersRationale}
-                            loading={stakeholdersLoading}
                           />
                         </WizardFieldGroup>
                       </>
@@ -811,8 +795,8 @@ export function ProjectWizard() {
                             onEdit={() => setStep(3)}
                           />
                           <ReviewSection
-                            label="AI council"
-                            value={formatCouncilReview(selectedCouncilAgents, selectedStakeholders)}
+                            label="AI agents"
+                            value={formatAgentsReview(selectedCouncilAgents)}
                             onEdit={() => setStep(3)}
                             multiline
                           />
@@ -857,12 +841,8 @@ export function ProjectWizard() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (step === 3 && stakeholdersLoading) {
-                      toast.info("Waiting for AI council suggestions…");
-                      return;
-                    }
                     if (step === 3 && selectedCouncilAgents.length === 0) {
-                      toast.error("Select at least one council specialist");
+                      toast.error("Select at least one AI agent");
                       return;
                     }
                     if (validateStep(step)) handleContinue();
@@ -890,13 +870,9 @@ export function ProjectWizard() {
   );
 }
 
-function formatCouncilReview(agents: AgentId[], groups: string[]): string {
-  const specialistLine =
-    agents.length > 0
-      ? agents.map((id) => AGENT_VISUALS[id]?.shortLabel ?? id).join(", ")
-      : "—";
-  const groupsLine = groups.length > 0 ? groups.join(", ") : "—";
-  return `Specialists: ${specialistLine}\nAffected groups: ${groupsLine}`;
+function formatAgentsReview(agents: AgentId[]): string {
+  if (agents.length === 0) return "—";
+  return agents.map((id) => AGENT_VISUALS[id]?.shortLabel ?? id).join(", ");
 }
 
 function ReviewSection({
