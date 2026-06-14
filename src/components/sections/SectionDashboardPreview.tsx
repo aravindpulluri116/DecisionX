@@ -64,6 +64,11 @@ export function SectionDashboardPreview() {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="relative mt-14 overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevated"
         >
+          <div className="border-b border-hairline bg-warning/8 px-5 py-2">
+            <p className="font-mono-data text-[10px] uppercase tracking-[0.16em] text-warning">
+              Illustrative concept — live workspace uses Claude multi-agent analysis, not static demo data
+            </p>
+          </div>
           {/* HUD bar */}
           <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
             <div className="flex items-center gap-4 font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
@@ -109,7 +114,7 @@ export function SectionDashboardPreview() {
             </Panel>
 
             {/* Sentiment bars */}
-            <Panel className="col-span-12 md:col-span-5" label="Stakeholder sentiment">
+            <Panel className="col-span-12 md:col-span-5" label="Stakeholder sentiment (illustrative)">
               <div className="h-44">
                 <ResponsiveContainer>
                   <BarChart data={sentimentData} margin={{ top: 8, right: 4, left: 4, bottom: 0 }}>

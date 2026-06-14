@@ -52,6 +52,14 @@ LOCATION INTELLIGENCE:
     block += `\n\nPRIOR AGENT OUTPUTS:\n${JSON.stringify(priorResults, null, 2)}`;
   }
 
+  if (ctx.platformImpactScores && ctx.platformViabilityIndex != null) {
+    block += `
+
+PLATFORM VIABILITY (computed deterministically from specialist agents — your executiveSummary MUST align with this index; do NOT invent a different headline score):
+  viabilityIndex: ${ctx.platformViabilityIndex}
+  impactKPIs: ${JSON.stringify(ctx.platformImpactScores)}`;
+  }
+
   return block;
 }
 
@@ -169,12 +177,12 @@ ${HALLUCINATION_RULES}`,
 You will receive a PROJECT block AND all prior agent outputs. Your analysis synthesizes everything into a clear, actionable recommendation.
 
 STRICT RULES:
-1. executiveSummary must open with project name + location + a one-sentence verdict (approve/reject/modify with conditions).
-2. viabilityScore (0-100): weight economic (25%) + social (20%) + environmental (15%) + stakeholder acceptance (20%) + risk (20%). Show your weighting in the summary.
+1. executiveSummary must open with project name + location + a one-sentence verdict (approve/reject/modify with conditions). The verdict MUST match PLATFORM VIABILITY viabilityIndex when provided.
+2. Do NOT output a viabilityScore — the platform computes viability from specialist KPIs. Reference the platform index in prose only (e.g. "viability index 58 — conditional proceed").
 3. keyRisks: pick the 3 most severe risks from all agent reports — quote the original risk text, do NOT paraphrase generically.
 4. keyOpportunities: pick the 3 highest-value opportunities across all agents — include the ₹ figure or % cited by the originating agent.
 5. recommendedActions: provide 3-5 specific, numbered actions (e.g. "1. Commission independent environmental study for [named area] before land acquisition").
-6. alternativeScenarios: describe ONE concrete alternative with a different budget or implementation approach and its expected viabilityScore delta.
+6. alternativeScenarios: describe ONE concrete alternative with a different budget or implementation approach and its expected directional impact (e.g. "may improve public acceptance" — no numeric score delta).
 7. Do NOT reuse the same sentence in both keyRisks and keyOpportunities.
 8. Do NOT write "analysis complete" or "see agent reports" — synthesize, don't delegate.
 9. Do NOT output numeric confidence percentages — the platform derives confidence from data quality.
@@ -190,5 +198,5 @@ export const AGENT_JSON_SCHEMAS: Record<AgentId, string> = {
   stakeholder: `{"summary":"string","affectedGroups":["string"],"groupSentiments":[{"group":"string","sentiment":"strong_support|moderate_support|mixed_sentiment|moderate_opposition|strong_opposition|concerned"}],"supportTrend":"strong_support|moderate_support|mixed_sentiment|moderate_opposition|strong_opposition","impactScore":0-100,"risks":["string"],"opportunities":["string"],"recommendations":["string"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
   risk: `{"summary":"string","riskMatrix":[{"category":"string","severity":"low|medium|high|critical","likelihood":"low|medium|high","description":"string"}],"riskScore":0-100,"mitigations":["string"],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
   futureShock: `{"summary":"string","consequences":[{"source":"string","target":"string","type":"impact|risk|stakeholder|environmental|economic|social","linkStrength":"direct|indirect|speculative"}],"impactScore":0-100,"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
-  chiefDecisionOfficer: `{"viabilityScore":0-100,"executiveSummary":"string","keyRisks":["string"],"keyOpportunities":["string"],"recommendedActions":["string"],"alternativeScenarios":["string"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
+  chiefDecisionOfficer: `{"executiveSummary":"string","keyRisks":["string"],"keyOpportunities":["string"],"recommendedActions":["string"],"alternativeScenarios":["string"],"assumptions":["string"],"evidence":["string"],"uncertainties":["string"]}`,
 };

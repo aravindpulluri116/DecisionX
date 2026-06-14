@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useEvidencePack } from "@/hooks/useEvidencePack";
-import { computeViabilityIndex } from "@/lib/workspace/impact-metrics";
+import { getProjectViability } from "@/lib/scoring/viability";
 import { DecisionVerdictBanner } from "../shared/DecisionVerdictBanner";
 import { ImpactKpiGrid } from "../shared/ImpactKpiGrid";
 import { KpiCard } from "../shared/KpiCard";
@@ -29,7 +29,7 @@ export function IntelligencePanel({ variant = "sidebar" }: IntelligencePanelProp
   const evidencePack = useEvidencePack();
 
   const scores = selectedScenario?.impact_scores ?? null;
-  const viability = scores != null ? computeViabilityIndex(scores) : null;
+  const viability = getProjectViability(scores);
 
   return (
     <div

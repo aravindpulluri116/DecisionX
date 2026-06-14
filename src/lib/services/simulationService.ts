@@ -12,7 +12,7 @@ import {
   updateProjectImpactScore,
   updateSimulationRun,
 } from "@/lib/workspace/queries";
-import { computeViabilityIndex } from "@/lib/workspace/impact-metrics";
+import { getProjectViability } from "@/lib/scoring/viability";
 
 const mockSimulations = new Map<string, Simulation>();
 const mockReports = new Map<string, DecisionReport>();
@@ -85,8 +85,8 @@ export async function persistSimulationAsScenario(
     simulation.graph,
   );
 
-  const viability = computeViabilityIndex(simulation.impactScores);
-  await updateProjectImpactScore(projectId, viability);
+  const viability = getProjectViability(simulation.impactScores);
+  if (viability != null) await updateProjectImpactScore(projectId, viability);
 
   simulation.scenarioId = scenario.id;
   await updateSimulationRun(simulation.id, { scenario_id: scenario.id });

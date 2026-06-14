@@ -9,10 +9,10 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { fetchScenarios } from "@/lib/workspace/queries";
 import { duplicateScenario } from "@/lib/services/simulationService";
 import {
-  computeViabilityIndex,
   IMPACT_METRICS,
   metricDisplayValue,
 } from "@/lib/workspace/impact-metrics";
+import { getProjectViability } from "@/lib/scoring/viability";
 import { DecisionVerdictBanner } from "../shared/DecisionVerdictBanner";
 import { formatBudgetCrore } from "@/lib/format/currency";
 import { cn } from "@/lib/utils";
@@ -81,8 +81,8 @@ export function CompareView({ projectId }: CompareViewProps) {
   const scenarioA = scenarios.find((s) => s.id === compareScenarioIds?.[0]);
   const scenarioB = scenarios.find((s) => s.id === compareScenarioIds?.[1]);
 
-  const viabilityA = hasImpactScores(scenarioA) ? computeViabilityIndex(scenarioA.impact_scores) : null;
-  const viabilityB = hasImpactScores(scenarioB) ? computeViabilityIndex(scenarioB.impact_scores) : null;
+  const viabilityA = hasImpactScores(scenarioA) ? getProjectViability(scenarioA.impact_scores) : null;
+  const viabilityB = hasImpactScores(scenarioB) ? getProjectViability(scenarioB.impact_scores) : null;
 
   const readyToCompare =
     scenarioA &&

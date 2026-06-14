@@ -102,10 +102,10 @@ export function normalizeFutureShock(output: FutureShockAgentInput): AgentResult
   };
 }
 
-export function normalizeCdo(output: CdoAgentInput): AgentResult {
+export function normalizeCdo(output: CdoAgentInput, platformViabilityIndex?: number): AgentResult {
   return {
     summary: output.executiveSummary,
-    impactScore: output.viabilityScore,
+    impactScore: platformViabilityIndex ?? output.viabilityScore ?? 0,
     risks: output.keyRisks,
     opportunities: output.keyOpportunities,
     recommendations: output.recommendedActions,

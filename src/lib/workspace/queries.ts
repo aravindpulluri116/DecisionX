@@ -13,7 +13,7 @@ import type {
   WorkspaceGraph,
 } from "@/types/workspace";
 import { withTimeout } from "@/lib/supabase/with-timeout";
-import { computeViabilityIndex } from "@/lib/workspace/impact-metrics";
+import { getProjectViability } from "@/lib/scoring/viability";
 
 type ScenarioScoreRow = {
   project_id: string;
@@ -85,7 +85,7 @@ async function hydrateProjectImpactScores(projects: Project[]): Promise<Project[
   return projects.map((project) => {
     const scores = pickScenarioScoresForProject(scenarioRows, project.id);
     if (!scores) return project;
-    return { ...project, impact_score: computeViabilityIndex(scores) };
+    return { ...project, impact_score: getProjectViability(scores) ?? project.impact_score };
   });
 }
 

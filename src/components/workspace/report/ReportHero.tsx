@@ -2,18 +2,32 @@
 
 import { DecisionVerdictBanner } from "../shared/DecisionVerdictBanner";
 import { extractVerdictPhrase, firstSentence } from "@/lib/workspace/report-formatters";
+import { getDecisionVerdict } from "@/lib/scoring/viability";
 import { cn } from "@/lib/utils";
+import type { EvidencePack } from "@/types/evidence";
+import { ReportTrustStrip } from "./ReportTrustStrip";
 
 type ReportHeroProps = {
   title: string;
   generatedAt: string;
   viability: number | null;
   executiveSummary: string;
+  trustSummary?: EvidencePack["trustSummary"] | null;
 };
 
-export function ReportHero({ title, generatedAt, viability, executiveSummary }: ReportHeroProps) {
+export function ReportHero({ title, generatedAt, viability, executiveSummary, trustSummary }: ReportHeroProps) {
   const verdictPhrase = extractVerdictPhrase(executiveSummary);
   const headline = firstSentence(executiveSummary);
+  const verdict = viability != null ? getDecisionVerdict(viability) : null;
+
+  const phraseToneClass =
+    verdict?.tone === "positive"
+      ? "bg-positive/15 text-positive"
+      : verdict?.tone === "warning"
+        ? "bg-warning/15 text-warning"
+        : verdict?.tone === "signal"
+          ? "bg-signal/15 text-signal"
+          : "bg-negative/15 text-negative";
 
   return (
     <header className="space-y-5">
@@ -41,11 +55,7 @@ export function ReportHero({ title, generatedAt, viability, executiveSummary }: 
               <span
                 className={cn(
                   "inline-block rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                  viability >= 60
-                    ? "bg-warning/15 text-warning"
-                    : viability >= 45
-                      ? "bg-signal/15 text-signal"
-                      : "bg-negative/15 text-negative",
+                  phraseToneClass,
                 )}
               >
                 {verdictPhrase}
@@ -57,6 +67,8 @@ export function ReportHero({ title, generatedAt, viability, executiveSummary }: 
           </div>
         </div>
       )}
+
+      {trustSummary && <ReportTrustStrip trustSummary={trustSummary} />}
     </header>
   );
 }

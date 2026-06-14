@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { FileText, ShieldCheck } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useScenarioReport, useScenarioSimulation } from "@/hooks/useSimulationQueries";
 import { useEvidencePack } from "@/hooks/useEvidencePack";
 import { buildStakeholderTrustView } from "@/lib/trust/stakeholderSentiment";
+import { resolveReportViability } from "@/lib/scoring/viability";
 import { linkStrengthLabel } from "@/lib/evidence/buildEvidencePack";
 import {
   parseAlternative,
@@ -97,7 +98,7 @@ export function ReportView({ projectId }: { projectId: string }) {
 
   if (!report || !structured) return null;
 
-  const viability = report.sections.viabilityScore ?? null;
+  const viability = resolveReportViability(scores, report.sections.viabilityScore);
 
   return (
     <div className="report-view h-full overflow-y-auto bg-[oklch(0.985_0.004_240)] print:bg-white">
@@ -107,6 +108,7 @@ export function ReportView({ projectId }: { projectId: string }) {
           generatedAt={report.generatedAt}
           viability={viability}
           executiveSummary={report.sections.executiveSummary}
+          trustSummary={evidencePack?.trustSummary ?? null}
         />
 
         {scores && (
@@ -114,16 +116,6 @@ export function ReportView({ projectId }: { projectId: string }) {
             scores={scores}
             onMetricClick={(metric) => openExplanation({ type: "impact", metric })}
           />
-        )}
-
-        {evidencePack && (
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-signal/20 bg-surface px-4 py-3">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-signal" />
-            <p className="min-w-0 flex-1 text-xs text-ink-muted">
-              {evidencePack.trustSummary.predictionReliability}
-            </p>
-            <ConfidenceBadge level={evidencePack.trustSummary.overallConfidenceLevel} compact />
-          </div>
         )}
 
         <ReportInsightsGrid
