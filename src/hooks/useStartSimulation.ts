@@ -104,7 +104,9 @@ export function useStartSimulation() {
       setBuilderOpen(false);
       setWizardOpen(false);
       clearLog();
-      setAgentRuns(initAgentRuns());
+      setAgentRuns(
+        initAgentRuns({ stakeholders: project.stakeholders }),
+      );
       setSimulationProposal(
         project.title,
         project.locationIntelligence?.address ?? project.geo?.address ?? "",

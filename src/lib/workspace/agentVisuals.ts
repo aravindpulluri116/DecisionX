@@ -121,3 +121,37 @@ export function seatPosition(angleDeg: number, radius: number, cx: number, cy: n
     y: cy + radius * Math.sin(rad),
   };
 }
+
+/** Evenly space council seats from live agent run list (count and order from orchestration). */
+export function layoutRoundtableSeats(
+  runs: AgentRunState[],
+  radius: number,
+  cx: number,
+  cy: number,
+) {
+  const n = Math.max(runs.length, 1);
+  return runs.map((run, index) => {
+    const angleDeg = (360 / n) * index;
+    return {
+      run,
+      visual: AGENT_VISUALS[run.id],
+      angleDeg,
+      isCdo: run.id === "chiefDecisionOfficer",
+      ...seatPosition(angleDeg, radius, cx, cy),
+    };
+  });
+}
+
+export function shortSeatLabel(run: AgentRunState): string {
+  if (run.id === "stakeholder" && run.label.includes("·")) {
+    return "Stakeholder";
+  }
+  return AGENT_VISUALS[run.id]?.shortLabel ?? run.label.split(" ")[0] ?? run.id;
+}
+
+export function seatSubtitle(run: AgentRunState): string | null {
+  if (run.id === "stakeholder" && run.label.includes("·")) {
+    return run.label.split("·")[1]?.trim() ?? null;
+  }
+  return null;
+}

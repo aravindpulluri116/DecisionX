@@ -54,10 +54,8 @@ export function SimulationTheater() {
               <SystemLogPanel />
 
               <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-5 md:flex-row md:gap-4 md:p-6 lg:p-8">
-                <div className="flex shrink-0 flex-col items-center justify-center md:flex-1">
-                  <div className="rounded-2xl border border-hairline bg-surface/80 p-4 shadow-[0_8px_32px_oklch(0.18_0.045_264/0.06)] glow-signal md:p-6">
-                    <AgentRoundtable />
-                  </div>
+                <div className="flex w-full min-w-0 flex-col items-center justify-center md:flex-1">
+                  <AgentRoundtable />
                 </div>
 
                 <div className="hidden min-h-[320px] w-full shrink-0 md:flex md:max-w-sm md:flex-col md:border-l md:border-hairline md:pl-6 lg:max-w-md">

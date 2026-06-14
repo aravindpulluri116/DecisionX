@@ -8,6 +8,7 @@ type CouncilHeaderProps = {
 
 export function CouncilHeader({ className = "" }: CouncilHeaderProps) {
   const agentRuns = useWorkspaceStore((s) => s.agentRuns);
+  const proposalTitle = useWorkspaceStore((s) => s.simulationProposalTitle);
   const spoken = agentRuns.filter(
     (a) => a.status === "completed" || a.findings.length > 0,
   ).length;
@@ -26,14 +27,14 @@ export function CouncilHeader({ className = "" }: CouncilHeaderProps) {
             ◢ Agent council / live session
           </p>
           <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
-            Strategic roundtable analysis
+            {proposalTitle || "Strategic roundtable analysis"}
           </h1>
           <p className="mt-1 text-sm text-ink-muted">
             {running
-              ? "Specialists are deliberating — opinions stream in real time"
+              ? `${total} specialists deliberating — opinions stream in real time`
               : spoken === total
                 ? "Council session complete"
-                : "Convening the decision intelligence council…"}
+                : `Convening ${total} intelligence agents…`}
           </p>
         </div>
 
@@ -44,7 +45,7 @@ export function CouncilHeader({ className = "" }: CouncilHeaderProps) {
               cy="22"
               r="18"
               fill="none"
-              stroke="oklch(0.18 0.045 264 / 0.08)"
+              stroke="var(--hairline)"
               strokeWidth="3"
             />
             <circle
@@ -52,7 +53,7 @@ export function CouncilHeader({ className = "" }: CouncilHeaderProps) {
               cy="22"
               r="18"
               fill="none"
-              stroke="oklch(0.52 0.22 262)"
+              stroke="var(--signal)"
               strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray={circumference}
