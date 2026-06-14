@@ -116,3 +116,28 @@ export async function duplicateScenario(
     graphToSave,
   );
 }
+
+export async function createScenarioFromAlternative(
+  projectId: string,
+  scenarioId: string,
+  options: { name: string; budget?: number | null; timeline?: string },
+): Promise<Scenario | null> {
+  const scenarios = await fetchScenarios(projectId);
+  const source = scenarios.find((s) => s.id === scenarioId);
+  if (!source) return null;
+
+  const graph = await fetchWorkspaceGraph(scenarioId);
+  const graphToSave = graph?.nodes.length
+    ? graph
+    : { nodes: [], edges: [], intelligence: {} };
+
+  const params = {
+    ...source.params,
+    ...(options.budget != null ? { budget: options.budget } : {}),
+    ...(options.timeline ? { timeline: options.timeline } : {}),
+  };
+
+  const title = options.name.length > 80 ? `Plan B: ${options.name.slice(0, 77)}…` : `Plan B: ${options.name}`;
+
+  return createScenario(projectId, source.title, title, params, source.impact_scores, graphToSave);
+}

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 export function SectionFinalCTA() {
   return (
@@ -28,7 +29,7 @@ export function SectionFinalCTA() {
             <span className="text-band-muted">before you commit.</span>
           </h2>
           <p className="mx-auto mt-6 max-w-lg text-[16px] leading-[1.6] text-band-muted">
-            Run live Claude multi-agent analysis on your project. See economic, social, and environmental
+            Run live {AI_SPONSOR_NAME} multi-agent analysis on your project. See economic, social, and environmental
             consequences in under 90 seconds.
           </p>
 

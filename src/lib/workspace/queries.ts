@@ -12,6 +12,7 @@ import type {
   ScenarioParams,
   WorkspaceGraph,
 } from "@/types/workspace";
+import { isDuplicateSlugError } from "@/lib/workspace/project-slug";
 import { withTimeout } from "@/lib/supabase/with-timeout";
 import { getProjectViability } from "@/lib/scoring/viability";
 
@@ -766,6 +767,33 @@ export async function ensureProjectRecord(project: {
   return data.id as string;
 }
 
+export async function updateProjectDraftFields(
+  projectId: string,
+  fields: {
+    description?: string;
+    location?: string;
+    category?: string;
+    stakeholders?: string[];
+    budget?: number;
+    timeline?: string;
+    project_type?: string;
+  },
+): Promise<void> {
+  const db = getDbClient();
+  if (db) {
+    const { error } = await db.from("projects").update(fields).eq("id", projectId);
+    if (error && process.env.NODE_ENV !== "production") {
+      console.warn("[updateProjectDraftFields]", error.message);
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    const { loadCustomProjects, persistCustomProject } = await import("./mock-storage");
+    const existing = loadCustomProjects().find((p) => p.id === projectId);
+    if (existing) persistCustomProject({ ...existing, ...fields });
+  }
+}
+
 export async function updateProjectImpactScore(projectId: string, impactScore: number): Promise<void> {
   const score = Math.min(100, Math.max(0, Math.round(impactScore)));
   const db = getDbClient();
@@ -824,7 +852,17 @@ export async function insertProject(project: {
         await persistLocal();
         return data;
       }
-      const err = await res.json().catch(() => ({}));
+      const err = (await res.json().catch(() => ({}))) as { error?: string };
+      if (typeof err.error === "string" && isDuplicateSlugError(err.error)) {
+        const existing = await fetchProjectBySlug(project.slug);
+        if (existing) {
+          if (typeof window !== "undefined") {
+            const { persistCustomProject } = await import("./mock-storage");
+            persistCustomProject(existing);
+          }
+          return existing;
+        }
+      }
       console.warn("[insertProject] API failed:", err);
     } catch (e) {
       console.warn("[insertProject] API error:", e);
@@ -860,6 +898,16 @@ export async function insertProject(project: {
     );
 
     if (error || !data) {
+      if (error && isDuplicateSlugError(error.message)) {
+        const existing = await fetchProjectBySlug(project.slug);
+        if (existing) {
+          if (typeof window !== "undefined") {
+            const { persistCustomProject } = await import("./mock-storage");
+            persistCustomProject(existing);
+          }
+          return existing;
+        }
+      }
       throw new Error(error?.message ?? "Failed to insert project");
     }
 

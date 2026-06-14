@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Sheet,
@@ -84,15 +84,41 @@ function PremiumSlider({
 export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderProps) {
   const builderOpen = useWorkspaceStore((s) => s.builderOpen);
   const setBuilderOpen = useWorkspaceStore((s) => s.setBuilderOpen);
+  const selectedScenario = useWorkspaceStore((s) => s.selectedScenario);
   const startSimulation = useStartSimulation();
 
   const [title, setTitle] = useState(`${project.title} — Simulation`);
-  const [budget, setBudget] = useState(800);
+  const [budget, setBudget] = useState(project.budget ?? 800);
   const [population, setPopulation] = useState(2.4);
   const [location, setLocation] = useState(project.location);
-  const [timeline, setTimeline] = useState("10 years");
+  const [timeline, setTimeline] = useState(project.timeline ?? "10 years");
   const [projectType, setProjectType] = useState(project.project_type);
-  const [policyType, setPolicyType] = useState("Infrastructure");
+  const [policyType, setPolicyType] = useState(project.category ?? "Infrastructure");
+
+  useEffect(() => {
+    if (!builderOpen) return;
+
+    const prior =
+      selectedScenario?.project_id === project.id ? selectedScenario.params : null;
+
+    if (prior) {
+      setTitle(`${project.title} — Variant ${new Date().toLocaleDateString()}`);
+      setBudget(prior.budget);
+      setPopulation(prior.population);
+      setLocation(prior.location);
+      setTimeline(prior.timeline);
+      setProjectType(prior.projectType);
+      setPolicyType(prior.policyType);
+      return;
+    }
+
+    setTitle(`${project.title} — Simulation`);
+    setBudget(project.budget ?? 800);
+    setLocation(project.location);
+    setTimeline(project.timeline ?? "10 years");
+    setProjectType(project.project_type);
+    setPolicyType(project.category ?? "Infrastructure");
+  }, [builderOpen, selectedScenario, project]);
 
   const { data: locationPreview } = useGeoEnrichmentPreview(location, undefined, true);
 

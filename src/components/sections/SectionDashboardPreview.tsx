@@ -14,6 +14,7 @@ import {
   Cell,
 } from "recharts";
 import { SectionLabel } from "@/components/site/SectionLabel";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 const sentimentData = [
   { name: "Residents", v: 64 },
@@ -66,7 +67,7 @@ export function SectionDashboardPreview() {
         >
           <div className="border-b border-hairline bg-warning/8 px-5 py-2">
             <p className="font-mono-data text-[10px] uppercase tracking-[0.16em] text-warning">
-              Illustrative concept — live workspace uses Claude multi-agent analysis, not static demo data
+              Illustrative concept — live workspace uses {AI_SPONSOR_NAME} multi-agent analysis, not static demo data
             </p>
           </div>
           {/* HUD bar */}

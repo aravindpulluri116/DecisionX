@@ -1,6 +1,13 @@
 import type { DecisionProject, ProjectCategory } from "@/types/simulation";
 import type { Project, ScenarioParams } from "@/types/workspace";
-import { fetchProjects, fetchProjectBySlug, insertProject, saveLocationIntelligence } from "@/lib/workspace/queries";
+import {
+  fetchProjects,
+  fetchProjectBySlug,
+  insertProject,
+  saveLocationIntelligence,
+  updateProjectDraftFields,
+} from "@/lib/workspace/queries";
+import { resolveUniqueSlug, slugifyTitle } from "@/lib/workspace/project-slug";
 
 function mapProjectTypeToCategory(type: string): ProjectCategory {
   const map: Record<string, ProjectCategory> = {
@@ -13,10 +20,7 @@ function mapProjectTypeToCategory(type: string): ProjectCategory {
 }
 
 function slugify(title: string) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  return slugifyTitle(title);
 }
 
 function toDecisionProject(p: Project): DecisionProject {
@@ -51,9 +55,48 @@ export async function createProject(
     throw new Error("Project requires category and stakeholders");
   }
 
+  const baseSlug = slugify(draft.title);
+  const existing = await fetchProjectBySlug(baseSlug);
+
+  if (existing) {
+    await updateProjectDraftFields(existing.id, {
+      description: draft.description,
+      location: draft.location,
+      category: draft.category,
+      stakeholders: draft.stakeholders,
+      budget: draft.budget,
+      timeline: draft.timeline ?? existing.timeline ?? "10 years",
+      project_type: draft.project_type ?? draft.category,
+    });
+
+    const project = toDecisionProject({
+      ...existing,
+      description: draft.description,
+      location: draft.location,
+      category: draft.category,
+      stakeholders: draft.stakeholders,
+      budget: draft.budget,
+      timeline: draft.timeline ?? existing.timeline ?? "10 years",
+      project_type: draft.project_type ?? draft.category,
+    });
+
+    if (draft.locationIntelligence) {
+      await saveLocationIntelligence(existing.id, draft.locationIntelligence, draft.geo?.coords);
+      project.locationIntelligence = draft.locationIntelligence;
+      project.geo = draft.geo;
+    }
+
+    return project;
+  }
+
+  const slug = await resolveUniqueSlug(draft.title, async (candidate) => {
+    const hit = await fetchProjectBySlug(candidate);
+    return hit != null;
+  });
+
   const project: DecisionProject = {
     id: crypto.randomUUID(),
-    slug: slugify(draft.title),
+    slug,
     title: draft.title,
     status: "draft",
     impact_score: 0,

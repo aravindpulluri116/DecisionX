@@ -29,6 +29,7 @@ import { useWizardStore, WIZARD_CATEGORIES } from "@/stores/wizard-store";
 import { useStartSimulation } from "@/hooks/useStartSimulation";
 import { useGeoEnrichmentPreview } from "@/hooks/useGeoQueries";
 import { createProject } from "@/lib/services/projectService";
+import { isDuplicateSlugError } from "@/lib/workspace/project-slug";
 import type { EnrichedProjectContext } from "@/lib/services/enrichProjectContext";
 import type { GeoCoordinates, LocationIntelligence } from "@/types/geo";
 import { formatBudgetCrore } from "@/lib/format/currency";
@@ -41,6 +42,7 @@ import { LocationMapPreview } from "./LocationMapPreview";
 import { StakeholderPicker, useStakeholderSuggestions } from "./StakeholderPicker";
 import { WizardStepRail, type WizardStep } from "./WizardStepRail";
 import { WizardFieldGroup } from "./WizardFieldGroup";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 const TIMELINES = ["2 years", "5 years", "10 years", "15 years"];
 
@@ -71,7 +73,7 @@ const STEP_META: Record<WizardStep, { title: string; subtitle: string; icon: typ
   },
   4: {
     title: "Review & launch",
-    subtitle: "Confirm details — Claude will run live multi-agent analysis.",
+    subtitle: `Confirm details — ${AI_SPONSOR_NAME} will run live multi-agent analysis.`,
     icon: Zap,
   },
 };
@@ -398,7 +400,7 @@ export function ProjectWizard() {
       };
 
       setLaunchStatus("Enriching context and estimating population with AI…");
-      setLaunchMessages((m) => [...m, "Enriching context with Claude…"]);
+      setLaunchMessages((m) => [...m, `Enriching context with ${AI_SPONSOR_NAME}…`]);
       const enrichRes = await fetch("/api/projects/enrich", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -451,9 +453,13 @@ export function ProjectWizard() {
 
       router.push(`/workspace/${project.slug}`);
     } catch (e) {
+      const message = e instanceof Error ? e.message : "Unknown error";
       toast.error("Could not start project", {
-        description: e instanceof Error ? e.message : undefined,
+        description: isDuplicateSlugError(message)
+          ? "This project name is already in use. Try a slightly different title, or open the existing project from Workspace."
+          : message,
       });
+      setLaunchMessages((m) => [...m, `Failed: ${message}`]);
     } finally {
       setLaunching(false);
       setLaunchStatus(null);
@@ -731,7 +737,7 @@ export function ProjectWizard() {
                           error={errors.stakeholders}
                           helper={
                             stakeholdersLoading
-                              ? "Claude is picking affected groups from your project details…"
+                              ? `${AI_SPONSOR_NAME} is picking affected groups from your project details…`
                               : `${selectedStakeholders.length} selected — AI pre-filled; add or remove groups below`
                           }
                           required
@@ -811,7 +817,7 @@ export function ProjectWizard() {
                             ))}
                           </div>
                           <p className="mt-3 text-xs leading-relaxed text-ink-muted">
-                            Launching runs OpenStreetMap enrichment, Claude metadata agents, and a live
+                            Launching runs OpenStreetMap enrichment, {AI_SPONSOR_NAME} metadata agents, and a live
                             multi-agent simulation — no placeholder data.
                           </p>
                         </div>

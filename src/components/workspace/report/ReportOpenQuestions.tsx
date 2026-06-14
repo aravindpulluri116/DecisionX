@@ -2,6 +2,8 @@
 
 import { HelpCircle, Info } from "lucide-react";
 import { stripFactPrefix } from "@/lib/workspace/report-formatters";
+import { truncateText } from "@/lib/workspace/impact-metrics";
+import { ReportPanel } from "./ReportPanel";
 
 type ReportOpenQuestionsProps = {
   assumptions: string[];
@@ -12,38 +14,40 @@ export function ReportOpenQuestions({ assumptions, uncertainties }: ReportOpenQu
   if (!assumptions.length && !uncertainties.length) return null;
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-px overflow-hidden rounded-xl border border-hairline bg-hairline sm:grid-cols-2">
       {assumptions.length > 0 && (
-        <div className="rounded-xl border border-hairline bg-surface p-4">
-          <div className="flex items-center gap-2">
-            <Info className="h-3.5 w-3.5 text-ink-muted" />
-            <h3 className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">What we assumed</h3>
-          </div>
-          <ul className="mt-3 space-y-2">
-            {assumptions.slice(0, 3).map((a) => (
-              <li key={a} className="text-xs leading-snug text-ink-muted">
-                {stripFactPrefix(a)}
-              </li>
+        <ReportPanel label="Assumptions" hint={`${assumptions.length} modeled`}>
+          <div className="flex flex-wrap gap-1.5">
+            {assumptions.slice(0, 5).map((a) => (
+              <span
+                key={a}
+                className="inline-flex max-w-full items-start gap-1 rounded-lg border border-hairline bg-background/60 px-2.5 py-1.5 text-[11px] leading-snug text-ink-muted"
+                title={stripFactPrefix(a)}
+              >
+                <Info className="mt-0.5 h-3 w-3 shrink-0 text-ink-muted/60" />
+                {truncateText(stripFactPrefix(a), 64)}
+              </span>
             ))}
-          </ul>
-        </div>
+          </div>
+        </ReportPanel>
       )}
 
       {uncertainties.length > 0 && (
-        <div className="rounded-xl border border-warning/25 bg-warning/5 p-4">
-          <div className="flex items-center gap-2">
-            <HelpCircle className="h-3.5 w-3.5 text-warning" />
-            <h3 className="text-[10px] font-semibold uppercase tracking-wide text-warning">Still unknown</h3>
-          </div>
-          <ul className="mt-3 space-y-2">
-            {uncertainties.slice(0, 3).map((u) => (
-              <li key={u} className="text-xs leading-snug text-ink-muted">
-                {stripFactPrefix(u)}
-              </li>
+        <ReportPanel label="Open questions" hint="Needs validation">
+          <div className="flex flex-wrap gap-1.5">
+            {uncertainties.slice(0, 5).map((u) => (
+              <span
+                key={u}
+                className="inline-flex max-w-full items-start gap-1 rounded-lg border border-warning/25 bg-warning/5 px-2.5 py-1.5 text-[11px] leading-snug text-ink-muted"
+                title={stripFactPrefix(u)}
+              >
+                <HelpCircle className="mt-0.5 h-3 w-3 shrink-0 text-warning" />
+                {truncateText(stripFactPrefix(u), 64)}
+              </span>
             ))}
-          </ul>
-        </div>
+          </div>
+        </ReportPanel>
       )}
-    </section>
+    </div>
   );
 }

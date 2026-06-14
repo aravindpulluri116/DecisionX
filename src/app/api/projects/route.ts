@@ -58,7 +58,26 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: existingBySlug } = await admin
+    .from("projects")
+    .select("*")
+    .eq("slug", parsed.data.slug)
+    .maybeSingle();
+
+  if (existingBySlug) {
+    return Response.json(existingBySlug);
+  }
+
   const { data, error } = await admin.from("projects").insert(parsed.data).select().single();
+
+  if (error?.code === "23505" && String(error.message).includes("slug")) {
+    const { data: raced } = await admin
+      .from("projects")
+      .select("*")
+      .eq("slug", parsed.data.slug)
+      .maybeSingle();
+    if (raced) return Response.json(raced);
+  }
 
   if (error) {
     console.error("[api/projects] insert error:", error);

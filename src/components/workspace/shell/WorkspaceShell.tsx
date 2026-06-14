@@ -14,7 +14,7 @@ import Link from "next/link";
 import { fetchActiveScenario, ensureProjectRecord, fetchProjectBySlug, fetchScenarios, linkOrphanSimulationRuns } from "@/lib/workspace/queries";
 import { touchRecentProject } from "@/lib/workspace/mock-storage";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { toDecisionProject } from "@/lib/services/projectService";
+import { toDecisionProject, projectToScenarioParams } from "@/lib/services/projectService";
 import { useScenarioSimulation } from "@/hooks/useSimulationQueries";
 import { useEvidencePack } from "@/hooks/useEvidencePack";
 import { useStartSimulation } from "@/hooks/useStartSimulation";
@@ -55,6 +55,7 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   const setActiveSimulation = useWorkspaceStore((s) => s.setActiveSimulation);
   const setActiveReport = useWorkspaceStore((s) => s.setActiveReport);
   const selectedScenario = useWorkspaceStore((s) => s.selectedScenario);
+  const activeSimulation = useWorkspaceStore((s) => s.activeSimulation);
   const setLocationIntelligence = useWorkspaceStore((s) => s.setLocationIntelligence);
   const setBuilderOpen = useWorkspaceStore((s) => s.setBuilderOpen);
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
@@ -146,6 +147,17 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   }, [project?.slug, queryClient]);
 
   useEffect(() => {
+    if (
+      selectedScenario &&
+      project?.id &&
+      selectedScenario.project_id === project.id &&
+      selectedScenario.id !== activeScenarioId
+    ) {
+      setActiveScenarioId(selectedScenario.id);
+    }
+  }, [selectedScenario, project?.id, activeScenarioId]);
+
+  useEffect(() => {
     if (activeScenario && project?.id) {
       setActiveScenarioId(activeScenario.id);
       setSelectedScenario(activeScenario);
@@ -167,15 +179,45 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
 
   const handleRunSimulation = async () => {
     if (!project) return;
-    if (!activeScenarioId) {
-      setBuilderOpen(true);
-      return;
-    }
+
     const decisionProject = toDecisionProject(project);
+
+    let scenario =
+      (selectedScenario?.project_id === project.id ? selectedScenario : null) ??
+      activeScenario ??
+      null;
+
+    if (!scenario?.params) {
+      const scenarios = await queryClient.fetchQuery({
+        queryKey: ["scenarios", project.id],
+        queryFn: () => fetchScenarios(project.id),
+      });
+      scenario =
+        scenarios.find((s) => s.is_active) ??
+        [...scenarios].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )[0] ??
+        null;
+      if (scenario) {
+        setSelectedScenario(scenario);
+        setActiveScenarioId(scenario.id);
+      }
+    }
+
+    const params =
+      scenario?.params ??
+      (activeSimulation?.projectId === project.id ? activeSimulation.params : undefined) ??
+      hydratedSimulation?.params ??
+      projectToScenarioParams(decisionProject);
+
+    const scenarioTitle =
+      scenario?.title ?? `${project.title} — Analysis ${new Date().toLocaleDateString()}`;
+
     await startSimulation({
       project: decisionProject,
-      params: activeScenario?.params,
-      scenarioTitle: activeScenario?.title,
+      params,
+      scenarioTitle,
+      navigateOnComplete: false,
     });
   };
 

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ParsedAction } from "@/lib/workspace/report-formatters";
+import { ReportPanel } from "./ReportPanel";
 
 type ReportActionsProps = {
   actions: ParsedAction[];
@@ -11,49 +12,53 @@ type ReportActionsProps = {
 
 export function ReportActions({ actions }: ReportActionsProps) {
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? actions : actions.slice(0, 3);
 
   return (
-    <section>
-      <h2 className="font-display text-sm font-semibold text-ink">Priority actions</h2>
-      <p className="mt-1 text-xs text-ink-muted">What to do next, in order</p>
-      <ol className="mt-4 space-y-2">
-        {actions.map((action) => {
+    <ReportPanel label="Priority actions" hint={`${actions.length} recommendations`}>
+      <div className="grid gap-2 sm:grid-cols-3">
+        {visible.map((action) => {
           const isOpen = expanded === action.index;
           return (
-            <li key={action.index}>
-              <button
-                type="button"
-                onClick={() => setExpanded(isOpen ? null : action.index)}
-                className={cn(
-                  "w-full rounded-xl border border-hairline bg-surface px-4 py-3 text-left transition-colors",
-                  isOpen && "border-signal/30 ring-1 ring-signal/15",
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <span className="font-display text-lg font-bold tabular-nums text-signal">
-                    {String(action.index + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-snug text-ink">{action.title}</p>
-                    {!isOpen && (
-                      <p className="mt-1 line-clamp-2 text-xs leading-snug text-ink-muted">{action.full}</p>
-                    )}
-                    {isOpen && (
-                      <p className="mt-2 text-xs leading-relaxed text-ink-muted">{action.full}</p>
-                    )}
-                  </div>
-                  <ChevronDown
-                    className={cn(
-                      "mt-0.5 h-4 w-4 shrink-0 text-ink-muted transition-transform",
-                      isOpen && "rotate-180",
-                    )}
-                  />
-                </div>
-              </button>
-            </li>
+            <button
+              key={action.index}
+              type="button"
+              onClick={() => setExpanded(isOpen ? null : action.index)}
+              className={cn(
+                "group flex flex-col rounded-xl border border-hairline bg-background/60 p-4 text-left transition-all hover:border-signal/30 hover:shadow-[0_4px_20px_oklch(0.52_0.22_262/0.08)]",
+                isOpen && "border-signal/35 bg-signal/5 ring-1 ring-signal/15",
+              )}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-display text-2xl font-bold tabular-nums text-signal/80">
+                  {String(action.index + 1).padStart(2, "0")}
+                </span>
+                <Target className="h-4 w-4 shrink-0 text-ink-muted/50 group-hover:text-signal" />
+              </div>
+              <p className="mt-3 text-sm font-semibold leading-snug text-ink">{action.title}</p>
+              {isOpen ? (
+                <p className="mt-2 text-xs leading-relaxed text-ink-muted">{action.full}</p>
+              ) : (
+                <p className="mt-2 line-clamp-2 text-xs leading-snug text-ink-muted">{action.full}</p>
+              )}
+              <span className="mt-3 flex items-center gap-1 font-mono-data text-[9px] uppercase tracking-wider text-signal">
+                {isOpen ? "Collapse" : "Details"}
+                <ChevronRight className={cn("h-3 w-3 transition-transform", isOpen && "rotate-90")} />
+              </span>
+            </button>
           );
         })}
-      </ol>
-    </section>
+      </div>
+      {actions.length > 3 && !showAll && (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          className="mt-3 w-full rounded-lg border border-dashed border-hairline py-2 text-center font-mono-data text-[10px] uppercase tracking-wider text-ink-muted hover:border-signal/30 hover:text-signal"
+        >
+          + {actions.length - 3} more actions
+        </button>
+      )}
+    </ReportPanel>
   );
 }

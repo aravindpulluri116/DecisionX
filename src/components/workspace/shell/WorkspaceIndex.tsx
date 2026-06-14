@@ -11,6 +11,7 @@ import { ProjectWizard } from "../wizard/ProjectWizard";
 import { ProjectCard } from "../shared/ProjectCard";
 import { WorkspaceEmptyState } from "../shared/WorkspaceEmptyState";
 import { WorkspaceLoadingState } from "../shared/WorkspaceLoadingState";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 export function WorkspaceIndex() {
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
@@ -37,7 +38,7 @@ export function WorkspaceIndex() {
         <WorkspaceEmptyState
           icon={Sparkles}
           title="DecisionX Workspace"
-          description="Create your first decision project. Claude's multi-agent system analyzes economic, social, and environmental impact from your real project details."
+          description={`Create your first decision project. ${AI_SPONSOR_NAME}'s multi-agent system analyzes economic, social, and environmental impact from your real project details.`}
           tags={["7 AI agents", "Geo intelligence", "Live analysis"]}
           action={
             <button

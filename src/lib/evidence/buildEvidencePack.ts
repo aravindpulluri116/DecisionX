@@ -3,6 +3,7 @@ import { IMPACT_AGENT_WEIGHTS } from "@/lib/simulation/computeImpact";
 import { buildScoreEvidence, formatSourceLine } from "@/lib/geo/scoreEvidence";
 import { IMPACT_METRICS, metricDisplayValue } from "@/lib/workspace/impact-metrics";
 import { deriveConfidence, predictionReliabilityFromLevel } from "@/lib/trust/deriveConfidence";
+import { AI_SPONSOR_NAME } from "@/lib/brand";
 import type { AgentId, AgentResult, Simulation } from "@/types/simulation";
 import type { LocationIntelligence } from "@/types/geo";
 import type { ImpactScores, NodeIntelligence, WorkspaceGraph } from "@/types/workspace";
@@ -277,7 +278,7 @@ function buildTrustSummary(
   const agents = Object.values(agentResults).filter(Boolean) as AgentResult[];
 
   const sources = mergeUnique([
-    ...agents.flatMap((r) => (r.evidence.length ? ["Claude specialist agents"] : [])),
+    ...agents.flatMap((r) => (r.evidence.length ? [`${AI_SPONSOR_NAME} specialist agents`] : [])),
     locationIntelligence?.unavailable ? "AI location inference" : formatSourceLine(locationIntelligence),
     ...(locationIntelligence?.sources?.map((s) => s.label) ?? []),
   ]);

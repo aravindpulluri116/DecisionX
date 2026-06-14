@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { FileText } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, FileText } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useScenarioReport, useScenarioSimulation } from "@/hooks/useSimulationQueries";
 import { useEvidencePack } from "@/hooks/useEvidencePack";
 import { buildStakeholderTrustView } from "@/lib/trust/stakeholderSentiment";
 import { resolveReportViability } from "@/lib/scoring/viability";
-import { linkStrengthLabel } from "@/lib/evidence/buildEvidencePack";
 import {
   parseAlternative,
   parseConsequenceChain,
@@ -20,7 +19,9 @@ import { ReportInsightsGrid } from "./ReportInsightsGrid";
 import { ReportActions } from "./ReportActions";
 import { ReportAlternative } from "./ReportAlternative";
 import { ReportOpenQuestions } from "./ReportOpenQuestions";
-import { ConfidenceBadge } from "@/components/workspace/evidence/ConfidenceBadge";
+import { ReportConsequences } from "./ReportConsequences";
+import { cn } from "@/lib/utils";
+import type { DecisionReport } from "@/types/simulation";
 
 export function ReportView({ projectId }: { projectId: string }) {
   const activeReport = useWorkspaceStore((s) => s.activeReport);
@@ -46,9 +47,6 @@ export function ReportView({ projectId }: { projectId: string }) {
   const structured = useMemo(() => {
     if (!report) return null;
 
-    const stakeholderRaw = simulation?.agentResults?.stakeholder?.raw as
-      | { affectedGroups?: string[]; supportScore?: number; oppositionScore?: number }
-      | undefined;
     const riskRaw = simulation?.agentResults?.risk?.raw as
       | { riskMatrix?: { category: string; severity: string; description: string }[] }
       | undefined;
@@ -56,32 +54,29 @@ export function ReportView({ projectId }: { projectId: string }) {
       | { consequences?: { source: string; target: string }[] }
       | undefined;
 
-    const actions = report.sections.recommendations.map((r, i) => parseRecommendation(r, i));
-    const alternative = report.sections.alternativeScenarios?.[0]
-      ? parseAlternative(report.sections.alternativeScenarios[0])
-      : null;
-    const risks = parseRiskMatrix(riskRaw?.riskMatrix, report.sections.riskAnalysis);
-    const consequenceSteps = parseConsequenceChain(
-      futureRaw?.consequences,
-      report.sections.futureOutlook,
-    );
-
-    const stakeholderView = buildStakeholderTrustView(simulation?.agentResults?.stakeholder);
-
     return {
-      actions,
-      alternative,
-      risks,
-      consequenceSteps,
-      stakeholderView,
+      actions: report.sections.recommendations.map((r, i) => parseRecommendation(r, i)),
+      alternative: report.sections.alternativeScenarios?.[0]
+        ? parseAlternative(report.sections.alternativeScenarios[0])
+        : null,
+      risks: parseRiskMatrix(riskRaw?.riskMatrix, report.sections.riskAnalysis),
+      consequenceSteps: parseConsequenceChain(
+        futureRaw?.consequences,
+        report.sections.futureOutlook,
+      ),
+      stakeholderView: buildStakeholderTrustView(simulation?.agentResults?.stakeholder),
     };
   }, [report, simulation]);
 
   if (isLoading && !report) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-        <div className="h-8 w-8 animate-pulse rounded-full border-2 border-signal border-t-transparent" />
-        <p className="text-xs text-ink-muted">Loading report…</p>
+      <div className="flex h-full flex-col items-center justify-center gap-3 bg-background p-8">
+        <div className="relative h-10 w-10">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-signal/20 border-t-signal" />
+        </div>
+        <p className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
+          Loading brief…
+        </p>
       </div>
     );
   }
@@ -89,9 +84,11 @@ export function ReportView({ projectId }: { projectId: string }) {
   if (!report && isFetched) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-        <FileText className="h-8 w-8 text-ink-muted/50" />
-        <p className="text-sm font-medium text-ink">No report yet</p>
-        <p className="text-xs text-ink-muted">Run an analysis to generate an executive decision brief.</p>
+        <FileText className="h-10 w-10 text-ink-muted/40" />
+        <p className="font-display text-lg font-semibold text-ink">No report yet</p>
+        <p className="max-w-xs text-xs text-ink-muted">
+          Run a simulation to generate your executive decision brief.
+        </p>
       </div>
     );
   }
@@ -101,8 +98,9 @@ export function ReportView({ projectId }: { projectId: string }) {
   const viability = resolveReportViability(scores, report.sections.viabilityScore);
 
   return (
-    <div className="report-view h-full overflow-y-auto bg-[oklch(0.985_0.004_240)] print:bg-white">
-      <div className="mx-auto max-w-4xl space-y-8 px-5 py-8 md:px-8 md:py-10 print:space-y-6 print:py-8">
+    <div className="report-view h-full overflow-y-auto bg-background">
+      <div className="mesh-bg pointer-events-none fixed inset-0 opacity-30" />
+      <div className="relative mx-auto max-w-6xl space-y-4 px-4 py-6 md:px-6 md:py-8 print:space-y-4 print:py-6">
         <ReportHero
           title={report.projectTitle}
           generatedAt={report.generatedAt}
@@ -126,31 +124,10 @@ export function ReportView({ projectId }: { projectId: string }) {
         />
 
         {evidencePack && evidencePack.consequenceExplanations.length > 0 && (
-          <section>
-            <h2 className="font-display text-sm font-semibold text-ink">Projected consequences</h2>
-            <p className="mt-1 text-xs text-ink-muted">Tap to inspect reasoning</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {evidencePack.consequenceExplanations.slice(0, 4).map((c) => (
-                <button
-                  key={c.nodeId}
-                  type="button"
-                  onClick={() => openExplanation({ type: "consequence", nodeId: c.nodeId })}
-                  className="rounded-xl border border-hairline bg-surface p-3 text-left transition-colors hover:border-signal/30 hover:bg-signal/5"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-medium text-ink">{c.label}</h3>
-                  <div className="flex flex-col items-end gap-1">
-                    <ConfidenceBadge level={c.confidenceLevel} compact />
-                    {c.linkStrength && (
-                      <span className="text-[9px] text-ink-muted">{linkStrengthLabel(c.linkStrength)}</span>
-                    )}
-                  </div>
-                  </div>
-                  <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-ink-muted">{c.reason}</p>
-                </button>
-              ))}
-            </div>
-          </section>
+          <ReportConsequences
+            items={evidencePack.consequenceExplanations}
+            onSelect={(nodeId) => openExplanation({ type: "consequence", nodeId })}
+          />
         )}
 
         <ReportActions actions={structured.actions} />
@@ -162,25 +139,46 @@ export function ReportView({ projectId }: { projectId: string }) {
           uncertainties={report.sections.uncertainties ?? []}
         />
 
-        <details className="rounded-xl border border-hairline bg-surface print:hidden">
-          <summary className="cursor-pointer px-4 py-3 text-xs font-medium text-ink-muted">
-            Full agent narratives
-          </summary>
-          <div className="space-y-5 border-t border-hairline px-4 py-4">
-            {[
-              { title: "Impact", body: report.sections.impactAnalysis },
-              { title: "Stakeholders", body: report.sections.stakeholderAnalysis },
-              { title: "Risks", body: report.sections.riskAnalysis },
-              { title: "Future outlook", body: report.sections.futureOutlook },
-            ].map((s) => (
-              <div key={s.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink/85">{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </details>
+        <ReportDeepDive report={report} />
       </div>
+    </div>
+  );
+}
+
+function ReportDeepDive({ report }: { report: DecisionReport }) {
+  const [open, setOpen] = useState(false);
+
+  const sections = [
+    { title: "Impact", body: report.sections.impactAnalysis },
+    { title: "Stakeholders", body: report.sections.stakeholderAnalysis },
+    { title: "Risks", body: report.sections.riskAnalysis },
+    { title: "Future outlook", body: report.sections.futureOutlook },
+  ];
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-hairline bg-surface print:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-background/50"
+      >
+        <span className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+          Full agent narratives
+        </span>
+        <ChevronDown className={cn("h-4 w-4 text-ink-muted transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="grid gap-px border-t border-hairline bg-hairline sm:grid-cols-2">
+          {sections.map((s) => (
+            <div key={s.title} className="bg-surface p-4">
+              <h3 className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-ink/80">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
