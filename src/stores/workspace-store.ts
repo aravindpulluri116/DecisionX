@@ -15,6 +15,8 @@ type WorkspaceStore = {
   wizardOpen: boolean;
   workspaceTab: WorkspaceTab;
   simulationTheaterOpen: boolean;
+  simulationProposalTitle: string;
+  simulationProposalLocation: string;
   activeSimulation: Simulation | null;
   activeReport: DecisionReport | null;
   agentRuns: AgentRunState[];
@@ -28,6 +30,7 @@ type WorkspaceStore = {
   setWizardOpen: (open: boolean) => void;
   setWorkspaceTab: (tab: WorkspaceTab) => void;
   setSimulationTheaterOpen: (open: boolean) => void;
+  setSimulationProposal: (title: string, location?: string) => void;
   setActiveSimulation: (sim: Simulation | null) => void;
   setActiveReport: (report: DecisionReport | null) => void;
   setAgentRuns: (runs: AgentRunState[]) => void;
@@ -47,6 +50,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   wizardOpen: false,
   workspaceTab: "report",
   simulationTheaterOpen: false,
+  simulationProposalTitle: "",
+  simulationProposalLocation: "",
   activeSimulation: null,
   activeReport: null,
   agentRuns: [],
@@ -72,6 +77,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     set({ workspaceTab: tab });
   },
   setSimulationTheaterOpen: (open) => set({ simulationTheaterOpen: open }),
+  setSimulationProposal: (title, location = "") =>
+    set({ simulationProposalTitle: title, simulationProposalLocation: location }),
   setActiveSimulation: (sim) => set({ activeSimulation: sim }),
   setActiveReport: (report) => set({ activeReport: report }),
   setAgentRuns: (runs) => set({ agentRuns: runs }),

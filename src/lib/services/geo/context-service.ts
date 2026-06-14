@@ -33,12 +33,18 @@ function computeInfrastructure(radiusImpacts: LocationIntelligence["radiusImpact
 export async function buildLocationIntelligence(ctx: GeoQueryContext): Promise<LocationIntelligence> {
   const now = new Date().toISOString();
 
+  let geo: Awaited<ReturnType<typeof resolveProjectGeo>>;
   try {
-    const geo = await resolveProjectGeo(ctx);
-    const fullCtx = { ...ctx, coords: geo.coords };
+    geo = await resolveProjectGeo(ctx);
+  } catch {
+    return buildUnavailableLocationIntelligence(ctx.location, ctx.coords);
+  }
 
+  const fullCtx = { ...ctx, coords: geo.coords };
+
+  try {
     const [infra, radiusImpacts, popLayer, envResult, economicLayer] = await Promise.all([
-      fetchInfrastructurePOIs(fullCtx, 5000),
+      fetchInfrastructurePOIs(fullCtx, 5000).catch(() => ({ pois: [], layers: [] })),
       buildRadiusImpacts(fullCtx),
       fetchPopulationLayer(fullCtx),
       fetchEnvironmentLayers(fullCtx),
@@ -78,6 +84,10 @@ export async function buildLocationIntelligence(ctx: GeoQueryContext): Promise<L
     intelligence.summary = buildSummary(intelligence);
     return intelligence;
   } catch {
-    return buildUnavailableLocationIntelligence(ctx.location, ctx.coords);
+    return {
+      ...buildUnavailableLocationIntelligence(ctx.location, geo.coords),
+      coords: geo.coords,
+      address: geo.address,
+    };
   }
 }

@@ -44,7 +44,7 @@ export function SectionHowItWorks() {
           </h2>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-elevated md:grid-cols-5">
+        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.05)] md:grid-cols-5">
           {steps.map((s, i) => (
             <motion.div
               key={s.n}

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "supabase-DecisionX": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=tsoyxmxkiaxbxrtzvjii",
+      "headers": {
+        "Authorization": "Bearer ${env:SUPABASE_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,12 +24,14 @@ import { useStartSimulation } from "@/hooks/useStartSimulation";
 import { useGeoEnrichmentPreview } from "@/hooks/useGeoQueries";
 import { createProject } from "@/lib/services/projectService";
 import type { EnrichedProjectContext } from "@/lib/services/enrichProjectContext";
+import type { GeoCoordinates, LocationIntelligence } from "@/types/geo";
 import { formatBudgetCrore } from "@/lib/format/currency";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ScenarioParams } from "@/types/workspace";
 import type { ProjectCategory } from "@/types/simulation";
+import { LocationMapPreview } from "./LocationMapPreview";
 import { StakeholderPicker, useStakeholderSuggestions } from "./StakeholderPicker";
 import { WizardStepRail, type WizardStep } from "./WizardStepRail";
 import { WizardFieldGroup } from "./WizardFieldGroup";
@@ -158,19 +161,25 @@ export function ProjectWizard() {
   } = useWizardStore();
   const startSimulation = useStartSimulation();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [launching, setLaunching] = useState(false);
   const [launchStatus, setLaunchStatus] = useState<string | null>(null);
   const [launchMessages, setLaunchMessages] = useState<string[]>([
     "Initialising project pipeline…",
   ]);
+  const [mapCoords, setMapCoords] = useState<GeoCoordinates | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
+  const [enriching, setEnriching] = useState(false);
 
   const selectedStakeholders = draft.stakeholders ?? [];
   const location = draft.location?.trim() ?? "";
-  const { data: previewIntel, refetch: refetchGeo, isFetching: geoLoading } = useGeoEnrichmentPreview(
+  const previewCoords = mapCoords ?? draft.geo?.coords;
+  const { data: previewIntel, isError: geoError } = useGeoEnrichmentPreview(
     location,
-    undefined,
-    Boolean(location.length >= 2),
+    previewCoords,
+    false,
   );
+  const geoLoading = geocoding || enriching;
 
   const handleStakeholdersSuggested = useCallback(
     (stakeholders: string[], _rationale: string) => {
@@ -202,13 +211,66 @@ export function ProjectWizard() {
     }
   }, [stakeholdersError]);
 
+  const handleMapCoordsChange = useCallback(
+    (coords: GeoCoordinates) => {
+      setMapCoords(coords);
+      updateDraft({ geo: { coords, address: location } });
+    },
+    [location, updateDraft],
+  );
+
   const handleRefreshLocation = useCallback(async () => {
     if (location.length < 2) return;
-    await refetchGeo();
-  }, [location, refetchGeo]);
+
+    setGeocoding(true);
+    try {
+      const geocodeRes = await fetch("/api/geo/geocode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location }),
+      });
+      if (geocodeRes.ok) {
+        const geo = (await geocodeRes.json()) as { coords: GeoCoordinates; address: string };
+        setMapCoords(geo.coords);
+        updateDraft({
+          geo: { coords: geo.coords, address: geo.address },
+        });
+
+        setEnriching(true);
+        try {
+          const enrichRes = await fetch("/api/geo/enrich", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ location, coords: geo.coords }),
+          });
+          if (enrichRes.ok) {
+            const intel = (await enrichRes.json()) as LocationIntelligence;
+            queryClient.setQueryData(
+              ["geo-enrich-preview", location, geo.coords.lat, geo.coords.lng],
+              intel,
+            );
+          }
+        } finally {
+          setEnriching(false);
+        }
+      } else {
+        const err = await geocodeRes.json().catch(() => ({}));
+        toast.error("Could not find location", {
+          description: typeof err.error === "string" ? err.error : "Try a more specific place name",
+        });
+        return;
+      }
+    } catch {
+      toast.error("Geocode failed", { description: "Check your connection and try again" });
+      return;
+    } finally {
+      setGeocoding(false);
+    }
+  }, [location, queryClient, updateDraft]);
 
   const close = () => {
     if (launching) return;
+    setMapCoords(null);
     reset();
     setWizardOpen(false);
   };
@@ -404,7 +466,7 @@ export function ProjectWizard() {
                         </WizardFieldGroup>
 
                         <div className="rounded-xl border border-hairline bg-background/80 p-4">
-                          <div className="flex items-start gap-3">
+                          <div className="mb-3 flex items-start gap-3">
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10">
                               <MapPin className="h-4 w-4 text-signal" />
                             </div>
@@ -413,7 +475,13 @@ export function ProjectWizard() {
                                 Geo preview
                               </p>
                               <p className="mt-1 text-sm text-ink">
-                                {geoLoading ? "Loading OpenStreetMap…" : previewText}
+                                {geocoding
+                                  ? "Finding location on map…"
+                                  : enriching
+                                    ? "Loading OpenStreetMap context…"
+                                    : geoError
+                                      ? "Could not load location data — try again"
+                                      : previewText}
                               </p>
                             </div>
                             <button
@@ -425,6 +493,11 @@ export function ProjectWizard() {
                               Refresh
                             </button>
                           </div>
+                          <LocationMapPreview
+                            location={location}
+                            coords={previewCoords ?? null}
+                            onCoordsChange={handleMapCoordsChange}
+                          />
                         </div>
 
                         <WizardFieldGroup label="Category" error={errors.category}>

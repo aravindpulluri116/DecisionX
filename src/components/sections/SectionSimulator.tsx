@@ -79,7 +79,7 @@ export function SectionSimulator() {
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-elevated lg:grid-cols-[1fr_1.6fr]">
+        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.05)] lg:grid-cols-[1fr_1.6fr]">
           {/* Controls */}
           <div className="bg-surface p-8">
             <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">

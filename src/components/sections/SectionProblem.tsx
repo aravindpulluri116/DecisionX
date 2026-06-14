@@ -40,7 +40,7 @@ export function SectionProblem() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-elevated md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.05)] md:grid-cols-3">
             {stats.map((s, i) => (
               <motion.div
                 key={s.n}

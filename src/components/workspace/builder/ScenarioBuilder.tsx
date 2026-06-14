@@ -94,7 +94,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
   const [projectType, setProjectType] = useState(project.project_type);
   const [policyType, setPolicyType] = useState("Infrastructure");
 
-  const { data: locationPreview } = useGeoEnrichmentPreview(location);
+  const { data: locationPreview } = useGeoEnrichmentPreview(location, undefined, true);
 
   const handleSave = async () => {
     const params: ScenarioParams = {

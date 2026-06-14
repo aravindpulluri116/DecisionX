@@ -70,7 +70,7 @@ function RippleGraph({
   });
 
   return (
-    <div className="relative aspect-[760/480] w-full overflow-hidden rounded-xl border border-hairline bg-background shadow-elevated">
+    <div className="relative aspect-[760/480] w-full overflow-hidden rounded-xl border border-hairline bg-background shadow-[0_8px_32px_oklch(0.18_0.045_264/0.06)]">
       <div className="grid-bg absolute inset-0 opacity-50" />
       <div className="absolute left-4 top-4 font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
         ◢ consequence chain · {title}
@@ -107,7 +107,7 @@ function RippleGraph({
           transition={{ duration: 0.5 }}
           style={{ transformOrigin: `${cx}px ${cy}px` }}
         >
-          <circle cx={cx} cy={cy} r={28} fill="var(--signal)" />
+          <circle cx={cx} cy={cy} r={28} fill="var(--ink)" />
           <circle cx={cx} cy={cy} r={28} fill="none" stroke="var(--signal)" strokeOpacity={0.4}>
             <animate attributeName="r" values="28;60;28" dur="2.6s" repeatCount="indefinite" />
             <animate attributeName="stroke-opacity" values="0.5;0;0.5" dur="2.6s" repeatCount="indefinite" />

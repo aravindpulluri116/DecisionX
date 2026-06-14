@@ -99,7 +99,7 @@ export function HeroDecisionUniverse() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="mt-14 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-elevated"
+            className="mt-14 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.06)]"
           >
             {[
               { k: "Modeled chains", v: "12,408" },
