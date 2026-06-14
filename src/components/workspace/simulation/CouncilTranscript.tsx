@@ -1,124 +1,142 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Crown } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { AGENT_ORDER } from "@/agents";
 import { AGENT_VISUALS } from "@/lib/workspace/agentVisuals";
-import { useWorkspaceStore } from "@/stores/workspace-store";
 import { cn } from "@/lib/utils";
-import type { AgentId } from "@/types/simulation";
-
-type TranscriptEntry = {
-  key: string;
-  agentId: AgentId;
-  label: string;
-  text: string;
-  kind: "finding" | "verdict";
-};
-
-function truncate(text: string, max = 160): string {
-  if (text.length <= max) return text;
-  return `${text.slice(0, max).trim()}…`;
-}
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
 export function CouncilTranscript() {
   const agentRuns = useWorkspaceStore((s) => s.agentRuns);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const runById = Object.fromEntries(agentRuns.map((r) => [r.id, r]));
 
-  const { entries, verdict } = useMemo(() => {
-    const flat: TranscriptEntry[] = [];
+  const hasContent = agentRuns.some(
+    (r) => r.status !== "queued" || r.findings.length > 0,
+  );
 
-    for (const run of agentRuns) {
-      run.findings.forEach((finding, i) => {
-        flat.push({
-          key: `${run.id}-f-${i}`,
-          agentId: run.id,
-          label: run.label,
-          text: finding,
-          kind: "finding",
-        });
-      });
-    }
-
-    const cdo = agentRuns.find((r) => r.id === "chiefDecisionOfficer");
-    const verdictText = cdo?.result?.summary;
-
-    return {
-      entries: flat.slice(-8),
-      verdict:
-        cdo?.status === "completed" && verdictText
-          ? { text: verdictText, label: cdo.label }
-          : null,
-    };
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [agentRuns]);
-
-  const hasContent = entries.length > 0 || verdict;
 
   return (
     <div className="flex h-full min-h-[280px] flex-col">
-      <p className="mb-3 font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
-        Live council transcript
-      </p>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <p className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
+          Live council transcript
+        </p>
+        {agentRuns.some((r) => r.status === "running") && (
+          <span className="flex items-center gap-1.5 font-mono-data text-[9px] uppercase text-signal">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
+            </span>
+            Streaming
+          </span>
+        )}
+      </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+      <div className="flex-1 space-y-4 overflow-y-auto pr-1">
         {!hasContent && (
           <div className="rounded-xl border border-dashed border-hairline bg-background px-4 py-8 text-center">
             <p className="font-display text-sm text-ink-muted">Council convening…</p>
-            <p className="mt-1 text-xs text-ink-muted/70">Awaiting first specialist analysis</p>
+            <p className="mt-1 text-xs text-ink-muted/70">Agent responses will appear here as they arrive</p>
           </div>
         )}
 
-        <AnimatePresence initial={false}>
-          {entries.map((entry) => {
-            const visual = AGENT_VISUALS[entry.agentId];
-            const accent = visual?.color ?? "oklch(0.52 0.22 262)";
+        {AGENT_ORDER.map((agentId) => {
+          const run = runById[agentId];
+          if (!run) return null;
 
-            return (
-              <motion.div
-                key={entry.key}
-                initial={{ opacity: 0, y: 12, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="rounded-xl border border-hairline bg-surface p-3 shadow-sm"
-                style={{ borderLeftColor: accent, borderLeftWidth: 3 }}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: accent }}
-                  />
-                  <span className="font-mono-data text-[9px] uppercase tracking-wider text-ink-muted">
-                    {visual?.role ?? entry.label}
+          const visual = AGENT_VISUALS[agentId];
+          const accent = visual.color;
+          const isRunning = run.status === "running";
+          const isComplete = run.status === "completed";
+          const isFailed = run.status === "failed";
+          const hasAgentContent =
+            isRunning || isComplete || isFailed || run.findings.length > 0;
+
+          if (!hasAgentContent) return null;
+
+          return (
+            <section key={agentId} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: accent }}
+                />
+                <span className="font-mono-data text-[9px] uppercase tracking-wider text-ink-muted">
+                  {visual.role}
+                </span>
+                {isRunning && (
+                  <Loader2 className="h-3 w-3 animate-spin text-signal" aria-hidden />
+                )}
+                {isComplete && run.result && (
+                  <span className="ml-auto font-mono-data text-[9px] tabular-nums text-signal">
+                    Impact {run.result.impactScore} · {run.result.confidence}% conf.
                   </span>
-                </div>
-                <p className="mt-2 text-sm leading-relaxed text-ink">
-                  &ldquo;{truncate(entry.text)}&rdquo;
-                </p>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+                )}
+              </div>
 
-        {verdict && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={cn(
-              "rounded-xl border border-signal/30 bg-signal/8 p-4",
-              "shadow-[0_4px_24px_oklch(0.52_0.22_262/0.12)]",
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Crown className="h-4 w-4 text-signal" />
-              <span className="font-mono-data text-[10px] uppercase tracking-wider text-signal">
-                Final verdict
-              </span>
-            </div>
-            <p className="mt-2 text-sm font-medium leading-relaxed text-ink">
-              {truncate(verdict.text, 280)}
-            </p>
-          </motion.div>
-        )}
+              {isRunning && run.findings.length === 0 && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-lg border border-signal/20 bg-signal/5 px-3 py-2 text-xs italic text-ink-muted"
+                >
+                  Deliberating…
+                </motion.p>
+              )}
+
+              <AnimatePresence initial={false}>
+                {run.findings.map((finding, i) => (
+                  <motion.div
+                    key={`${agentId}-f-${i}-${finding.slice(0, 24)}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border border-hairline bg-surface p-3 shadow-sm"
+                    style={{ borderLeftColor: accent, borderLeftWidth: 3 }}
+                  >
+                    <p className="text-sm leading-relaxed text-ink">&ldquo;{finding}&rdquo;</p>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {isComplete && run.result && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={cn(
+                    "rounded-xl border p-3",
+                    agentId === "chiefDecisionOfficer"
+                      ? "border-signal/30 bg-signal/8"
+                      : "border-hairline bg-background/80",
+                  )}
+                >
+                  <p className="text-sm leading-relaxed text-ink">{run.result.summary}</p>
+                  {run.result.risks[0] && (
+                    <p className="mt-2 text-xs text-negative">
+                      <span className="font-medium">Risk:</span> {run.result.risks[0]}
+                    </p>
+                  )}
+                  {run.result.opportunities[0] && (
+                    <p className="mt-1 text-xs text-positive">
+                      <span className="font-medium">Opportunity:</span> {run.result.opportunities[0]}
+                    </p>
+                  )}
+                </motion.div>
+              )}
+
+              {isFailed && (
+                <p className="text-xs text-negative">Agent failed — continuing with partial analysis.</p>
+              )}
+            </section>
+          );
+        })}
+
+        <div ref={scrollRef} />
       </div>
     </div>
   );

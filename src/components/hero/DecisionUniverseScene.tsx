@@ -74,8 +74,8 @@ export function DecisionUniverseScene({ activeId }: { activeId: string }) {
     });
   });
 
-  const signalColor = "#2563EB";
-  const inkColor = "#0F172A";
+  const signalColor = "#3B82F6";
+  const inkColor = "#94A3B8";
 
   return (
     <group ref={groupRef}>

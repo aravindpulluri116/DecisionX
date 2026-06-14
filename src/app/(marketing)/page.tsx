@@ -11,7 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background text-ink">
+    <div className="min-h-screen">
       <SiteHeader />
       <main>
         <HeroDecisionUniverse />

@@ -93,8 +93,8 @@ async function runClaudeAgent(
     for (const finding of findings) {
       await emit({ type: "agent:finding", agentId, finding });
     }
-    await emit({ type: "agent:complete", agentId, result });
     await emit({ type: "agent:status", agentId, status: "completed" });
+    await emit({ type: "agent:complete", agentId, result });
     return result;
   } catch (e) {
     if (process.env.NODE_ENV !== "production") console.error(`Agent ${agentId} failed:`, e);

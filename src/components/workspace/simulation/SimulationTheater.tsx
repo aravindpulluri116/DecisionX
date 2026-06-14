@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { FileText, X } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { AgentRoundtable } from "./AgentRoundtable";
 import { CouncilHeader } from "./CouncilHeader";
@@ -32,6 +33,21 @@ function SystemLogPanel() {
 
 export function SimulationTheater() {
   const open = useWorkspaceStore((s) => s.simulationTheaterOpen);
+  const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
+  const setWorkspaceTab = useWorkspaceStore((s) => s.setWorkspaceTab);
+  const agentRuns = useWorkspaceStore((s) => s.agentRuns);
+  const activeSimulation = useWorkspaceStore((s) => s.activeSimulation);
+
+  const isRunning = agentRuns.some((a) => a.status === "running");
+  const isComplete =
+    activeSimulation?.status === "completed" &&
+    !isRunning &&
+    agentRuns.some((a) => a.status === "completed");
+
+  const handleViewReport = () => {
+    setWorkspaceTab("report");
+    setSimulationTheaterOpen(false);
+  };
 
   return (
     <AnimatePresence>
@@ -47,7 +63,17 @@ export function SimulationTheater() {
 
           <div className="relative flex min-h-0 flex-1 flex-col">
             <div className="shrink-0 border-b border-hairline bg-surface/90 px-5 py-5 backdrop-blur-md md:px-8">
-              <CouncilHeader />
+              <div className="flex items-start justify-between gap-4">
+                <CouncilHeader className="min-w-0 flex-1" />
+                <button
+                  type="button"
+                  onClick={() => setSimulationTheaterOpen(false)}
+                  className="shrink-0 rounded-lg border border-hairline p-2 text-ink-muted transition-colors hover:bg-background hover:text-ink"
+                  aria-label="Close council view"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <div className="flex min-h-0 flex-1">
@@ -60,12 +86,19 @@ export function SimulationTheater() {
                   </div>
                 </div>
 
-                <div className="hidden min-h-[320px] w-full shrink-0 md:flex md:max-w-sm md:flex-col md:border-l md:border-hairline md:pl-6 lg:max-w-md">
-                  <CouncilTranscript />
+                <div className="flex min-h-[320px] w-full shrink-0 flex-col gap-4 md:max-w-md md:flex-1 lg:max-w-lg">
+                  <div className="min-h-0 flex-1 md:border-l md:border-hairline md:pl-6">
+                    <CouncilTranscript />
+                  </div>
+                  <div className="hidden border-t border-hairline pt-4 md:block">
+                    <p className="mb-2 font-mono-data text-[10px] uppercase tracking-wider text-ink-muted">
+                      Agent status
+                    </p>
+                    <AgentTimeline compact />
+                  </div>
                 </div>
 
                 <div className="space-y-4 md:hidden">
-                  <CouncilTranscript />
                   <div className="border-t border-hairline pt-4">
                     <p className="mb-2 font-mono-data text-[10px] uppercase tracking-wider text-ink-muted">
                       Agent status
@@ -75,6 +108,38 @@ export function SimulationTheater() {
                 </div>
               </div>
             </div>
+
+            {isComplete && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="shrink-0 border-t border-hairline bg-surface/95 px-5 py-4 backdrop-blur-md md:px-8"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-ink-muted">
+                    Council session complete — transcript preserved below. Review findings or open the
+                    full report.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSimulationTheaterOpen(false)}
+                      className="rounded-lg border border-hairline px-4 py-2 text-sm text-ink-muted hover:text-ink"
+                    >
+                      Keep reviewing
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleViewReport}
+                      className="inline-flex items-center gap-2 rounded-lg bg-signal px-4 py-2 text-sm font-medium text-white"
+                    >
+                      <FileText className="h-4 w-4" />
+                      View report
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         </motion.div>
       )}

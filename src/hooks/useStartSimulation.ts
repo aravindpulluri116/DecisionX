@@ -8,7 +8,6 @@ import type { OrchestratorEvent } from "@/lib/orchestration/events";
 import { persistSimulationAsScenario } from "@/lib/services/simulationService";
 import { projectToScenarioParams } from "@/lib/services/projectService";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { usePrefersReducedMotion } from "@/lib/motion";
 import { parseSimulationSse } from "@/lib/simulation/parseSse";
 import type { DecisionProject, SimulationInput } from "@/types/simulation";
 import type { ScenarioParams } from "@/types/workspace";
@@ -46,6 +45,10 @@ async function handleOrchestratorEvent(
       break;
     case "agent:status":
       updateAgentRun(event.agentId, { status: event.status });
+      if (event.status === "running") {
+        const label = useWorkspaceStore.getState().agentRuns.find((r) => r.id === event.agentId)?.label;
+        appendLog(`${label ?? event.agentId} engaged`);
+      }
       break;
     case "agent:finding":
       useWorkspaceStore.getState().appendAgentFinding(event.agentId, event.finding);
@@ -91,7 +94,6 @@ async function handleOrchestratorEvent(
 export function useStartSimulation() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const reduced = usePrefersReducedMotion();
 
   const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
   const setAgentRuns = useWorkspaceStore((s) => s.setAgentRuns);
@@ -158,11 +160,9 @@ export function useStartSimulation() {
         if (process.env.NODE_ENV !== "production") console.error(e);
       } finally {
         clearTimeout(timeoutId);
-        setTimeout(() => setSimulationTheaterOpen(false), reduced ? 0 : 1200);
       }
     },
     [
-      reduced,
       router,
       queryClient,
       setSimulationTheaterOpen,
