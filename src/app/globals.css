@@ -63,6 +63,9 @@
   --color-environmental: var(--environmental);
   --color-hairline: var(--hairline);
   --color-grid-line: var(--grid-line);
+  --color-band: var(--band);
+  --color-band-foreground: var(--band-foreground);
+  --color-band-muted: var(--band-muted);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -127,6 +130,11 @@
   --mesh-1: oklch(0.52 0.22 262 / 0.08);
   --mesh-2: oklch(0.55 0.12 195 / 0.06);
   --mesh-3: oklch(0.51 0.15 145 / 0.05);
+
+  --band: oklch(0.18 0.045 264);
+  --band-foreground: oklch(0.98 0.006 248);
+  --band-muted: oklch(0.98 0.006 248 / 0.5);
+  --shadow-elevated: oklch(0.18 0.045 264 / 0.08);
 }
 
 .dark {
@@ -162,6 +170,30 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  /* DecisionX dark palette */
+  --ink: oklch(0.93 0.01 248);
+  --ink-muted: oklch(0.62 0.028 258);
+  --surface: oklch(0.19 0.042 265);
+  --surface-elevated: oklch(0.23 0.042 265);
+  --signal: oklch(0.62 0.22 262);
+  --signal-soft: oklch(0.62 0.22 262 / 0.18);
+  --signal-glow: oklch(0.62 0.22 262 / 0.4);
+  --positive: oklch(0.58 0.15 145);
+  --warning: oklch(0.72 0.143 79);
+  --negative: oklch(0.62 0.205 27);
+  --environmental: oklch(0.62 0.12 195);
+  --hairline: oklch(1 0 0 / 0.1);
+  --grid-line: oklch(1 0 0 / 0.06);
+
+  --band: oklch(0.09 0.038 264);
+  --band-foreground: oklch(0.93 0.01 248);
+  --band-muted: oklch(0.93 0.01 248 / 0.55);
+  --shadow-elevated: oklch(0 0 0 / 0.45);
+
+  --mesh-1: oklch(0.62 0.22 262 / 0.14);
+  --mesh-2: oklch(0.62 0.12 195 / 0.1);
+  --mesh-3: oklch(0.58 0.15 145 / 0.08);
 }
 
 @layer base {
@@ -386,9 +418,13 @@
 
 @utility mesh-bg-dark {
   background-image:
-    radial-gradient(ellipse 80% 60% at 15% 25%, oklch(0.52 0.22 262 / 0.18), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 15%, oklch(0.55 0.12 195 / 0.12), transparent 50%),
-    radial-gradient(ellipse 70% 55% at 50% 85%, oklch(0.51 0.15 145 / 0.08), transparent 55%);
+    radial-gradient(ellipse 80% 60% at 15% 25%, var(--mesh-1), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 15%, var(--mesh-2), transparent 50%),
+    radial-gradient(ellipse 70% 55% at 50% 85%, var(--mesh-3), transparent 55%);
+}
+
+@utility shadow-elevated {
+  box-shadow: 0 8px 32px var(--shadow-elevated);
 }
 
 @utility glass-panel {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MagneticButton } from "./MagneticButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -18,7 +19,7 @@ export function SiteHeader() {
     <header
       className={`sticky top-0 z-50 border-b transition-all duration-300 ${
         scrolled
-          ? "border-hairline bg-background/90 shadow-[0_1px_24px_oklch(0.18_0.045_264/0.06)] backdrop-blur-xl"
+          ? "border-hairline bg-background/90 shadow-elevated backdrop-blur-xl"
           : "border-transparent bg-transparent"
       }`}
     >
@@ -52,6 +53,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link href="/workspace">
             <MagneticButton className="!px-4 !py-2 text-xs">
               Open workspace

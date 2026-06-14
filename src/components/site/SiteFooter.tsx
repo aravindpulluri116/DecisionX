@@ -15,7 +15,7 @@ export function SiteFooter() {
             <div className="mt-6 flex gap-3">
               <Link
                 href="/workspace"
-                className="rounded-md bg-ink px-4 py-2 text-xs font-medium text-surface transition-colors hover:bg-signal"
+                className="rounded-md bg-ink px-4 py-2 text-xs font-medium text-background transition-colors hover:bg-signal"
               >
                 Open workspace →
               </Link>
