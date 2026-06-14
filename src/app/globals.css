@@ -66,6 +66,8 @@
   --color-band: var(--band);
   --color-band-foreground: var(--band-foreground);
   --color-band-muted: var(--band-muted);
+  --color-strong: var(--strong);
+  --color-strong-foreground: var(--strong-foreground);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -135,17 +137,37 @@
   --band-foreground: oklch(0.98 0.006 248);
   --band-muted: oklch(0.98 0.006 248 / 0.5);
   --shadow-elevated: oklch(0.18 0.045 264 / 0.08);
+
+  /* Solid fills (buttons, chips) - distinct from text ink */
+  --strong: oklch(0.18 0.045 264);
+  --strong-foreground: oklch(0.982 0.006 248);
+
+  /* AI Council chamber (warm ivory - light marketing theme) */
+  --council-bg: #fbf8f4;
+  --council-surface: #ffffff;
+  --council-surface-soft: #f5f0ea;
+  --council-forest: #223a34;
+  --council-sage: #7e9a85;
+  --council-amber: #c98c2e;
+  --council-terracotta: #d97b43;
+  --council-muted: #6b6b6b;
+  --council-border: color-mix(in oklab, #223a34 10%, transparent);
+  --council-shadow-soft:
+    0 1px 0 color-mix(in oklab, #223a34 5%, transparent),
+    0 12px 32px -16px color-mix(in oklab, #223a34 14%, transparent);
 }
 
 .dark {
+  color-scheme: dark;
+
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
   --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
+  --primary: oklch(0.62 0.22 262);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.279 0.041 260.031);
   --secondary-foreground: oklch(0.984 0.003 247.858);
   --muted: oklch(0.279 0.041 260.031);
@@ -194,11 +216,33 @@
   --mesh-1: oklch(0.62 0.22 262 / 0.14);
   --mesh-2: oklch(0.62 0.12 195 / 0.1);
   --mesh-3: oklch(0.58 0.15 145 / 0.08);
+
+  --strong: oklch(0.984 0.003 247.858);
+  --strong-foreground: oklch(0.129 0.042 264.695);
+
+  /* Council stays warm ivory inside the simulation theater */
+  --council-bg: #fbf8f4;
+  --council-surface: #ffffff;
+  --council-surface-soft: #f5f0ea;
+  --council-forest: #223a34;
+  --council-sage: #7e9a85;
+  --council-amber: #c98c2e;
+  --council-terracotta: #d97b43;
+  --council-muted: #6b6b6b;
+  --council-border: color-mix(in oklab, #223a34 10%, transparent);
+  --council-shadow-soft:
+    0 1px 0 color-mix(in oklab, #223a34 5%, transparent),
+    0 12px 32px -16px color-mix(in oklab, #223a34 14%, transparent);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
+  }
+
+  html {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 
   body {
@@ -289,22 +333,7 @@
   animation: dx-scan 3s ease-in-out infinite;
 }
 
-/* AI Council chamber (warm ivory intelligence theme) */
-:root {
-  --council-bg: #fbf8f4;
-  --council-surface: #ffffff;
-  --council-surface-soft: #f5f0ea;
-  --council-forest: #223a34;
-  --council-sage: #7e9a85;
-  --council-amber: #c98c2e;
-  --council-terracotta: #d97b43;
-  --council-muted: #6b6b6b;
-  --council-border: color-mix(in oklab, #223a34 10%, transparent);
-  --council-shadow-soft:
-    0 1px 0 color-mix(in oklab, #223a34 5%, transparent),
-    0 12px 32px -16px color-mix(in oklab, #223a34 14%, transparent);
-}
-
+/* AI Council chamber utilities */
 @utility council-glass {
   background: color-mix(in oklab, var(--council-surface) 78%, transparent);
   backdrop-filter: blur(20px) saturate(140%);
@@ -428,19 +457,19 @@
 }
 
 @utility glass-panel {
-  background: oklch(1 0 0 / 0.72);
+  background: color-mix(in oklch, var(--surface) 72%, transparent);
   backdrop-filter: blur(16px) saturate(1.4);
-  border: 1px solid oklch(0.18 0.045 264 / 0.08);
+  border: 1px solid var(--hairline);
 }
 
 @utility glass-panel-dark {
-  background: oklch(0.12 0.02 264 / 0.65);
+  background: color-mix(in oklch, var(--surface-elevated) 65%, transparent);
   backdrop-filter: blur(20px) saturate(1.3);
-  border: 1px solid oklch(1 0 0 / 0.1);
+  border: 1px solid var(--hairline);
 }
 
 @utility text-gradient-signal {
-  background: linear-gradient(135deg, oklch(0.52 0.22 262), oklch(0.55 0.12 195));
+  background: linear-gradient(135deg, var(--signal), var(--environmental));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -448,8 +477,8 @@
 
 @utility glow-signal {
   box-shadow:
-    0 0 0 1px oklch(0.52 0.22 262 / 0.15),
-    0 4px 24px oklch(0.52 0.22 262 / 0.12);
+    0 0 0 1px color-mix(in oklch, var(--signal) 15%, transparent),
+    0 4px 24px color-mix(in oklch, var(--signal) 12%, transparent);
 }
 
 @utility card-lift {
@@ -462,8 +491,8 @@
   &:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 8px 32px oklch(0.18 0.045 264 / 0.08),
-      0 0 0 1px oklch(0.52 0.22 262 / 0.08);
+      0 8px 32px var(--shadow-elevated),
+      0 0 0 1px color-mix(in oklch, var(--signal) 8%, transparent);
   }
 }
 

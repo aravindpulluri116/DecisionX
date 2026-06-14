@@ -9,7 +9,7 @@ export function SectionFinalCTA() {
   return (
     <section className="relative overflow-hidden border-b border-hairline bg-band text-band-foreground">
       <div className="mesh-bg-dark absolute inset-0" />
-      <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_40%,oklch(0.62_0.22_262/0.14)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_40%,color-mix(in_oklch,var(--signal)_14%,transparent)_100%)]" />
 
       <div className="relative mx-auto max-w-[1400px] px-6 py-24 md:py-32">
         <motion.div
