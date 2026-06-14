@@ -11,7 +11,8 @@ export function SectionRippleEffect() {
 
   return (
     <section className="relative border-b border-hairline bg-surface">
-      <div className="mx-auto max-w-[1400px] px-6 py-28">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,oklch(0.52_0.22_262/0.03)_0%,transparent_40%)]" />
+      <div className="relative mx-auto max-w-[1400px] px-6 py-28">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_2fr]">
           <div>
             <SectionLabel index="02" title="The ripple effect" />
@@ -23,13 +24,15 @@ export function SectionRippleEffect() {
               Each scenario emits a chain of consequences across stakeholders and time. Hover any node for the
               factors behind it.
             </p>
-            <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden border border-hairline bg-hairline">
+            <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline">
               {decisions.map((d) => (
                 <button
                   key={d.id}
                   onClick={() => setActiveId(d.id)}
-                  className={`group flex flex-col items-start gap-1 px-4 py-3 text-left transition-colors ${
-                    d.id === activeId ? "bg-ink text-background" : "bg-surface hover:bg-background"
+                  className={`group flex flex-col items-start gap-1 px-4 py-3.5 text-left transition-all ${
+                    d.id === activeId
+                      ? "bg-ink text-background shadow-inner"
+                      : "bg-surface hover:bg-signal/5"
                   }`}
                 >
                   <span className="font-mono-data text-[10px] uppercase tracking-[0.18em] opacity-70">
@@ -67,7 +70,7 @@ function RippleGraph({
   });
 
   return (
-    <div className="relative aspect-[760/480] w-full overflow-hidden border border-hairline bg-background">
+    <div className="relative aspect-[760/480] w-full overflow-hidden rounded-xl border border-hairline bg-background shadow-[0_8px_32px_oklch(0.18_0.045_264/0.06)]">
       <div className="grid-bg absolute inset-0 opacity-50" />
       <div className="absolute left-4 top-4 font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
         ◢ consequence chain · {title}

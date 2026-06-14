@@ -1,60 +1,58 @@
 "use client";
 
-import { motion } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type WorkspaceEmptyStateProps = {
-  title?: string;
-  description?: string;
-  actionLabel?: string;
-  onAction?: () => void;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  tags?: string[];
+  action?: React.ReactNode;
+  footer?: React.ReactNode;
+  className?: string;
 };
 
 export function WorkspaceEmptyState({
-  title = "No simulation selected",
-  description = "Select a saved simulation from the navigator, or build a new scenario to visualize consequence chains.",
-  actionLabel = "Build scenario",
-  onAction,
+  icon: Icon,
+  title,
+  description,
+  tags,
+  action,
+  footer,
+  className,
 }: WorkspaceEmptyStateProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center px-8 text-center">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md"
-      >
-        <svg
-          viewBox="0 0 200 120"
-          className="mx-auto mb-8 h-24 w-40 text-ink-muted/40"
-          aria-hidden
-        >
-          <circle cx="30" cy="60" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="100" cy="30" r="10" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="100" cy="90" r="10" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="170" cy="60" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <path
-            d="M42 60 L88 35 M42 60 L88 85 M112 35 L158 55 M112 85 L158 65"
-            stroke="currentColor"
-            strokeWidth="1"
-            strokeDasharray="4 4"
-            fill="none"
-          />
-        </svg>
-        <p className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
-          ◢ decision canvas / idle
-        </p>
-        <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-ink">{title}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-ink-muted">{description}</p>
-        {onAction && (
-          <button
-            onClick={onAction}
-            className="mt-6 inline-flex items-center gap-2 border border-signal bg-signal px-5 py-2.5 font-mono-data text-[11px] uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
-          >
-            {actionLabel}
-            <span aria-hidden>→</span>
-          </button>
+    <div
+      className={cn(
+        "relative flex h-full min-h-[280px] flex-col items-center justify-center px-6 py-12 text-center",
+        className,
+      )}
+    >
+      <div className="mesh-bg absolute inset-0 opacity-50" />
+      <div className="relative max-w-md">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-signal/10">
+          <Icon className="h-7 w-7 text-signal" />
+        </div>
+        <h2 className="mt-6 font-display text-2xl font-bold tracking-tight text-ink">{title}</h2>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-muted">{description}</p>
+
+        {tags && tags.length > 0 && (
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-hairline bg-surface/80 px-3 py-1 font-mono-data text-[9px] uppercase tracking-[0.15em] text-ink-muted"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         )}
-      </motion.div>
+
+        {action && <div className="mt-8">{action}</div>}
+        {footer && <div className="mt-6">{footer}</div>}
+      </div>
     </div>
   );
 }

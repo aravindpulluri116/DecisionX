@@ -10,7 +10,7 @@ const stats = [
     src: "Flyvbjerg, Oxford (meta-analysis, n=2,062)",
   },
   {
-    n: "$2.4T",
+    n: "₹2.4 L Cr",
     label: "in annual losses tied to second- and third-order decision effects.",
     src: "OECD Global Decisions Index, 2024",
   },
@@ -23,8 +23,9 @@ const stats = [
 
 export function SectionProblem() {
   return (
-    <section className="border-b border-hairline bg-background">
-      <div className="mx-auto max-w-[1400px] px-6 py-28">
+    <section className="relative border-b border-hairline bg-background">
+      <div className="mesh-bg absolute inset-0 opacity-60" />
+      <div className="relative mx-auto max-w-[1400px] px-6 py-28">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_2fr]">
           <div>
             <SectionLabel index="01" title="The problem" />
@@ -39,7 +40,7 @@ export function SectionProblem() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-px overflow-hidden border border-hairline bg-hairline md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.05)] md:grid-cols-3">
             {stats.map((s, i) => (
               <motion.div
                 key={s.n}
@@ -47,9 +48,9 @@ export function SectionProblem() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.7, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="flex flex-col justify-between bg-surface p-7"
+                className="group flex flex-col justify-between bg-surface p-7 transition-colors hover:bg-signal/[0.03]"
               >
-                <div className="font-display text-[clamp(3rem,6vw,5rem)] font-bold leading-[0.9] tracking-[-0.04em] text-ink">
+                <div className="font-display text-[clamp(3rem,6vw,5rem)] font-bold leading-[0.9] tracking-[-0.04em] text-ink transition-colors group-hover:text-signal">
                   {s.n}
                 </div>
                 <div className="mt-8">

@@ -60,10 +60,6 @@ async function handleOrchestratorEvent(
     case "enrichment:ready":
       useWorkspaceStore.getState().setLocationIntelligence(event.intelligence);
       break;
-    case "timemachine:ready":
-      useWorkspaceStore.getState().setTimeMachineBundle(event.timeMachine);
-      appendLog("Future trajectories projected — Time Machine ready");
-      break;
     case "report:ready":
       setActiveReport(event.report);
       break;
@@ -80,7 +76,13 @@ async function handleOrchestratorEvent(
         ctx.router.push(`/workspace/${ctx.project.slug}`);
       }
       toast.success("Analysis complete", { description: title });
-      useWorkspaceStore.getState().setWorkspaceMode("timemachine");
+      useWorkspaceStore.getState().setWorkspaceTab("report");
+      await ctx.queryClient.invalidateQueries({
+        queryKey: ["scenario-report", ctx.project.id, scenario.id],
+      });
+      await ctx.queryClient.invalidateQueries({
+        queryKey: ["scenario-simulation", ctx.project.id, scenario.id],
+      });
       break;
     }
   }
@@ -95,7 +97,6 @@ export function useStartSimulation() {
   const setSimulationProposal = useWorkspaceStore((s) => s.setSimulationProposal);
   const setAgentRuns = useWorkspaceStore((s) => s.setAgentRuns);
   const clearLog = useWorkspaceStore((s) => s.clearLog);
-  const setWorkspaceMode = useWorkspaceStore((s) => s.setWorkspaceMode);
   const setBuilderOpen = useWorkspaceStore((s) => s.setBuilderOpen);
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
 
@@ -110,7 +111,7 @@ export function useStartSimulation() {
         project.locationIntelligence?.address ?? project.geo?.address ?? "",
       );
       setSimulationTheaterOpen(true);
-      setWorkspaceMode("canvas");
+      useWorkspaceStore.getState().setWorkspaceTab("report");
 
       const input: SimulationInput = {
         project,
@@ -162,7 +163,7 @@ export function useStartSimulation() {
         if (process.env.NODE_ENV !== "production") console.error(e);
       } finally {
         clearTimeout(timeoutId);
-        setTimeout(() => setSimulationTheaterOpen(false), reduced ? 0 : 800);
+        setTimeout(() => setSimulationTheaterOpen(false), reduced ? 0 : 1200);
       }
     },
     [
@@ -173,7 +174,6 @@ export function useStartSimulation() {
       setSimulationProposal,
       setAgentRuns,
       clearLog,
-      setWorkspaceMode,
       setBuilderOpen,
       setWizardOpen,
     ],

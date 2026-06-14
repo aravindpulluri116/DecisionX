@@ -33,8 +33,9 @@ const steps = [
 
 export function SectionHowItWorks() {
   return (
-    <section className="border-b border-hairline bg-background">
-      <div className="mx-auto max-w-[1400px] px-6 py-28">
+    <section className="relative border-b border-hairline bg-background">
+      <div className="mesh-bg absolute inset-0 opacity-50" />
+      <div className="relative mx-auto max-w-[1400px] px-6 py-28">
         <div className="max-w-2xl">
           <SectionLabel index="03" title="How DecisionX works" />
           <h2 className="mt-6 font-display text-[clamp(2rem,4.2vw,3.5rem)] font-bold leading-[1] tracking-[-0.03em]">
@@ -43,7 +44,7 @@ export function SectionHowItWorks() {
           </h2>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden border border-hairline bg-hairline md:grid-cols-5">
+        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline shadow-[0_8px_32px_oklch(0.18_0.045_264/0.05)] md:grid-cols-5">
           {steps.map((s, i) => (
             <motion.div
               key={s.n}
@@ -51,9 +52,9 @@ export function SectionHowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative flex flex-col bg-surface p-6"
+              className="group relative flex flex-col bg-surface p-6 transition-colors hover:bg-signal/[0.03]"
             >
-              <div className="absolute left-0 top-0 h-px w-0 bg-signal transition-all duration-700 group-hover:w-full" />
+              <div className="absolute left-0 top-0 h-0.5 w-0 bg-signal transition-all duration-700 group-hover:w-full" />
               <div className="flex items-center justify-between">
                 <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
                   STAGE {s.n}

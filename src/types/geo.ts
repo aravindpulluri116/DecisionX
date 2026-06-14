@@ -86,6 +86,8 @@ export type LocationIntelligence = {
   assumptions: string[];
   generatedAt: string;
   fromMock?: boolean;
+  /** True when OpenStreetMap lookup failed — no fabricated fallback data. */
+  unavailable?: boolean;
 };
 
 export type GeoQueryContext = {

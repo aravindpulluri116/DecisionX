@@ -1,7 +1,6 @@
 import circle from "@turf/circle";
 import type { FeatureCollection, Polygon } from "geojson";
 import type { GeoBBox, GeoCoordinates, GeoQueryContext, ProjectGeo } from "@/types/geo";
-import { getCityCoords } from "@/lib/geo/mock-geo";
 
 const NOMINATIM_BASE =
   process.env.NOMINATIM_BASE_URL ?? "https://nominatim.openstreetmap.org";
@@ -56,11 +55,7 @@ export async function resolveProjectGeo(ctx: GeoQueryContext): Promise<ProjectGe
   }
   const geocoded = await geocodeAddress(ctx.location);
   if (geocoded) return { ...geocoded, projectArea: ctx.projectArea };
-  return {
-    coords: getCityCoords(ctx.location),
-    address: ctx.location,
-    projectArea: ctx.projectArea,
-  };
+  throw new Error(`Could not geocode location: ${ctx.location}`);
 }
 
 export function buildRadiusCircles(

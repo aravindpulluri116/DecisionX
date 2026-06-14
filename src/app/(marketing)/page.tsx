@@ -6,7 +6,7 @@ import { SectionRippleEffect } from "@/components/sections/SectionRippleEffect";
 import { SectionHowItWorks } from "@/components/sections/SectionHowItWorks";
 import { SectionSimulator } from "@/components/sections/SectionSimulator";
 import { SectionDashboardPreview } from "@/components/sections/SectionDashboardPreview";
-import { SectionMapPreview } from "@/components/sections/SectionMapPreview";
+import { SectionFinalCTA } from "@/components/sections/SectionFinalCTA";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function HomePage() {
@@ -20,7 +20,7 @@ export default function HomePage() {
         <SectionHowItWorks />
         <SectionSimulator />
         <SectionDashboardPreview />
-        <SectionMapPreview />
+        <SectionFinalCTA />
       </main>
       <SiteFooter />
       <Toaster position="bottom-right" />

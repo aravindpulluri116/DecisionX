@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora, Inter, JetBrains_Mono } from "next/font/google";
+import { Sora, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
 
@@ -9,7 +9,7 @@ const fontDisplay = Sora({
   display: "swap",
 });
 
-const fontSans = Inter({
+const fontSans = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",

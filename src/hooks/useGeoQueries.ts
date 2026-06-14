@@ -1,19 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import type { GeoCoordinates, LocationIntelligence } from "@/types/geo";
-import { fetchLocationIntelligence } from "@/lib/workspace/queries";
 
-export function useLocationIntelligence(projectId: string | undefined) {
-  return useQuery({
-    queryKey: ["location-intelligence", projectId],
-    queryFn: () => (projectId ? fetchLocationIntelligence(projectId) : null),
-    enabled: Boolean(projectId),
-  });
-}
-
-export function useGeoEnrichmentPreview(location: string, coords?: GeoCoordinates) {
+export function useGeoEnrichmentPreview(location: string, coords?: GeoCoordinates, enabled = true) {
   return useQuery({
     queryKey: ["geo-enrich-preview", location, coords?.lat, coords?.lng],
     queryFn: async () => {
@@ -25,11 +15,7 @@ export function useGeoEnrichmentPreview(location: string, coords?: GeoCoordinate
       if (!res.ok) throw new Error("Enrichment failed");
       return (await res.json()) as LocationIntelligence;
     },
-    enabled: Boolean(location),
+    enabled: enabled && Boolean(location.trim()),
     staleTime: 60_000,
   });
-}
-
-export function useGeoLayers(intelligence: LocationIntelligence | null | undefined) {
-  return useMemo(() => intelligence?.layers ?? [], [intelligence]);
 }

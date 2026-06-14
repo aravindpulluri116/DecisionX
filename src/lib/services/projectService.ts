@@ -1,16 +1,6 @@
-import type { DecisionProject, DecisionReport, Simulation, StakeholderGroup, ProjectCategory } from "@/types/simulation";
+import type { DecisionProject, ProjectCategory } from "@/types/simulation";
 import type { Project, ScenarioParams } from "@/types/workspace";
-import { fetchProjects, fetchProjectBySlug, insertProject } from "@/lib/workspace/queries";
-import { getMockProjects } from "@/lib/workspace/mock-data";
-
-const mockProjects: DecisionProject[] = getMockProjects().map((p) => ({
-  ...p,
-  description: `${p.title} — strategic decision initiative.`,
-  category: mapProjectTypeToCategory(p.project_type),
-  stakeholders: ["Citizens", "Government"] as StakeholderGroup[],
-  budget: 800,
-  timeline: "10 years",
-}));
+import { fetchProjects, fetchProjectBySlug, insertProject, saveLocationIntelligence } from "@/lib/workspace/queries";
 
 function mapProjectTypeToCategory(type: string): ProjectCategory {
   const map: Record<string, ProjectCategory> = {
@@ -30,15 +20,13 @@ function slugify(title: string) {
 }
 
 function toDecisionProject(p: Project): DecisionProject {
-  const existing = mockProjects.find((m) => m.id === p.id);
-  if (existing) return existing;
   return {
     ...p,
-    description: `${p.title} decision analysis.`,
-    category: mapProjectTypeToCategory(p.project_type),
-    stakeholders: ["Citizens", "Government"],
-    budget: 800,
-    timeline: "10 years",
+    description: p.description ?? "",
+    category: (p.category as DecisionProject["category"]) ?? mapProjectTypeToCategory(p.project_type),
+    stakeholders: (p.stakeholders as DecisionProject["stakeholders"]) ?? [],
+    budget: p.budget ?? 0,
+    timeline: p.timeline ?? "10 years",
   };
 }
 
@@ -54,23 +42,32 @@ export async function getProjectBySlug(slug: string): Promise<DecisionProject | 
 
 export async function createProject(
   draft: Partial<DecisionProject>,
+  _scenarioParams?: ScenarioParams,
 ): Promise<DecisionProject> {
+  if (!draft.title || !draft.description || !draft.location || draft.budget == null) {
+    throw new Error("Project requires title, description, location, and budget");
+  }
+  if (!draft.category || !draft.stakeholders?.length) {
+    throw new Error("Project requires category and stakeholders");
+  }
+
   const project: DecisionProject = {
     id: crypto.randomUUID(),
-    slug: slugify(draft.title ?? "new-project"),
-    title: draft.title ?? "New Project",
+    slug: slugify(draft.title),
+    title: draft.title,
     status: "draft",
-    impact_score: 50,
+    impact_score: 0,
     risk_level: "medium",
-    project_type: draft.project_type ?? draft.category ?? "Infrastructure",
-    location: draft.location ?? "Hyderabad",
+    project_type: draft.project_type ?? draft.category,
+    location: draft.location,
     created_at: new Date().toISOString(),
-    description: draft.description ?? "",
-    category: draft.category ?? "Transportation",
-    stakeholders: draft.stakeholders ?? ["Citizens"],
-    budget: draft.budget ?? 500,
+    description: draft.description,
+    category: draft.category,
+    stakeholders: draft.stakeholders,
+    budget: draft.budget,
     timeline: draft.timeline ?? "10 years",
     geo: draft.geo,
+    locationIntelligence: draft.locationIntelligence,
   };
 
   await insertProject({
@@ -89,16 +86,32 @@ export async function createProject(
     timeline: project.timeline,
   });
 
-  mockProjects.push(project);
+  if (project.locationIntelligence) {
+    await saveLocationIntelligence(project.id, project.locationIntelligence, project.geo?.coords);
+  }
+
   return project;
 }
 
 export function projectToScenarioParams(project: DecisionProject): ScenarioParams {
+  const radiusImpacts = project.locationIntelligence?.radiusImpacts ?? [];
+  const geoPopM =
+    radiusImpacts.find((r) => r.radiusKm === 5)?.populationEstimate ??
+    radiusImpacts.find((r) => r.radiusKm === 10)?.populationEstimate;
+
+  const population =
+    geoPopM && geoPopM > 0 && !project.locationIntelligence?.unavailable
+      ? Math.max(0.05, parseFloat((geoPopM / 1_000_000).toFixed(2)))
+      : undefined;
+
+  const timelineMatch = project.timeline.match(/\d+/);
+  const timelineYears = timelineMatch ? `${timelineMatch[0]} years` : project.timeline;
+
   return {
     budget: project.budget,
-    population: 2.4,
+    population: population ?? 0,
     location: project.location,
-    timeline: project.timeline,
+    timeline: timelineYears,
     projectType: project.category,
     policyType: project.category,
   };

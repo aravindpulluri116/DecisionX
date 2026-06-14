@@ -1,22 +1,7 @@
 import type { GeoLayerBundle, GeoQueryContext, RadiusImpact } from "@/types/geo";
-import { getMockLocationIntelligence } from "@/lib/geo/mock-geo";
+import { emptyGeoLayer } from "@/lib/geo/empty-geo";
 import { countPOIsInRadius } from "./infrastructure-service";
 import { getGeoConfig } from "./geo-service";
-
-const DENSITY_PRESETS: Record<string, number> = {
-  hyderabad: 4200,
-  mumbai: 21000,
-  bangalore: 5800,
-  telangana: 3100,
-};
-
-function densityForLocation(location: string): number {
-  const key = location.toLowerCase();
-  if (key.includes("mumbai")) return DENSITY_PRESETS.mumbai;
-  if (key.includes("bangalore") || key.includes("bengaluru")) return DENSITY_PRESETS.bangalore;
-  if (key.includes("telangana")) return DENSITY_PRESETS.telangana;
-  return DENSITY_PRESETS.hyderabad;
-}
 
 async function fetchResidentialZones(lat: number, lng: number, radiusM: number): Promise<GeoLayerBundle> {
   const { overpassBase } = getGeoConfig();
@@ -51,25 +36,37 @@ async function fetchResidentialZones(lat: number, lng: number, radiusM: number):
       },
     };
   } catch {
-    return getMockLocationIntelligence("", { lat, lng }).layers.find((l) => l.key === "population")!;
+    return emptyGeoLayer("population", "Population (unavailable)", "#0F172A");
   }
+}
+
+/** Estimate population from residential polygon area in OSM (no city presets). */
+function estimatePopulationFromResidential(
+  residentialFeatureCount: number,
+  radiusKm: number,
+): number {
+  if (residentialFeatureCount === 0) return 0;
+  const areaKm2 = Math.PI * radiusKm * radiusKm;
+  const avgDensityPerKm2 = Math.min(15000, residentialFeatureCount * 800);
+  return Math.round(areaKm2 * avgDensityPerKm2 * 0.5);
 }
 
 export async function buildRadiusImpacts(
   ctx: GeoQueryContext & { coords: { lat: number; lng: number } },
 ): Promise<RadiusImpact[]> {
   const { lat, lng } = ctx.coords;
-  const density = densityForLocation(ctx.location);
   const radii = [1, 5, 10] as const;
+
+  const popLayer = await fetchResidentialZones(lat, lng, 5000);
+  const residentialCount = popLayer.data.features.length;
 
   const impacts: RadiusImpact[] = [];
   for (const km of radii) {
     const radiusM = km * 1000;
-    const areaKm2 = Math.PI * km * km;
     const counts = await countPOIsInRadius(lat, lng, radiusM);
     impacts.push({
       radiusKm: km,
-      populationEstimate: Math.round(density * areaKm2 * 0.6),
+      populationEstimate: estimatePopulationFromResidential(residentialCount, km),
       schools: counts.schools,
       hospitals: counts.hospitals,
       businesses: counts.businesses,
@@ -86,12 +83,13 @@ export async function fetchPopulationLayer(
 }
 
 export function computePopulationScores(
-  location: string,
   radiusImpacts: RadiusImpact[],
 ): { populationDensity: number; urbanDensity: number } {
-  const base = densityForLocation(location);
   const r5 = radiusImpacts.find((r) => r.radiusKm === 5);
-  const densityScore = Math.min(100, Math.round((base / 250) * 10));
-  const urbanScore = Math.min(100, Math.round(((r5?.businesses ?? 100) / 500) * 100));
-  return { populationDensity: densityScore, urbanDensity: urbanScore };
+  const r1 = radiusImpacts.find((r) => r.radiusKm === 1);
+  const pop5 = r5?.populationEstimate ?? 0;
+  const densityScore = pop5 > 0 ? Math.min(100, Math.round(Math.log10(pop5 + 1) * 18)) : 0;
+  const urbanScore = Math.min(100, Math.round(((r5?.businesses ?? 0) / 500) * 100));
+  const infraBoost = Math.min(20, (r1?.transitStops ?? 0) * 2);
+  return { populationDensity: densityScore, urbanDensity: Math.min(100, urbanScore + infraBoost) };
 }

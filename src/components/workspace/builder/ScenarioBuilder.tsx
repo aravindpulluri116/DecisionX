@@ -51,7 +51,7 @@ function PremiumSlider({
   const pct = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className="space-y-3 border border-hairline bg-background p-4">
+    <div className="space-y-3 rounded-xl border border-hairline bg-background p-4 shadow-sm">
       <div className="flex items-end justify-between">
         <Label className="font-mono-data text-[10px] uppercase tracking-[0.15em] text-ink-muted">
           {label}
@@ -66,8 +66,8 @@ function PremiumSlider({
           <span className="ml-1 text-sm font-normal text-ink-muted">{unit}</span>
         </motion.span>
       </div>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 bg-signal/15" style={{ width: `${pct}%` }} />
+      <div className="relative overflow-hidden rounded-lg">
+        <div className="absolute inset-y-0 left-0 rounded-lg bg-signal/20 transition-all" style={{ width: `${pct}%` }} />
         <Slider
           value={[value]}
           min={min}
@@ -132,9 +132,17 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
 
   return (
     <Sheet open={builderOpen} onOpenChange={setBuilderOpen}>
-      <SheetContent side="left" className="w-full overflow-y-auto border-hairline sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle className="font-display text-xl">Scenario Builder</SheetTitle>
+      <SheetContent side="left" className="w-full overflow-y-auto border-hairline bg-surface/95 sm:max-w-lg">
+        <div className="border-b border-hairline bg-signal/[0.03] pb-4">
+          <p className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-signal">
+            Scenario builder
+          </p>
+          <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-hairline">
+            <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-signal to-environmental" />
+          </div>
+        </div>
+        <SheetHeader className="pt-4">
+          <SheetTitle className="font-display text-xl">New simulation</SheetTitle>
           <SheetDescription className="text-ink-muted">
             Configure parameters for {project.title}
           </SheetDescription>
@@ -184,7 +192,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
               </SelectContent>
             </Select>
             {locationPreview && (
-              <div className="border border-hairline bg-background px-3 py-2 font-mono-data text-[10px] text-ink-muted">
+              <div className="rounded-lg border border-hairline bg-background/80 px-3 py-2 font-mono-data text-[10px] text-ink-muted">
                 {locationPreview.scores.infrastructureScore}/100 infrastructure ·{" "}
                 {locationPreview.radiusImpacts.find((r) => r.radiusKm === 5)?.schools ?? 0} schools (5km)
               </div>
@@ -247,7 +255,7 @@ export function ScenarioBuilder({ project, onScenarioCreated }: ScenarioBuilderP
 
           <button
             onClick={handleSave}
-            className="mt-4 w-full border border-signal bg-signal py-3 font-mono-data text-[11px] uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+            className="mt-4 w-full rounded-lg border border-signal bg-signal py-3 font-mono-data text-[11px] uppercase tracking-[0.15em] text-white shadow-[0_4px_20px_oklch(0.52_0.22_262/0.3)] transition-all hover:brightness-110"
           >
             Run Analysis →
           </button>

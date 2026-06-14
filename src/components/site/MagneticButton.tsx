@@ -32,11 +32,11 @@ export function MagneticButton({ children, onClick, variant = "primary", classNa
   }
 
   const base =
-    "group relative inline-flex items-center gap-3 px-6 py-3.5 text-sm font-medium transition-colors";
+    "group relative inline-flex items-center gap-3 overflow-hidden px-6 py-3.5 text-sm font-medium transition-all duration-300";
   const styles =
     variant === "primary"
-      ? "bg-ink text-background hover:bg-signal"
-      : "border border-ink/15 text-ink hover:border-ink";
+      ? "bg-ink text-background shadow-[0_2px_16px_oklch(0.18_0.045_264/0.15)] hover:bg-signal hover:shadow-[0_4px_24px_oklch(0.52_0.22_262/0.25)]"
+      : "border border-ink/15 text-ink hover:border-signal/40 hover:bg-signal/5";
 
   return (
     <motion.button
@@ -47,6 +47,9 @@ export function MagneticButton({ children, onClick, variant = "primary", classNa
       style={{ x: sx, y: sy }}
       className={`${base} ${styles} ${className}`}
     >
+      {variant === "primary" && (
+        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+      )}
       <span className="relative z-10 flex items-center gap-3">{children}</span>
     </motion.button>
   );

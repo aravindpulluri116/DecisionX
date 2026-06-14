@@ -2,10 +2,14 @@ import type { DecisionReport, Simulation, SimulationInput } from "@/types/simula
 import type { Scenario } from "@/types/workspace";
 import {
   createScenario,
+  ensureProjectRecord,
   fetchDecisionReport,
+  fetchReportForProject,
   fetchScenarios,
   fetchSimulationRun,
+  fetchSimulationRunForProject,
   fetchWorkspaceGraph,
+  updateSimulationRun,
 } from "@/lib/workspace/queries";
 
 const mockSimulations = new Map<string, Simulation>();
@@ -31,6 +35,20 @@ export function saveReport(report: DecisionReport) {
   mockReports.set(report.id, report);
 }
 
+export async function getReportForScenario(
+  projectId: string,
+  scenarioId?: string | null,
+): Promise<DecisionReport | null> {
+  return fetchReportForProject(projectId, scenarioId);
+}
+
+export async function getSimulationForScenario(
+  projectId: string,
+  scenarioId?: string | null,
+): Promise<Simulation | null> {
+  return fetchSimulationRunForProject(projectId, scenarioId);
+}
+
 export async function persistSimulationAsScenario(
   input: SimulationInput,
   simulation: Simulation,
@@ -40,8 +58,24 @@ export async function persistSimulationAsScenario(
     throw new Error("Simulation missing graph or scores");
   }
 
+  const projectId = await ensureProjectRecord({
+    id: input.project.id,
+    slug: input.project.slug,
+    title: input.project.title,
+    status: input.project.status,
+    impact_score: input.project.impact_score,
+    risk_level: input.project.risk_level,
+    project_type: input.project.project_type,
+    location: input.project.location,
+    description: input.project.description,
+    category: input.project.category,
+    stakeholders: input.project.stakeholders,
+    budget: input.project.budget,
+    timeline: input.project.timeline,
+  });
+
   const scenario = await createScenario(
-    input.project.id,
+    projectId,
     input.project.title,
     title,
     input.params,
@@ -50,11 +84,8 @@ export async function persistSimulationAsScenario(
   );
 
   simulation.scenarioId = scenario.id;
+  await updateSimulationRun(simulation.id, { scenario_id: scenario.id });
   saveSimulation(simulation);
-  if (simulation.timeMachine) {
-    const { saveTimeMachineSnapshot } = await import("@/lib/workspace/queries");
-    await saveTimeMachineSnapshot(simulation.id, scenario.id, simulation.timeMachine);
-  }
   return scenario;
 }
 
@@ -67,7 +98,9 @@ export async function duplicateScenario(
   if (!source) return null;
 
   const graph = await fetchWorkspaceGraph(scenarioId);
-  if (!graph?.nodes.length) return null;
+  const graphToSave = graph?.nodes.length
+    ? graph
+    : { nodes: [], edges: [], intelligence: {} };
 
   return createScenario(
     projectId,
@@ -75,6 +108,6 @@ export async function duplicateScenario(
     `${source.title} (Copy)`,
     source.params,
     source.impact_scores,
-    graph,
+    graphToSave,
   );
 }

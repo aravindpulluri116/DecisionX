@@ -32,9 +32,10 @@ type ImpactKpiGridProps = {
   compact?: boolean;
   columns?: 2 | 3;
   className?: string;
+  onMetricClick?: (metric: ImpactMetricDef["key"]) => void;
 };
 
-export function ImpactKpiGrid({ scores, compact, columns = 2, className }: ImpactKpiGridProps) {
+export function ImpactKpiGrid({ scores, compact, columns = 2, className, onMetricClick }: ImpactKpiGridProps) {
   if (!scores) {
     return (
       <div className="rounded-xl border border-dashed border-hairline bg-background/60 px-4 py-8 text-center">
@@ -48,7 +49,7 @@ export function ImpactKpiGrid({ scores, compact, columns = 2, className }: Impac
     <div
       className={cn(
         "grid gap-2",
-        columns === 3 ? "grid-cols-3" : "grid-cols-2",
+        columns === 3 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2",
         className,
       )}
     >
@@ -61,6 +62,7 @@ export function ImpactKpiGrid({ scores, compact, columns = 2, className }: Impac
           icon={METRIC_ICONS[metric.key]}
           compact={compact}
           delay={i * 0.04}
+          onClick={onMetricClick ? () => onMetricClick(metric.key) : undefined}
         />
       ))}
     </div>

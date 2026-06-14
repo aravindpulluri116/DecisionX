@@ -1,5 +1,4 @@
 import type { ProjectGeo, LocationIntelligence } from "./geo";
-import type { TimeMachineBundle } from "./timemachine";
 
 export type NodeType = "decision" | "impact" | "risk" | "stakeholder" | "environmental";
 
@@ -22,6 +21,12 @@ export type Project = {
   project_area?: unknown;
   location_intelligence?: LocationIntelligence;
   created_at: string;
+  // Fields stored by insertProject — optional so legacy mock rows still typecheck
+  description?: string;
+  category?: string;
+  stakeholders?: string[];
+  budget?: number;
+  timeline?: string;
 };
 
 export type ScenarioParams = {
@@ -49,7 +54,6 @@ export type Scenario = {
   is_active: boolean;
   params: ScenarioParams;
   impact_scores: ImpactScores;
-  time_machine_snapshot?: TimeMachineBundle;
   created_at: string;
 };
 
@@ -87,6 +91,10 @@ export type NodeIntelligence = {
   uncertainties?: string[];
   geoEvidence?: string[];
   sources?: DataSourceAttribution[];
+  /** Why this consequence exists */
+  reason?: string;
+  /** Upstream cause label */
+  causedBy?: string;
 };
 
 export type WorkspaceGraph = {

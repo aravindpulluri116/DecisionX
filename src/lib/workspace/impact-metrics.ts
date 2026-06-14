@@ -119,13 +119,42 @@ export const TONE_STYLES: Record<
   },
 };
 
-/** First sentence or ~140 chars for scannable report cards. */
-export function excerptText(text: string, max = 140): string {
+/** Truncate only when text exceeds max; ellipsis appears only if actually cut. */
+export function truncateText(text: string, max = 140): string {
   const trimmed = text.trim();
-  const sentenceEnd = trimmed.search(/[.!?](\s|$)/);
-  if (sentenceEnd > 40 && sentenceEnd <= max) {
-    return trimmed.slice(0, sentenceEnd + 1);
-  }
   if (trimmed.length <= max) return trimmed;
   return `${trimmed.slice(0, max).trim()}…`;
+}
+
+/** First complete sentence — no ellipsis, no mid-sentence cut. */
+export function excerptText(text: string, max = 140): string {
+  return leadSentence(text, max);
+}
+
+const SENTENCE_ABBREV = /\b(Mr|Mrs|Ms|Dr|Prof|Cr|vs|etc|approx|No|St)\.$/i;
+
+/** Returns the first full sentence, or full text if shorter than max. Never appends ellipsis. */
+export function leadSentence(text: string, max = 400): string {
+  const trimmed = text.trim();
+  if (!trimmed) return trimmed;
+  if (trimmed.length <= max) return trimmed;
+
+  let searchFrom = 0;
+  while (searchFrom < trimmed.length) {
+    const chunk = trimmed.slice(searchFrom);
+    const relEnd = chunk.search(/[.!?](?:\s+|$|\n)/);
+    if (relEnd === -1) break;
+
+    const end = searchFrom + relEnd + 1;
+    const candidate = trimmed.slice(0, end).trim();
+    const wordBefore = trimmed.slice(Math.max(0, end - 5), end - 1);
+
+    if (end > 30 && !SENTENCE_ABBREV.test(`${wordBefore}.`)) {
+      return candidate;
+    }
+    searchFrom = end;
+  }
+
+  // One long sentence — return up to max without ellipsis (UI can line-clamp)
+  return trimmed.slice(0, max).trim();
 }

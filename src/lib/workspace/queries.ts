@@ -1,7 +1,7 @@
 import type { AgentId, AgentResult, DecisionReport, Simulation } from "@/types/simulation";
 import type { LocationIntelligence } from "@/types/geo";
-import type { TimeMachineBundle } from "@/types/timemachine";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   CanvasNode,
   ImpactScores,
@@ -12,106 +12,108 @@ import type {
   ScenarioParams,
   WorkspaceGraph,
 } from "@/types/workspace";
-import {
-  getMockActiveScenario,
-  getMockGraph,
-  getMockProjectBySlug,
-  getMockProjects,
-  getMockScenarios,
-  hydrateMockStore,
-  mergeProjectLists,
-  saveMockScenario,
-  setMockActiveScenario,
-  updateMockNodePosition,
-} from "./mock-data";
 import { withTimeout } from "@/lib/supabase/with-timeout";
+
+/** Browser anon client in the app; service role (or anon) on the server for reliable writes. */
+function getDbClient() {
+  if (typeof window === "undefined") {
+    return createAdminClient() ?? createClient();
+  }
+  return createClient();
+}
 
 async function querySupabase<T>(
   query: () => PromiseLike<{ data: T | null; error: unknown }>,
-  fallback: () => T,
-): Promise<T> {
+): Promise<T | null> {
   try {
     const { data, error } = await withTimeout(query());
-    if (error || data == null) return fallback();
+    if (error || data == null) return null;
     return data;
   } catch {
-    return fallback();
+    return null;
   }
 }
 
 export async function fetchProjects(): Promise<Project[]> {
-  hydrateMockStore();
-  const local = getMockProjects();
   const supabase = createClient();
-  if (!supabase) return local;
+  let rows: Project[] = [];
 
-  return querySupabase(
-    () => supabase.from("projects").select("*").order("created_at"),
-    () => local,
-  ).then((data) => {
-    const rows = Array.isArray(data) ? (data as Project[]) : [];
-    return mergeProjectLists(rows, local);
-  });
+  if (supabase) {
+    const data = await querySupabase(() => supabase.from("projects").select("*").order("created_at"));
+    rows = Array.isArray(data) ? (data as Project[]) : [];
+  }
+
+  if (typeof window !== "undefined") {
+    const { loadCustomProjects } = await import("./mock-storage");
+    const local = loadCustomProjects();
+    const bySlug = new Map<string, Project>();
+    for (const p of local) bySlug.set(p.slug, p);
+    for (const p of rows) bySlug.set(p.slug, p);
+    return [...bySlug.values()].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
+  }
+
+  return rows;
 }
 
 export async function fetchProjectBySlug(slug: string): Promise<Project | null> {
-  hydrateMockStore();
   const supabase = createClient();
-  if (!supabase) return getMockProjectBySlug(slug);
+  if (!supabase) {
+    const { loadCustomProjects } = await import("./mock-storage");
+    return loadCustomProjects().find((p) => p.slug === slug) ?? null;
+  }
 
-  return querySupabase(
-    () => supabase.from("projects").select("*").eq("slug", slug).single(),
-    () => getMockProjectBySlug(slug),
-  ).then((data) => (data as Project | null) ?? getMockProjectBySlug(slug));
+  const data = await querySupabase(() =>
+    supabase.from("projects").select("*").eq("slug", slug).single(),
+  );
+  const row = (data as Project | null) ?? null;
+  if (row) return row;
+
+  const { loadCustomProjects } = await import("./mock-storage");
+  return loadCustomProjects().find((p) => p.slug === slug) ?? null;
 }
 
 export async function fetchScenarios(projectId: string): Promise<Scenario[]> {
-  hydrateMockStore();
   const supabase = createClient();
-  if (!supabase) return getMockScenarios(projectId);
+  if (!supabase) return [];
 
-  return querySupabase(
-    () =>
-      supabase
-        .from("scenarios")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false }),
-    () => getMockScenarios(projectId),
-  ).then((data) => {
-    const rows = Array.isArray(data) ? data : [];
-    return rows.length ? (rows as Scenario[]) : getMockScenarios(projectId);
-  });
+  const data = await querySupabase(() =>
+    supabase
+      .from("scenarios")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false }),
+  );
+  return Array.isArray(data) ? (data as Scenario[]) : [];
 }
 
 export async function fetchActiveScenario(projectId: string): Promise<Scenario | null> {
-  hydrateMockStore();
   const supabase = createClient();
-  if (!supabase) return getMockActiveScenario(projectId);
+  if (!supabase) return null;
 
-  return querySupabase(
-    () =>
-      supabase
-        .from("scenarios")
-        .select("*")
-        .eq("project_id", projectId)
-        .eq("is_active", true)
-        .maybeSingle(),
-    () => getMockActiveScenario(projectId),
-  ).then((data) => (data as Scenario | null) ?? getMockActiveScenario(projectId));
+  const data = await querySupabase(() =>
+    supabase
+      .from("scenarios")
+      .select("*")
+      .eq("project_id", projectId)
+      .eq("is_active", true)
+      .maybeSingle(),
+  );
+  return (data as Scenario | null) ?? null;
 }
 
 export async function fetchWorkspaceGraph(scenarioId: string): Promise<WorkspaceGraph | null> {
   const empty: WorkspaceGraph = { nodes: [], edges: [], intelligence: {} };
   const supabase = createClient();
-  if (!supabase) return getMockGraph(scenarioId) ?? empty;
+  if (!supabase) return empty;
 
   const [nodesRes, edgesRes] = await Promise.all([
     supabase.from("canvas_nodes").select("*").eq("scenario_id", scenarioId),
     supabase.from("canvas_edges").select("*").eq("scenario_id", scenarioId),
   ]);
 
-  if (nodesRes.error || !nodesRes.data?.length) return getMockGraph(scenarioId) ?? empty;
+  if (nodesRes.error || !nodesRes.data?.length) return empty;
 
   const nodeIds = nodesRes.data.map((n) => n.id);
   const intelRes = await supabase.from("node_intelligence").select("*").in("node_id", nodeIds);
@@ -142,23 +144,10 @@ export async function fetchWorkspaceGraph(scenarioId: string): Promise<Workspace
 
 export async function activateScenario(projectId: string, scenarioId: string) {
   const supabase = createClient();
-  if (!supabase) {
-    setMockActiveScenario(projectId, scenarioId);
-    return;
-  }
+  if (!supabase) return;
 
   await supabase.from("scenarios").update({ is_active: false }).eq("project_id", projectId);
   await supabase.from("scenarios").update({ is_active: true }).eq("id", scenarioId);
-}
-
-export async function persistNodePosition(nodeId: string, position: { x: number; y: number }) {
-  const supabase = createClient();
-  if (!supabase) {
-    updateMockNodePosition(nodeId, position);
-    return;
-  }
-
-  await supabase.from("canvas_nodes").update({ position }).eq("id", nodeId);
 }
 
 export async function createScenario(
@@ -171,7 +160,7 @@ export async function createScenario(
 ): Promise<Scenario> {
   const supabase = createClient();
   if (!supabase) {
-    return saveMockScenario(projectId, title, params, scores, graph);
+    throw new Error("Supabase is required to persist scenarios. Configure NEXT_PUBLIC_SUPABASE_URL.");
   }
 
   await supabase.from("scenarios").update({ is_active: false }).eq("project_id", projectId);
@@ -189,7 +178,7 @@ export async function createScenario(
     .single();
 
   if (error || !scenario) {
-    return saveMockScenario(projectId, title, params, scores, graph);
+    throw new Error(error?.message ?? "Failed to create scenario");
   }
 
   const scenarioId = scenario.id as string;
@@ -268,9 +257,9 @@ export async function createSimulationRun(
   id?: string,
 ): Promise<string> {
   const runId = id ?? crypto.randomUUID();
-  const supabase = createClient();
+  const db = getDbClient();
 
-  if (!supabase) {
+  if (!db) {
     mockSimulationRuns.set(runId, {
       id: runId,
       project_id: projectId,
@@ -283,14 +272,14 @@ export async function createSimulationRun(
     return runId;
   }
 
-  await supabase.from("simulation_runs").insert({
+  const { error } = await db.from("simulation_runs").insert({
     id: runId,
     project_id: projectId,
     status,
     agent_states: {},
   });
+  if (error) console.error("[createSimulationRun]", error.message);
 
-  // Keep an in-memory copy for fast reads within the same request lifecycle
   mockSimulationRuns.set(runId, {
     id: runId,
     project_id: projectId,
@@ -312,10 +301,10 @@ export async function updateSimulationRun(
     report?: DecisionReport;
   },
 ) {
-  const supabase = createClient();
+  const db = getDbClient();
   const mock = mockSimulationRuns.get(id);
 
-  if (!supabase) {
+  if (!db) {
     if (mock) {
       mockSimulationRuns.set(id, {
         ...mock,
@@ -334,13 +323,25 @@ export async function updateSimulationRun(
   if (patch.scenario_id) update.scenario_id = patch.scenario_id;
   if (patch.report) update.report = patch.report;
 
-  await supabase.from("simulation_runs").update(update).eq("id", id);
+  const { error } = await db.from("simulation_runs").update(update).eq("id", id);
+  if (error) console.error("[updateSimulationRun]", error.message);
 
   if (mock) {
     mockSimulationRuns.set(id, {
       ...mock,
       ...patch,
       agent_states: patch.agent_states ?? mock.agent_states,
+    });
+  } else if (!db && Object.keys(update).length > 0) {
+    // Only keep in-memory stubs when Supabase is unavailable — empty stubs would shadow DB reads.
+    mockSimulationRuns.set(id, {
+      id,
+      project_id: "",
+      scenario_id: patch.scenario_id ?? null,
+      status: patch.status ?? "completed",
+      agent_states: patch.agent_states ?? {},
+      report: patch.report ?? null,
+      created_at: new Date().toISOString(),
     });
   }
 }
@@ -352,17 +353,243 @@ export async function createDecisionReport(
   const reportId = content.id;
   mockDecisionReports.set(reportId, content);
 
-  const supabase = createClient();
-  if (!supabase) return reportId;
+  const db = getDbClient();
+  if (!db) return reportId;
 
-  await supabase.from("decision_reports").insert({
+  const { error: reportError } = await db.from("decision_reports").insert({
     id: reportId,
     simulation_run_id: simulationRunId,
     content,
   });
+  if (reportError) console.error("[createDecisionReport]", reportError.message);
 
   await updateSimulationRun(simulationRunId, { report: content });
   return reportId;
+}
+
+function normalizeAgentStates(raw: unknown): Partial<Record<AgentId, AgentResult>> {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Partial<Record<AgentId, AgentResult>>;
+  }
+  return {};
+}
+
+function agentStateCount(states: Partial<Record<AgentId, AgentResult>> | undefined): number {
+  return Object.keys(states ?? {}).length;
+}
+
+async function attachScenarioScores(
+  db: NonNullable<ReturnType<typeof getDbClient>>,
+  scenarioId: string,
+  sim: Simulation,
+): Promise<Simulation> {
+  const { data: scenarioRow } = await db
+    .from("scenarios")
+    .select("impact_scores")
+    .eq("id", scenarioId)
+    .maybeSingle();
+  if (scenarioRow?.impact_scores) {
+    sim.impactScores = scenarioRow.impact_scores as ImpactScores;
+  }
+  return sim;
+}
+
+function reportFromRunRow(row: {
+  id: string;
+  project_id: string;
+  scenario_id: string | null;
+  status: string;
+  agent_states: unknown;
+  report: unknown;
+  created_at: string;
+}): DecisionReport | null {
+  if (row.report && typeof row.report === "object") {
+    return row.report as DecisionReport;
+  }
+  return null;
+}
+
+function runRowToSimulation(
+  row: {
+    id: string;
+    project_id: string;
+    scenario_id: string | null;
+    status: string;
+    agent_states: unknown;
+    report: unknown;
+    created_at: string;
+  },
+  graph?: WorkspaceGraph | null,
+): Simulation {
+  const report = reportFromRunRow(row);
+  return {
+    id: row.id,
+    projectId: row.project_id,
+    scenarioId: row.scenario_id ?? undefined,
+    status: row.status as Simulation["status"],
+    params: { budget: 0, population: 0, location: "", timeline: "10", projectType: "", policyType: "" },
+    agentResults: normalizeAgentStates(row.agent_states),
+    graph: graph ?? undefined,
+    impactScores: undefined,
+    reportId: report?.id,
+    startedAt: row.created_at,
+    completedAt: row.status === "completed" ? row.created_at : undefined,
+  };
+}
+
+/** Load persisted report for a scenario (or latest project run as fallback). */
+export async function fetchReportForProject(
+  projectId: string,
+  scenarioId?: string | null,
+): Promise<DecisionReport | null> {
+  if (scenarioId) {
+    const linked = await fetchReportForScenario(scenarioId);
+    if (linked) return linked;
+  }
+  return fetchLatestReportForProject(projectId);
+}
+
+export async function fetchReportForScenario(scenarioId: string): Promise<DecisionReport | null> {
+  const cached = [...mockSimulationRuns.values()].find(
+    (r) => r.scenario_id === scenarioId && r.report,
+  );
+  if (cached?.report) return cached.report;
+
+  const db = getDbClient();
+  if (!db) return null;
+
+  const { data: run } = await db
+    .from("simulation_runs")
+    .select("id, report")
+    .eq("scenario_id", scenarioId)
+    .eq("status", "completed")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (run?.report) return run.report as DecisionReport;
+
+  if (run?.id) {
+    const { data: dr } = await db
+      .from("decision_reports")
+      .select("content")
+      .eq("simulation_run_id", run.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (dr?.content) return dr.content as DecisionReport;
+  }
+
+  return null;
+}
+
+export async function fetchLatestReportForProject(projectId: string): Promise<DecisionReport | null> {
+  const cached = [...mockSimulationRuns.values()]
+    .filter((r) => r.project_id === projectId && r.report)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  if (cached?.report) return cached.report;
+
+  const db = getDbClient();
+  if (!db) return null;
+
+  const { data: run } = await db
+    .from("simulation_runs")
+    .select("id, report")
+    .eq("project_id", projectId)
+    .eq("status", "completed")
+    .not("report", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (run?.report) return run.report as DecisionReport;
+
+  if (run?.id) {
+    const { data: dr } = await db
+      .from("decision_reports")
+      .select("content")
+      .eq("simulation_run_id", run.id)
+      .limit(1)
+      .maybeSingle();
+    if (dr?.content) return dr.content as DecisionReport;
+  }
+
+  return null;
+}
+
+/** Link completed runs that were saved before scenario_id wiring existed. */
+export async function linkOrphanSimulationRuns(
+  projectId: string,
+  scenarioId: string,
+): Promise<void> {
+  const db = getDbClient();
+  if (!db) return;
+
+  const { error } = await db
+    .from("simulation_runs")
+    .update({ scenario_id: scenarioId })
+    .eq("project_id", projectId)
+    .eq("status", "completed")
+    .is("scenario_id", null);
+
+  if (error) console.error("[linkOrphanSimulationRuns]", error.message);
+}
+
+export async function fetchSimulationRunForProject(
+  projectId: string,
+  scenarioId?: string | null,
+): Promise<Simulation | null> {
+  const db = getDbClient();
+
+  if (scenarioId && db) {
+    const { data } = await db
+      .from("simulation_runs")
+      .select("*")
+      .eq("scenario_id", scenarioId)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      const graph = await fetchWorkspaceGraph(scenarioId);
+      const sim = runRowToSimulation(data, graph);
+      if (graph?.nodes.length) sim.graph = graph;
+      return attachScenarioScores(db, scenarioId, sim);
+    }
+  }
+
+  if (scenarioId) {
+    const mock = [...mockSimulationRuns.values()].find((r) => r.scenario_id === scenarioId);
+    if (mock && agentStateCount(mock.agent_states) > 0) {
+      return mockRunToSimulation(mock);
+    }
+  }
+
+  if (!db) {
+    const latestMock = [...mockSimulationRuns.values()]
+      .filter((r) => r.project_id === projectId)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+    return latestMock && agentStateCount(latestMock.agent_states) > 0
+      ? mockRunToSimulation(latestMock)
+      : null;
+  }
+
+  const { data } = await db
+    .from("simulation_runs")
+    .select("*")
+    .eq("project_id", projectId)
+    .eq("status", "completed")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!data) return null;
+  const sid = data.scenario_id as string | null;
+  const graph = sid ? await fetchWorkspaceGraph(sid) : null;
+  const sim = runRowToSimulation(data, graph);
+  if (graph?.nodes.length) sim.graph = graph;
+  if (sid) return attachScenarioScores(db, sid, sim);
+  return sim;
 }
 
 function mockRunToSimulation(mock: SimulationRunRow): Simulation {
@@ -395,7 +622,7 @@ export async function fetchSimulationRun(id: string): Promise<Simulation | null>
     scenarioId: data.scenario_id ?? undefined,
     status: data.status as Simulation["status"],
     params: { budget: 0, population: 0, location: "", timeline: "10", projectType: "", policyType: "" },
-    agentResults: (data.agent_states ?? {}) as Partial<Record<AgentId, AgentResult>>,
+    agentResults: normalizeAgentStates(data.agent_states),
     startedAt: data.created_at,
     reportId: (data.report as DecisionReport | null)?.id,
   };
@@ -413,6 +640,56 @@ export async function fetchDecisionReport(id: string): Promise<DecisionReport | 
   return data.content as DecisionReport;
 }
 
+export async function ensureProjectRecord(project: {
+  id: string;
+  slug: string;
+  title: string;
+  status: string;
+  impact_score: number;
+  risk_level: string;
+  project_type: string;
+  location: string;
+  description?: string;
+  category?: string;
+  stakeholders?: string[];
+  budget?: number;
+  timeline?: string;
+}): Promise<string> {
+  const db = getDbClient();
+  if (!db) {
+    throw new Error("Supabase is required. Configure NEXT_PUBLIC_SUPABASE_URL and anon key.");
+  }
+
+  const { data: byId } = await db.from("projects").select("id").eq("id", project.id).maybeSingle();
+  if (byId?.id) return byId.id as string;
+
+  const { data: bySlug } = await db.from("projects").select("id").eq("slug", project.slug).maybeSingle();
+  if (bySlug?.id) return bySlug.id as string;
+
+  const row = {
+    id: project.id,
+    slug: project.slug,
+    title: project.title,
+    status: project.status,
+    impact_score: project.impact_score,
+    risk_level: project.risk_level,
+    project_type: project.project_type,
+    location: project.location,
+    description: project.description ?? "",
+    category: project.category ?? "Transportation",
+    stakeholders: project.stakeholders ?? [],
+    budget: project.budget ?? 0,
+    timeline: project.timeline ?? "10 years",
+  };
+
+  const { data, error } = await db.from("projects").insert(row).select("id").single();
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to ensure project exists in database");
+  }
+
+  return data.id as string;
+}
+
 export async function insertProject(project: {
   id: string;
   slug: string;
@@ -428,7 +705,6 @@ export async function insertProject(project: {
   budget: number;
   timeline: string;
 }): Promise<Project> {
-  const supabase = createClient();
   const created: Project = {
     ...project,
     status: project.status as ProjectStatus,
@@ -436,10 +712,37 @@ export async function insertProject(project: {
     created_at: new Date().toISOString(),
   };
 
-  if (!supabase) {
-    const { addMockProject } = await import("./mock-data");
-    addMockProject(created);
+  async function persistLocal() {
+    if (typeof window !== "undefined") {
+      const { persistCustomProject } = await import("./mock-storage");
+      persistCustomProject(created);
+    }
     return created;
+  }
+
+  // Prefer server route (service role) — avoids browser 401 from wrong anon/publishable key.
+  if (typeof window !== "undefined") {
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(project),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as Project;
+        await persistLocal();
+        return data;
+      }
+      const err = await res.json().catch(() => ({}));
+      console.warn("[insertProject] API failed:", err);
+    } catch (e) {
+      console.warn("[insertProject] API error:", e);
+    }
+  }
+
+  const supabase = createClient();
+  if (!supabase) {
+    return persistLocal();
   }
 
   try {
@@ -465,19 +768,15 @@ export async function insertProject(project: {
         .single(),
     );
 
-    const { addMockProject } = await import("./mock-data");
-
     if (error || !data) {
-      addMockProject(created);
-      return created;
+      throw new Error(error?.message ?? "Failed to insert project");
     }
 
-    addMockProject(data as Project);
+    await persistLocal();
     return data as Project;
-  } catch {
-    const { addMockProject } = await import("./mock-data");
-    addMockProject(created);
-    return created;
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to insert project";
+    throw new Error(message);
   }
 }
 
@@ -515,55 +814,5 @@ export async function fetchLocationIntelligence(projectId: string): Promise<Loca
     .maybeSingle();
 
   if (data?.location_intelligence) return data.location_intelligence as LocationIntelligence;
-  return cached ?? null;
-}
-
-const mockTimeMachine = new Map<string, TimeMachineBundle>();
-
-export async function saveTimeMachineSnapshot(
-  simulationId: string,
-  scenarioId: string | undefined,
-  bundle: TimeMachineBundle,
-): Promise<void> {
-  mockTimeMachine.set(simulationId, bundle);
-  if (scenarioId) mockTimeMachine.set(scenarioId, bundle);
-
-  const supabase = createClient();
-  if (!supabase) return;
-
-  await supabase
-    .from("simulation_runs")
-    .update({ time_machine_snapshot: bundle })
-    .eq("id", simulationId);
-
-  if (scenarioId) {
-    await supabase
-      .from("scenarios")
-      .update({ time_machine_snapshot: bundle })
-      .eq("id", scenarioId);
-  }
-}
-
-export async function fetchTimeMachineSnapshot(
-  id: string,
-): Promise<TimeMachineBundle | null> {
-  const cached = mockTimeMachine.get(id);
-  const supabase = createClient();
-  if (!supabase) return cached ?? null;
-
-  const { data: sim } = await supabase
-    .from("simulation_runs")
-    .select("time_machine_snapshot")
-    .eq("id", id)
-    .maybeSingle();
-  if (sim?.time_machine_snapshot) return sim.time_machine_snapshot as TimeMachineBundle;
-
-  const { data: scenario } = await supabase
-    .from("scenarios")
-    .select("time_machine_snapshot")
-    .eq("id", id)
-    .maybeSingle();
-  if (scenario?.time_machine_snapshot) return scenario.time_machine_snapshot as TimeMachineBundle;
-
   return cached ?? null;
 }

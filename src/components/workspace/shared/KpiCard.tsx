@@ -15,6 +15,7 @@ type KpiCardProps = {
   showBar?: boolean;
   className?: string;
   delay?: number;
+  onClick?: () => void;
 };
 
 export function KpiCard({
@@ -27,22 +28,31 @@ export function KpiCard({
   showBar = true,
   className,
   delay = 0,
+  onClick,
 }: KpiCardProps) {
   const styles = TONE_STYLES[tone];
+
+  const Wrapper = onClick ? "button" : "div";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay }}
-      className={cn(
-        "rounded-xl border px-3 py-2.5",
-        styles.bg,
-        styles.border,
-        compact ? "py-2" : "py-2.5",
-        className,
-      )}
+      className={cn(onClick && "w-full text-left")}
     >
+      <Wrapper
+        type={onClick ? "button" : undefined}
+        onClick={onClick}
+        className={cn(
+          "block w-full rounded-xl border px-3 py-2.5 transition-all duration-200",
+          styles.bg,
+          styles.border,
+          compact ? "py-2" : "py-2.5",
+          onClick && "cursor-pointer hover:ring-1 hover:ring-signal/30 hover:shadow-[0_4px_16px_oklch(0.52_0.22_262/0.08)]",
+          className,
+        )}
+      >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-[10px] font-medium uppercase tracking-wide text-ink-muted">
@@ -69,6 +79,7 @@ export function KpiCard({
           />
         </div>
       )}
+      </Wrapper>
     </motion.div>
   );
 }
