@@ -3,7 +3,6 @@ import type {
   AgentRunState,
   DecisionReport,
   Simulation,
-  WorkspaceMode,
   WorkspaceTab,
 } from "@/types/simulation";
 import type { Scenario } from "@/types/workspace";
@@ -14,12 +13,8 @@ type WorkspaceStore = {
   selectedScenario: Scenario | null;
   builderOpen: boolean;
   wizardOpen: boolean;
-  loading: boolean;
-  loadingMessage: string;
-  workspaceMode: WorkspaceMode;
   workspaceTab: WorkspaceTab;
   simulationTheaterOpen: boolean;
-  activeSimulationId: string | null;
   activeSimulation: Simulation | null;
   activeReport: DecisionReport | null;
   agentRuns: AgentRunState[];
@@ -31,8 +26,6 @@ type WorkspaceStore = {
   setSelectedScenario: (scenario: Scenario | null) => void;
   setBuilderOpen: (open: boolean) => void;
   setWizardOpen: (open: boolean) => void;
-  setLoading: (loading: boolean, message?: string) => void;
-  setWorkspaceMode: (mode: WorkspaceMode) => void;
   setWorkspaceTab: (tab: WorkspaceTab) => void;
   setSimulationTheaterOpen: (open: boolean) => void;
   setActiveSimulation: (sim: Simulation | null) => void;
@@ -52,12 +45,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   selectedScenario: null,
   builderOpen: false,
   wizardOpen: false,
-  loading: false,
-  loadingMessage: "",
-  workspaceMode: "report",
   workspaceTab: "report",
   simulationTheaterOpen: false,
-  activeSimulationId: null,
   activeSimulation: null,
   activeReport: null,
   agentRuns: [],
@@ -69,31 +58,21 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   setSelectedScenario: (scenario) => set({ selectedScenario: scenario }),
   setBuilderOpen: (open) => set({ builderOpen: open }),
   setWizardOpen: (open) => set({ wizardOpen: open }),
-  setLoading: (loading, message = "") => set({ loading, loadingMessage: message }),
-  setWorkspaceMode: (mode) =>
-    set({ workspaceMode: mode, workspaceTab: mode === "compare" ? "compare" : "report" }),
   setWorkspaceTab: (tab) => {
-    const { selectedScenario } = get();
     if (tab === "compare") {
       const { selectedScenario, compareScenarioIds } = get();
       set({
         workspaceTab: tab,
-        workspaceMode: "compare",
         compareScenarioIds:
           compareScenarioIds ??
           (selectedScenario ? [selectedScenario.id, ""] : null),
       });
       return;
     }
-    if (tab === "report") {
-      set({ workspaceTab: tab, workspaceMode: "report" });
-      return;
-    }
     set({ workspaceTab: tab });
   },
   setSimulationTheaterOpen: (open) => set({ simulationTheaterOpen: open }),
-  setActiveSimulation: (sim) =>
-    set({ activeSimulation: sim, activeSimulationId: sim?.id ?? null }),
+  setActiveSimulation: (sim) => set({ activeSimulation: sim }),
   setActiveReport: (report) => set({ activeReport: report }),
   setAgentRuns: (runs) => set({ agentRuns: runs }),
   updateAgentRun: (id, patch) =>

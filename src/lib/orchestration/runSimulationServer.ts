@@ -150,11 +150,3 @@ export async function runSimulationPipeline(
 
   return finalizeSimulation(enrichedInput, simulationId, tempScenarioId, agentResults, emit);
 }
-
-/** @deprecated Use runSimulationPipeline — mock mode removed */
-export const runSimulationClaude = runSimulationPipeline;
-
-/** @deprecated Mock simulations removed */
-export async function runSimulationMock(): Promise<never> {
-  throw new Error("Mock simulation mode has been removed. Configure ANTHROPIC_API_KEY.");
-}

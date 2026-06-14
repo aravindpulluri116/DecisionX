@@ -1,5 +1,6 @@
-# For local development: supabase start
-project_id = "decisionx"
+# Linked cloud project: tsoyxmxkiaxbxrtzvjii
+# Local dev (optional): supabase start
+project_id = "tsoyxmxkiaxbxrtzvjii"
 
 [api]
 enabled = true

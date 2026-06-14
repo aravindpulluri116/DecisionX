@@ -96,7 +96,6 @@ export function useStartSimulation() {
   const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
   const setAgentRuns = useWorkspaceStore((s) => s.setAgentRuns);
   const clearLog = useWorkspaceStore((s) => s.clearLog);
-  const setWorkspaceMode = useWorkspaceStore((s) => s.setWorkspaceMode);
   const setBuilderOpen = useWorkspaceStore((s) => s.setBuilderOpen);
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
 
@@ -107,7 +106,6 @@ export function useStartSimulation() {
       clearLog();
       setAgentRuns(initAgentRuns());
       setSimulationTheaterOpen(true);
-      setWorkspaceMode("report");
       useWorkspaceStore.getState().setWorkspaceTab("report");
 
       const input: SimulationInput = {
@@ -170,7 +168,6 @@ export function useStartSimulation() {
       setSimulationTheaterOpen,
       setAgentRuns,
       clearLog,
-      setWorkspaceMode,
       setBuilderOpen,
       setWizardOpen,
     ],

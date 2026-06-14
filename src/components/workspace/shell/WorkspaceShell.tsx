@@ -11,6 +11,7 @@ import { WorkspaceShellLayout } from "../shared/WorkspaceShellLayout";
 import { WorkspaceLoadingState } from "../shared/WorkspaceLoadingState";
 import { WorkspaceEmptyState } from "../shared/WorkspaceEmptyState";
 import { FileText, Plus } from "lucide-react";
+import Link from "next/link";
 import { fetchActiveScenario, fetchProjectBySlug, fetchScenarios, linkOrphanSimulationRuns } from "@/lib/workspace/queries";
 import { touchRecentProject } from "@/lib/workspace/mock-storage";
 import { useWorkspaceStore } from "@/stores/workspace-store";
@@ -215,12 +216,12 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
                 <Plus className="h-4 w-4" />
                 New decision
               </button>
-              <a
+              <Link
                 href="/workspace"
                 className="rounded-lg border border-hairline px-4 py-2.5 text-sm text-ink-muted transition-colors hover:text-ink"
               >
                 All projects
-              </a>
+              </Link>
             </div>
           }
           className="h-screen"
