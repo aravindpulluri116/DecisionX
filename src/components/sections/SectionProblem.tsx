@@ -10,7 +10,7 @@ const stats = [
     src: "Flyvbjerg, Oxford (meta-analysis, n=2,062)",
   },
   {
-    n: "$2.4T",
+    n: "₹2.4 L Cr",
     label: "in annual losses tied to second- and third-order decision effects.",
     src: "OECD Global Decisions Index, 2024",
   },

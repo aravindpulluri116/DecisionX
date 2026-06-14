@@ -100,7 +100,7 @@ export function SectionDashboardPreview() {
                   </RadialBarChart>
                 </ResponsiveContainer>
                 <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="font-display text-3xl font-bold">+$1.9B</div>
+                  <div className="font-display text-3xl font-bold">+₹1,900 Cr</div>
                   <div className="font-mono-data text-[10px] uppercase tracking-[0.18em] text-ink-muted">
                     20-YR NPV
                   </div>
