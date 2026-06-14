@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withTimeout } from "@/lib/supabase/with-timeout";
 import { validateProjectInputQuality } from "@/lib/validation/projectInput";
 
 const createProjectSchema = z.object({
@@ -42,24 +43,22 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { data: existingById } = await admin
-    .from("projects")
-    .select("*")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+  const existingById = await withTimeout(
+    admin.from("projects").select("*").eq("id", parsed.data.id).maybeSingle(),
+    12_000,
+  );
 
-  if (existingById) {
-    return Response.json(existingById);
+  if (existingById.data) {
+    return Response.json(existingById.data);
   }
 
-  const { data: existingBySlug } = await admin
-    .from("projects")
-    .select("*")
-    .eq("slug", parsed.data.slug)
-    .maybeSingle();
+  const existingBySlug = await withTimeout(
+    admin.from("projects").select("*").eq("slug", parsed.data.slug).maybeSingle(),
+    12_000,
+  );
 
-  if (existingBySlug) {
-    return Response.json(existingBySlug);
+  if (existingBySlug.data) {
+    return Response.json(existingBySlug.data);
   }
 
   const qualityErrors = validateProjectInputQuality({
@@ -78,22 +77,33 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data, error } = await admin.from("projects").insert(parsed.data).select().single();
+  let insertResult: { data: unknown; error: { code?: string; message: string } | null };
+  try {
+    insertResult = await withTimeout(
+      admin.from("projects").insert(parsed.data).select().single(),
+      15_000,
+    );
+  } catch {
+    return Response.json(
+      { error: "Database connection timed out. Check Supabase URL and network." },
+      { status: 504 },
+    );
+  }
+
+  const { data, error } = insertResult;
 
   if (error?.code === "23505") {
-    const { data: racedById } = await admin
-      .from("projects")
-      .select("*")
-      .eq("id", parsed.data.id)
-      .maybeSingle();
-    if (racedById) return Response.json(racedById);
+    const racedById = await withTimeout(
+      admin.from("projects").select("*").eq("id", parsed.data.id).maybeSingle(),
+      12_000,
+    );
+    if (racedById.data) return Response.json(racedById.data);
 
-    const { data: racedBySlug } = await admin
-      .from("projects")
-      .select("*")
-      .eq("slug", parsed.data.slug)
-      .maybeSingle();
-    if (racedBySlug) return Response.json(racedBySlug);
+    const racedBySlug = await withTimeout(
+      admin.from("projects").select("*").eq("slug", parsed.data.slug).maybeSingle(),
+      12_000,
+    );
+    if (racedBySlug.data) return Response.json(racedBySlug.data);
   }
 
   if (error) {

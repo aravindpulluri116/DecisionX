@@ -6,9 +6,8 @@ import {
   fetchProjectBySlug,
   insertProject,
   saveLocationIntelligence,
-  updateProjectDraftFields,
 } from "@/lib/workspace/queries";
-import { resolveUniqueSlug, slugifyTitle } from "@/lib/workspace/project-slug";
+import { resolveUniqueSlug } from "@/lib/workspace/project-slug";
 
 function mapProjectTypeToCategory(type: string): ProjectCategory {
   const map: Record<string, ProjectCategory> = {
@@ -18,10 +17,6 @@ function mapProjectTypeToCategory(type: string): ProjectCategory {
     Aviation: "Transportation",
   };
   return map[type] ?? "Urban Development";
-}
-
-function slugify(title: string) {
-  return slugifyTitle(title);
 }
 
 function toDecisionProject(p: Project): DecisionProject {
@@ -54,40 +49,6 @@ export async function createProject(
   }
   if (!draft.category || !draft.stakeholders?.length) {
     throw new Error("Project requires category and stakeholders");
-  }
-
-  const baseSlug = slugify(draft.title);
-  const existing = await fetchProjectBySlug(baseSlug);
-
-  if (existing) {
-    await updateProjectDraftFields(existing.id, {
-      description: draft.description,
-      location: draft.location,
-      category: draft.category,
-      stakeholders: draft.stakeholders,
-      budget: draft.budget,
-      timeline: draft.timeline ?? existing.timeline ?? "10 years",
-      project_type: draft.project_type ?? draft.category,
-    });
-
-    const project = toDecisionProject({
-      ...existing,
-      description: draft.description,
-      location: draft.location,
-      category: draft.category,
-      stakeholders: draft.stakeholders,
-      budget: draft.budget,
-      timeline: draft.timeline ?? existing.timeline ?? "10 years",
-      project_type: draft.project_type ?? draft.category,
-    });
-
-    if (draft.locationIntelligence) {
-      await saveLocationIntelligence(existing.id, draft.locationIntelligence, draft.geo?.coords);
-      project.locationIntelligence = draft.locationIntelligence;
-      project.geo = draft.geo;
-    }
-
-    return project;
   }
 
   const slug = await resolveUniqueSlug(draft.title, async (candidate) => {

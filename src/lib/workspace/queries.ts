@@ -903,11 +903,14 @@ export async function insertProject(project: {
   // Prefer server route (service role) — avoids browser 401 from wrong anon/publishable key.
   if (typeof window !== "undefined") {
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 20_000);
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(project),
-      });
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timer));
       if (res.ok) {
         const data = (await res.json()) as Project;
         await persistLocal();
@@ -925,8 +928,10 @@ export async function insertProject(project: {
         }
       }
       console.warn("[insertProject] API failed:", err);
+      return persistLocal();
     } catch (e) {
       console.warn("[insertProject] API error:", e);
+      return persistLocal();
     }
   }
 
@@ -976,7 +981,8 @@ export async function insertProject(project: {
     return data as Project;
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to insert project";
-    throw new Error(message);
+    console.warn("[insertProject] direct insert failed:", message);
+    return persistLocal();
   }
 }
 

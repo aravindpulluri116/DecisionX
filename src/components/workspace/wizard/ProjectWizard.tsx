@@ -30,7 +30,9 @@ import { useStartSimulation } from "@/hooks/useStartSimulation";
 import { useGeoEnrichmentPreview } from "@/hooks/useGeoQueries";
 import { createProject } from "@/lib/services/projectService";
 import { isDuplicateSlugError } from "@/lib/workspace/project-slug";
-import type { EnrichedProjectContext } from "@/lib/services/enrichProjectContext";
+import {
+  buildLaunchContextFromWizard,
+} from "@/lib/services/buildLaunchContext";
 import type { GeoCoordinates, LocationIntelligence } from "@/types/geo";
 import { formatBudgetCrore } from "@/lib/format/currency";
 import { Input } from "@/components/ui/input";
@@ -84,18 +86,7 @@ const STEP_META: Record<WizardStep, { title: string; subtitle: string; icon: typ
   },
 };
 
-function flattenApiFieldErrors(details: unknown): Record<string, string> {
-  if (!details || typeof details !== "object") return {};
-  const fieldErrors = (details as { fieldErrors?: Record<string, string[] | undefined> }).fieldErrors;
-  if (!fieldErrors) return {};
-  const out: Record<string, string> = {};
-  for (const [key, messages] of Object.entries(fieldErrors)) {
-    if (messages?.[0]) out[key] = messages[0];
-  }
-  return out;
-}
-
-function locationPreviewLine(intel: EnrichedProjectContext["locationIntelligence"] | undefined) {
+function locationPreviewLine(intel: LocationIntelligence | undefined) {
   if (!intel) return "Enter a location, then refresh to load OpenStreetMap context";
   if (intel.unavailable) {
     return "OpenStreetMap unavailable — population will be estimated by AI";
@@ -387,52 +378,32 @@ export function ProjectWizard() {
     }
 
     setLaunching(true);
-    setLaunchMessages(["Loading location data from OpenStreetMap…"]);
-    setLaunchStatus("Loading location data from OpenStreetMap…");
+    setLaunchMessages(["Preparing project…"]);
+    setLaunchStatus("Saving project…");
 
     try {
-      const body = {
+      const stakeholders =
+        selectedStakeholders.length > 0 ? selectedStakeholders : DEFAULT_STAKEHOLDERS;
+
+      const enriched = buildLaunchContextFromWizard({
         title: draft.title!.trim(),
         description: draft.description!.trim(),
         location: draft.location!.trim(),
         budget: draft.budget!,
         timeline: draft.timeline!,
         category: draft.category as ProjectCategory,
-        stakeholders:
-          selectedStakeholders.length > 0 ? selectedStakeholders : DEFAULT_STAKEHOLDERS,
-      };
-
-      setLaunchStatus("Enriching context and estimating population with AI…");
-      setLaunchMessages((m) => [...m, `Enriching context with ${AI_SPONSOR_NAME}…`]);
-      const enrichRes = await fetch("/api/projects/enrich", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        stakeholders,
+        coords: previewCoords ?? draft.geo?.coords,
+        locationIntelligence: previewIntel,
       });
 
-      if (!enrichRes.ok) {
-        const err = await enrichRes.json().catch(() => ({}));
-        const apiFieldErrors = flattenApiFieldErrors(err.details);
-        if (Object.keys(apiFieldErrors).length > 0) {
-          setErrors(apiFieldErrors);
-          setLaunching(false);
-          setLaunchStatus(null);
-          return;
-        }
-        throw new Error(typeof err.error === "string" ? err.error : "Project enrichment failed");
-      }
-
-      const enriched = (await enrichRes.json()) as EnrichedProjectContext;
-
-      setLaunchStatus("Creating project…");
-      setLaunchMessages((m) => [...m, "Creating project record…"]);
       const project = await createProject(
         {
-          title: body.title,
-          description: body.description,
-          location: body.location,
-          budget: body.budget,
-          timeline: body.timeline,
+          title: draft.title!.trim(),
+          description: draft.description!.trim(),
+          location: draft.location!.trim(),
+          budget: draft.budget!,
+          timeline: draft.timeline!,
           category: enriched.metadata.category,
           stakeholders: enriched.metadata.stakeholders,
           project_type: enriched.metadata.projectType,
@@ -443,21 +414,25 @@ export function ProjectWizard() {
       );
 
       setLocationIntelligence(enriched.locationIntelligence);
-      setLaunchMessages((m) => [...m, "Starting simulation…"]);
       reset();
       setWizardOpen(false);
+      setLaunching(false);
+      setLaunchStatus(null);
 
-      await startSimulation({
+      router.push(`/workspace/${project.slug}`);
+
+      void startSimulation({
         project,
         params: {
           ...(enriched.scenarioParams as ScenarioParams),
           selectedAgents: normalizeSpecialistSelection(selectedCouncilAgents),
         },
         scenarioTitle: `${project.title} — Initial Analysis`,
-        navigateOnComplete: true,
+        navigateOnComplete: false,
+      }).catch((e) => {
+        const message = e instanceof Error ? e.message : "Simulation failed to start";
+        toast.error("Simulation failed", { description: message });
       });
-
-      router.push(`/workspace/${project.slug}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : "Unknown error";
       toast.error("Could not start project", {
@@ -804,7 +779,13 @@ export function ProjectWizard() {
 
                         <div className="border-t border-hairline bg-background/60 px-5 py-4">
                           <div className="flex flex-wrap gap-2">
-                            {["7 AI agents", "OpenStreetMap geo", "Live streaming"].map((tag) => (
+                            {[
+                              selectedCouncilAgents.length > 0
+                                ? `${selectedCouncilAgents.length + 1} AI agents`
+                                : "AI agents",
+                              "OpenStreetMap geo",
+                              "Live streaming",
+                            ].map((tag) => (
                               <span
                                 key={tag}
                                 className="rounded-full border border-hairline bg-surface px-2.5 py-1 font-mono-data text-[9px] uppercase tracking-wider text-ink-muted"
@@ -814,8 +795,8 @@ export function ProjectWizard() {
                             ))}
                           </div>
                           <p className="mt-3 text-xs leading-relaxed text-ink-muted">
-                            Launching runs OpenStreetMap enrichment, {AI_SPONSOR_NAME} metadata agents, and a live
-                            multi-agent simulation — no placeholder data.
+                            Launch saves your project and starts a live multi-agent simulation using the
+                            location data from step 2 — no extra wait for AI enrichment.
                           </p>
                         </div>
                       </div>
