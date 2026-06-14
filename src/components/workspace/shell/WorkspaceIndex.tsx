@@ -15,9 +15,10 @@ import { AI_SPONSOR_NAME } from "@/lib/brand";
 
 export function WorkspaceIndex() {
   const setWizardOpen = useWorkspaceStore((s) => s.setWizardOpen);
-  const { data: projects = [], isPending } = useQuery({
+  const { data: projects = [], isPending, isError } = useQuery({
     queryKey: ["projects"],
     queryFn: fetchProjects,
+    retry: 1,
   });
 
   const sortedProjects = useMemo(
@@ -30,6 +31,20 @@ export function WorkspaceIndex() {
 
   if (isPending) {
     return <WorkspaceLoadingState message="Loading workspace…" />;
+  }
+
+  if (isError) {
+    return (
+      <>
+        <WorkspaceEmptyState
+          icon={Sparkles}
+          title="Could not load projects"
+          description="Check your connection or Supabase configuration, then refresh."
+          className="h-screen"
+        />
+        <ProjectWizard />
+      </>
+    );
   }
 
   if (sortedProjects.length === 0) {

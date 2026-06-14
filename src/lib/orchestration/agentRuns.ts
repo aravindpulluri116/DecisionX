@@ -1,14 +1,16 @@
 import { AGENT_LABELS } from "@/agents";
 import type { AgentId, AgentRunState, AgentStatus } from "@/types/simulation";
-import { resolveSimulationAgentOrder } from "@/lib/agents/selection";
 
 type InitAgentRunsOptions = {
   agentIds?: AgentId[];
   stakeholders?: string[];
 };
 
-export function initAgentRuns(options?: InitAgentRunsOptions): AgentRunState[] {
-  const ids = options?.agentIds ?? resolveSimulationAgentOrder();
+export function initAgentRuns(options: InitAgentRunsOptions): AgentRunState[] {
+  const ids = options.agentIds;
+  if (!ids?.length) {
+    throw new Error("initAgentRuns requires agentIds from the selected council.");
+  }
   const stakeholders = options?.stakeholders?.filter(Boolean) ?? [];
 
   return ids.map((id) => ({

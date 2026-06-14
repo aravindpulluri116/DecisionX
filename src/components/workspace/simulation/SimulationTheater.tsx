@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { Minimize2 } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { AgentRoundtable } from "./AgentRoundtable";
 import { CouncilHeader } from "./CouncilHeader";
@@ -32,6 +33,7 @@ function SystemLogPanel() {
 
 export function SimulationTheater() {
   const open = useWorkspaceStore((s) => s.simulationTheaterOpen);
+  const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
 
   return (
     <AnimatePresence>
@@ -46,7 +48,16 @@ export function SimulationTheater() {
           <div className="dot-bg pointer-events-none absolute inset-0 opacity-40" />
 
           <div className="relative flex min-h-0 flex-1 flex-col">
-            <div className="shrink-0 border-b border-hairline bg-surface/90 px-5 py-5 backdrop-blur-md md:px-8">
+            <div className="relative shrink-0 border-b border-hairline bg-surface/90 px-5 py-5 backdrop-blur-md md:px-8">
+              <button
+                type="button"
+                onClick={() => setSimulationTheaterOpen(false)}
+                className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-lg border border-hairline bg-background/90 px-3 py-1.5 font-mono-data text-[10px] uppercase tracking-wider text-ink-muted transition-colors hover:border-signal/30 hover:text-signal md:right-8"
+                title="Minimize — simulation keeps running in the background"
+              >
+                <Minimize2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Browse workspace</span>
+              </button>
               <CouncilHeader />
             </div>
 

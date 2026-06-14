@@ -4,13 +4,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { AGENT_VISUALS } from "@/lib/workspace/agentVisuals";
+import {
+  AGENT_TRANSCRIPT_DWELL_MS,
+  agentTranscriptRevision,
+  findNextShowableIndex,
+  getAgentTranscriptContent,
+  isAgentShowable,
+} from "@/lib/council/transcript-utils";
 import { usePrefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import type { AgentRunState } from "@/types/simulation";
-
-const DWELL_COMPLETE_MS = 2800;
-const DWELL_FAILED_MS = 1500;
 
 const cardMotion = {
   initial: { opacity: 0, x: 48, scale: 0.94, filter: "blur(10px)" },
@@ -26,7 +30,7 @@ const cardMotion = {
     x: -40,
     scale: 0.92,
     filter: "blur(8px)",
-    transition: { duration: 0.42, ease: [0.4, 0, 0.2, 1] as const },
+    transition: { duration: 0.38, ease: [0.4, 0, 0.2, 1] as const },
   },
 };
 
@@ -38,54 +42,103 @@ const cardMotionReduced = {
 
 function useCouncilStage(agentRuns: AgentRunState[]) {
   const [stageIdx, setStageIdx] = useState(0);
-  const dwellTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [dwellKey, setDwellKey] = useState(0);
+  const userPinnedRef = useRef(false);
+  const pinTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   const stageRun = agentRuns[stageIdx];
-  const stageStatus = stageRun?.status;
-  const stageRunId = stageRun?.id;
-
-  const clearDwell = useCallback(() => {
-    if (dwellTimer.current) clearTimeout(dwellTimer.current);
-  }, []);
-
-  useEffect(() => {
-    clearDwell();
-    if (stageStatus !== "completed" && stageStatus !== "failed") return;
-    if (stageIdx >= agentRuns.length - 1) return;
-
-    dwellTimer.current = setTimeout(
-      () => setStageIdx((i) => Math.min(i + 1, agentRuns.length - 1)),
-      stageStatus === "completed" ? DWELL_COMPLETE_MS : DWELL_FAILED_MS,
-    );
-
-    return clearDwell;
-  }, [stageStatus, stageRunId, stageIdx, agentRuns.length, clearDwell]);
+  const revision = agentTranscriptRevision(stageRun);
 
   useEffect(() => {
     setStageIdx(0);
+    setDwellKey(0);
+    userPinnedRef.current = false;
   }, [agentRuns.length]);
 
-  return { stageIdx, setStageIdx };
+  // Snap forward if current seat has nothing live yet.
+  useEffect(() => {
+    if (userPinnedRef.current) return;
+    const run = agentRuns[stageIdx];
+    if (run && isAgentShowable(run)) return;
+
+    const next = agentRuns.findIndex((r, i) => i >= stageIdx && isAgentShowable(r));
+    if (next >= 0 && next !== stageIdx) setStageIdx(next);
+  }, [agentRuns, stageIdx]);
+
+  // Every 3s, advance to the next agent that has real output (council order).
+  useEffect(() => {
+    if (userPinnedRef.current) return;
+    const run = agentRuns[stageIdx];
+    if (!run || !isAgentShowable(run)) return;
+
+    const timer = setTimeout(() => {
+      const next = findNextShowableIndex(agentRuns, stageIdx);
+      if (next != null) {
+        setStageIdx(next);
+        setDwellKey((k) => k + 1);
+      }
+    }, AGENT_TRANSCRIPT_DWELL_MS);
+
+    return () => clearTimeout(timer);
+  }, [stageIdx, revision, dwellKey, agentRuns]);
+
+  const pinStage = useCallback((idx: number) => {
+    userPinnedRef.current = true;
+    setStageIdx(idx);
+    setDwellKey((k) => k + 1);
+    if (pinTimerRef.current) clearTimeout(pinTimerRef.current);
+    pinTimerRef.current = setTimeout(() => {
+      userPinnedRef.current = false;
+      setDwellKey((k) => k + 1);
+    }, AGENT_TRANSCRIPT_DWELL_MS * 2);
+  }, []);
+
+  return { stageIdx, pinStage, dwellKey };
+}
+
+function DwellProgress({
+  active,
+  reduced,
+  resetKey,
+}: {
+  active: boolean;
+  reduced: boolean;
+  resetKey: number;
+}) {
+  if (!active || reduced) return null;
+
+  return (
+    <div className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden bg-hairline/80">
+      <motion.div
+        key={resetKey}
+        className="h-full origin-left bg-signal"
+        initial={{ scaleX: 1 }}
+        animate={{ scaleX: 0 }}
+        transition={{ duration: AGENT_TRANSCRIPT_DWELL_MS / 1000, ease: "linear" }}
+      />
+    </div>
+  );
 }
 
 function AgentTurnCard({
   run,
   reduced,
+  dwellKey,
 }: {
   run: AgentRunState;
   reduced: boolean;
+  dwellKey: number;
 }) {
   const visual = AGENT_VISUALS[run.id];
   const Icon = visual.icon;
-  const isRunning = run.status === "running";
-  const isComplete = run.status === "completed";
-  const isFailed = run.status === "failed";
   const isCdo = run.id === "chiefDecisionOfficer";
-  const latestFinding = run.findings[run.findings.length - 1];
+  const content = getAgentTranscriptContent(run);
   const cardVariants = reduced ? cardMotionReduced : cardMotion;
+  const showable = isAgentShowable(run);
 
   return (
     <motion.article
-      key={run.id}
+      key={`${run.id}-${dwellKey}`}
       variants={cardVariants}
       initial="initial"
       animate="animate"
@@ -112,7 +165,7 @@ function AgentTurnCard({
           style={{
             background: `color-mix(in oklab, ${visual.color} 18%, white)`,
             color: visual.color,
-            boxShadow: isRunning ? `0 0 20px ${visual.glow}` : undefined,
+            boxShadow: run.status === "running" ? `0 0 20px ${visual.glow}` : undefined,
           }}
         >
           <Icon className="h-5 w-5" strokeWidth={1.75} />
@@ -130,28 +183,24 @@ function AgentTurnCard({
             )}
           </h3>
         </div>
-        {isRunning && (
+        {run.status === "running" && (
           <Loader2 className="mt-1 h-4 w-4 shrink-0 animate-spin text-signal" aria-hidden />
         )}
-        {isComplete && run.result && (
+        {content.impactScore != null && (
           <div className="shrink-0 rounded-lg border border-hairline bg-background px-2.5 py-1.5 text-right">
             <p className="font-mono-data text-[8px] uppercase tracking-wider text-ink-muted">
               Impact
             </p>
             <p className="font-display text-lg font-bold tabular-nums text-signal">
-              {run.result.impactScore}
+              {content.impactScore}
             </p>
           </div>
         )}
       </header>
 
       <div className="relative flex flex-1 flex-col justify-center px-5 py-6">
-        {isRunning && !latestFinding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-3"
-          >
+        {content.mode === "waiting" && (
+          <div className="space-y-3">
             <div className="flex gap-1.5">
               {[0, 1, 2].map((i) => (
                 <motion.span
@@ -162,18 +211,24 @@ function AgentTurnCard({
                 />
               ))}
             </div>
-            <p className="font-display text-sm italic text-ink-muted">Deliberating…</p>
-          </motion.div>
+            <p className="font-mono-data text-[10px] uppercase tracking-wider text-ink-muted">
+              Awaiting agent response…
+            </p>
+          </div>
         )}
 
-        <AnimatePresence mode="wait">
-          {latestFinding && (
+        {content.mode === "failed" && (
+          <p className="text-sm text-negative">Agent failed — council continues with partial analysis.</p>
+        )}
+
+        {(content.mode === "streaming" || content.mode === "complete") && content.quote && (
+          <AnimatePresence mode="wait">
             <motion.blockquote
-              key={latestFinding.slice(0, 48)}
-              initial={{ opacity: 0, y: 12 }}
+              key={content.quote.slice(0, 64)}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.3 }}
               className="relative"
             >
               <span
@@ -183,51 +238,52 @@ function AgentTurnCard({
               >
                 &ldquo;
               </span>
-              <p className="relative text-[15px] leading-relaxed text-ink line-clamp-6">
-                {latestFinding}
-              </p>
+              <p className="relative text-[15px] leading-relaxed text-ink">{content.quote}</p>
             </motion.blockquote>
-          )}
-        </AnimatePresence>
+          </AnimatePresence>
+        )}
 
-        {isComplete && run.result && (
+        {content.mode === "complete" && content.summary && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
-            className="mt-5 space-y-3 border-t border-hairline/80 pt-4"
+            transition={{ delay: 0.1, duration: 0.35 }}
+            className={cn(
+              "space-y-3",
+              content.quote ? "mt-5 border-t border-hairline/80 pt-4" : "",
+            )}
           >
-            <p className="text-sm leading-relaxed text-ink line-clamp-4">{run.result.summary}</p>
+            <p className="text-sm leading-relaxed text-ink">{content.summary}</p>
             <div className="flex flex-wrap gap-2">
-              {run.result.risks[0] && (
-                <span className="max-w-full rounded-lg border border-negative/20 bg-negative/5 px-2.5 py-1.5 text-[11px] leading-snug text-negative line-clamp-2">
+              {content.risk && (
+                <span className="max-w-full rounded-lg border border-negative/20 bg-negative/5 px-2.5 py-1.5 text-[11px] leading-snug text-negative">
                   <span className="font-medium">Risk · </span>
-                  {run.result.risks[0]}
+                  {content.risk}
                 </span>
               )}
-              {run.result.opportunities[0] && (
-                <span className="max-w-full rounded-lg border border-positive/20 bg-positive/5 px-2.5 py-1.5 text-[11px] leading-snug text-positive line-clamp-2">
+              {content.opportunity && (
+                <span className="max-w-full rounded-lg border border-positive/20 bg-positive/5 px-2.5 py-1.5 text-[11px] leading-snug text-positive">
                   <span className="font-medium">Upside · </span>
-                  {run.result.opportunities[0]}
+                  {content.opportunity}
                 </span>
               )}
             </div>
           </motion.div>
         )}
 
-        {isFailed && (
-          <p className="text-sm text-negative">Could not complete — council continues.</p>
-        )}
-
-        {run.status === "queued" && (
-          <p className="font-display text-sm text-ink-muted/70">Awaiting turn…</p>
+        {run.status === "queued" && !showable && (
+          <p className="font-display text-sm text-ink-muted/70">Queued in council order…</p>
         )}
       </div>
 
-      {isComplete && (
+      <DwellProgress active={showable} reduced={reduced} resetKey={dwellKey} />
+
+      {showable && (
         <footer className="border-t border-hairline/60 px-5 py-2.5">
           <p className="font-mono-data text-[9px] uppercase tracking-[0.18em] text-ink-muted/70">
-            Glimpse · next specialist incoming
+            {run.status === "running"
+              ? "Live stream · rotates when next agent speaks"
+              : `On screen ${AGENT_TRANSCRIPT_DWELL_MS / 1000}s · next specialist`}
           </p>
         </footer>
       )}
@@ -248,9 +304,8 @@ function StageRail({
     <div className="mt-4 flex items-center justify-center gap-1.5">
       {agentRuns.map((run, i) => {
         const visual = AGENT_VISUALS[run.id];
-        const spoken = run.status === "completed" || run.status === "failed";
+        const showable = isAgentShowable(run);
         const isCurrent = i === stageIdx;
-        const isRunning = run.status === "running";
 
         return (
           <button
@@ -258,16 +313,15 @@ function StageRail({
             type="button"
             onClick={() => onSelect(i)}
             title={visual.shortLabel}
+            disabled={!showable}
             className={cn(
               "relative h-2 rounded-full transition-all duration-300",
-              isCurrent ? "w-6 bg-signal" : spoken ? "w-2 opacity-80" : "w-2 bg-hairline",
+              isCurrent ? "w-6 bg-signal" : showable ? "w-2 opacity-80" : "w-2 bg-hairline opacity-40",
             )}
             style={
-              !isCurrent && spoken
+              !isCurrent && showable
                 ? { backgroundColor: visual.color }
-                : isRunning && !isCurrent
-                  ? { backgroundColor: visual.color, opacity: 0.45 }
-                  : undefined
+                : undefined
             }
           />
         );
@@ -279,12 +333,13 @@ function StageRail({
 export function CouncilTranscript() {
   const agentRuns = useWorkspaceStore((s) => s.agentRuns);
   const reduced = usePrefersReducedMotion();
-  const { stageIdx, setStageIdx } = useCouncilStage(agentRuns);
+  const { stageIdx, pinStage, dwellKey } = useCouncilStage(agentRuns);
   const currentRun = agentRuns[stageIdx];
   const isStreaming = agentRuns.some((r) => r.status === "running");
-  const hasStarted = agentRuns.some(
-    (r) => r.status !== "queued" || r.findings.length > 0,
-  );
+  const hasStarted = agentRuns.some(isAgentShowable);
+  const nextIdx = findNextShowableIndex(agentRuns, stageIdx);
+  const nextLabel =
+    nextIdx != null ? AGENT_VISUALS[agentRuns[nextIdx]!.id].shortLabel : null;
 
   return (
     <div className="flex h-full min-h-[380px] flex-col">
@@ -296,6 +351,9 @@ export function CouncilTranscript() {
           {currentRun && hasStarted && (
             <p className="mt-0.5 font-mono-data text-[9px] tabular-nums text-ink-muted/80">
               {stageIdx + 1} / {agentRuns.length} · {AGENT_VISUALS[currentRun.id].shortLabel}
+              {nextLabel && currentRun.status !== "running" && (
+                <span className="text-ink-muted/60"> → {nextLabel}</span>
+              )}
             </p>
           )}
         </div>
@@ -321,21 +379,27 @@ export function CouncilTranscript() {
               className="mb-4 h-12 w-12 rounded-full border border-signal/20 bg-signal/10"
             />
             <p className="font-display text-sm text-ink-muted">Council convening…</p>
-            <p className="mt-1 max-w-[200px] text-xs leading-relaxed text-ink-muted/70">
-              Each specialist speaks in turn — one glimpse at a time
+            <p className="mt-1 max-w-[220px] text-xs leading-relaxed text-ink-muted/70">
+              Each agent&apos;s real findings appear here for {AGENT_TRANSCRIPT_DWELL_MS / 1000}s, then
+              the next specialist takes the floor
             </p>
           </div>
         )}
 
         <AnimatePresence mode="wait">
-          {hasStarted && currentRun && (
-            <AgentTurnCard key={`${currentRun.id}-${stageIdx}`} run={currentRun} reduced={reduced} />
+          {hasStarted && currentRun && isAgentShowable(currentRun) && (
+            <AgentTurnCard
+              key={`${currentRun.id}-stage-${stageIdx}-${dwellKey}`}
+              run={currentRun}
+              reduced={reduced}
+              dwellKey={dwellKey}
+            />
           )}
         </AnimatePresence>
       </div>
 
       {hasStarted && agentRuns.length > 1 && (
-        <StageRail agentRuns={agentRuns} stageIdx={stageIdx} onSelect={setStageIdx} />
+        <StageRail agentRuns={agentRuns} stageIdx={stageIdx} onSelect={pinStage} />
       )}
     </div>
   );

@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { initAgentRuns } from "@/lib/orchestration/agentRuns";
-import { resolveSimulationAgentOrder } from "@/lib/agents/selection";
+import { normalizeSpecialistSelection, resolveSimulationAgentOrder } from "@/lib/agents/selection";
 import type { OrchestratorEvent } from "@/lib/orchestration/events";
 import { persistSimulationAsScenario } from "@/lib/services/simulationService";
 import { projectToScenarioParams } from "@/lib/services/projectService";
@@ -94,6 +94,7 @@ export function useStartSimulation() {
   const queryClient = useQueryClient();
 
   const setSimulationTheaterOpen = useWorkspaceStore((s) => s.setSimulationTheaterOpen);
+  const setSimulationInProgress = useWorkspaceStore((s) => s.setSimulationInProgress);
   const setSimulationProposal = useWorkspaceStore((s) => s.setSimulationProposal);
   const setAgentRuns = useWorkspaceStore((s) => s.setAgentRuns);
   const clearLog = useWorkspaceStore((s) => s.clearLog);
@@ -102,10 +103,31 @@ export function useStartSimulation() {
 
   return useCallback(
     async ({ project, params, scenarioTitle, navigateOnComplete = true }: StartSimulationArgs) => {
+      if (useWorkspaceStore.getState().simulationInProgress) {
+        toast.info("A simulation is already running", {
+          description: "Minimize the council view or wait for it to finish.",
+        });
+        return;
+      }
+
       setBuilderOpen(false);
       setWizardOpen(false);
       clearLog();
-      const councilAgents = resolveSimulationAgentOrder(params);
+
+      const baseParams = params ?? projectToScenarioParams(project);
+      const selectedAgents = normalizeSpecialistSelection(baseParams.selectedAgents);
+
+      if (selectedAgents.length === 0) {
+        toast.error("Select at least one council specialist");
+        return;
+      }
+
+      const mergedParams: ScenarioParams = {
+        ...baseParams,
+        selectedAgents,
+      };
+
+      const councilAgents = resolveSimulationAgentOrder(mergedParams);
       setAgentRuns(
         initAgentRuns({ agentIds: councilAgents, stakeholders: project.stakeholders }),
       );
@@ -113,12 +135,13 @@ export function useStartSimulation() {
         project.title,
         project.locationIntelligence?.address ?? project.geo?.address ?? "",
       );
+      setSimulationInProgress(true, { slug: project.slug, id: project.id });
       setSimulationTheaterOpen(true);
       useWorkspaceStore.getState().setWorkspaceTab("report");
 
       const input: SimulationInput = {
         project,
-        params: params ?? projectToScenarioParams(project),
+        params: mergedParams,
         scenarioTitle,
       };
 
@@ -166,6 +189,7 @@ export function useStartSimulation() {
         if (process.env.NODE_ENV !== "production") console.error(e);
       } finally {
         clearTimeout(timeoutId);
+        setSimulationInProgress(false, null);
         setSimulationTheaterOpen(false);
       }
     },
@@ -173,6 +197,7 @@ export function useStartSimulation() {
       router,
       queryClient,
       setSimulationTheaterOpen,
+      setSimulationInProgress,
       setSimulationProposal,
       setAgentRuns,
       clearLog,

@@ -15,6 +15,9 @@ type WorkspaceStore = {
   wizardOpen: boolean;
   workspaceTab: WorkspaceTab;
   simulationTheaterOpen: boolean;
+  simulationInProgress: boolean;
+  simulationProjectSlug: string | null;
+  simulationProjectId: string | null;
   simulationProposalTitle: string;
   simulationProposalLocation: string;
   activeSimulation: Simulation | null;
@@ -30,6 +33,10 @@ type WorkspaceStore = {
   setWizardOpen: (open: boolean) => void;
   setWorkspaceTab: (tab: WorkspaceTab) => void;
   setSimulationTheaterOpen: (open: boolean) => void;
+  setSimulationInProgress: (
+    inProgress: boolean,
+    project?: { slug: string; id: string } | null,
+  ) => void;
   setSimulationProposal: (title: string, location?: string) => void;
   setActiveSimulation: (sim: Simulation | null) => void;
   setActiveReport: (report: DecisionReport | null) => void;
@@ -50,6 +57,9 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   wizardOpen: false,
   workspaceTab: "report",
   simulationTheaterOpen: false,
+  simulationInProgress: false,
+  simulationProjectSlug: null,
+  simulationProjectId: null,
   simulationProposalTitle: "",
   simulationProposalLocation: "",
   activeSimulation: null,
@@ -77,6 +87,12 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     set({ workspaceTab: tab });
   },
   setSimulationTheaterOpen: (open) => set({ simulationTheaterOpen: open }),
+  setSimulationInProgress: (inProgress, project) =>
+    set({
+      simulationInProgress: inProgress,
+      simulationProjectSlug: inProgress && project ? project.slug : null,
+      simulationProjectId: inProgress && project ? project.id : null,
+    }),
   setSimulationProposal: (title, location = "") =>
     set({ simulationProposalTitle: title, simulationProposalLocation: location }),
   setActiveSimulation: (sim) => set({ activeSimulation: sim }),

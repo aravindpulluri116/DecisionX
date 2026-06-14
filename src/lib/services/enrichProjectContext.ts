@@ -5,7 +5,6 @@ import type { DecisionProject, ProjectCategory } from "@/types/simulation";
 import type { LocationIntelligence } from "@/types/geo";
 import type { ScenarioParams } from "@/types/workspace";
 import type { ProjectMetadata } from "./projectMetadataAgent";
-import { defaultSelectedSpecialists } from "@/lib/agents/selection";
 
 export type EnrichProjectInput = {
   title: string;
@@ -61,7 +60,6 @@ export async function enrichProjectContext(input: EnrichProjectInput): Promise<E
     timeline: timelineYears(input.timeline),
     projectType: metadata.projectType,
     policyType: metadata.policyType,
-    selectedAgents: defaultSelectedSpecialists(),
   };
 
   return {

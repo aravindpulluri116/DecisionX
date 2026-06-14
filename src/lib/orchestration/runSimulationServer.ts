@@ -129,6 +129,9 @@ export async function runSimulationPipeline(
     message: `Initializing multi-agent analysis for ${enrichedInput.project.title}...`,
   });
   const specialistIds = normalizeSpecialistSelection(input.params.selectedAgents);
+  if (specialistIds.length === 0) {
+    throw new Error("No council specialists selected for this simulation.");
+  }
   await emit({
     type: "log",
     message: `Launching ${specialistIds.length} specialist agent${specialistIds.length === 1 ? "" : "s"} in parallel...`,

@@ -12,6 +12,7 @@ export function WorkspaceProviders({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 30_000,
             refetchOnWindowFocus: false,
+            retry: 1,
           },
         },
       }),

@@ -39,9 +39,10 @@ import { cn } from "@/lib/utils";
 import type { ScenarioParams } from "@/types/workspace";
 import type { AgentId, ProjectCategory } from "@/types/simulation";
 import { LocationMapPreview } from "./LocationMapPreview";
-import { StakeholderPicker, useStakeholderSuggestions } from "./StakeholderPicker";
-import { AgentCouncilPicker } from "@/components/workspace/simulation/AgentCouncilPicker";
-import { defaultSelectedSpecialists } from "@/lib/agents/selection";
+import { useStakeholderSuggestions } from "./useStakeholderSuggestions";
+import { CouncilPicker } from "@/components/workspace/simulation/CouncilPicker";
+import { normalizeSpecialistSelection } from "@/lib/agents/selection";
+import { AGENT_VISUALS } from "@/lib/workspace/agentVisuals";
 import { WizardStepRail, type WizardStep } from "./WizardStepRail";
 import { WizardFieldGroup } from "./WizardFieldGroup";
 import { AI_SPONSOR_NAME } from "@/lib/brand";
@@ -70,7 +71,7 @@ const STEP_META: Record<WizardStep, { title: string; subtitle: string; icon: typ
   },
   3: {
     title: "Parameters",
-    subtitle: "Set budget and timeline — stakeholders are pre-selected by AI.",
+    subtitle: "Set budget, timeline, and configure your AI council.",
     icon: IndianRupee,
   },
   4: {
@@ -163,6 +164,7 @@ type DraftPreviewProps = {
   budget?: number;
   timeline?: string;
   stakeholders: string[];
+  councilAgents: AgentId[];
 };
 
 function WizardDraftPreview({
@@ -173,6 +175,7 @@ function WizardDraftPreview({
   budget,
   timeline,
   stakeholders,
+  councilAgents,
 }: DraftPreviewProps) {
   const filled = [title, description, location, category, budget, timeline].filter(Boolean).length;
 
@@ -199,8 +202,12 @@ function WizardDraftPreview({
         <PreviewRow icon={Calendar} label="Timeline" value={timeline || "—"} />
         <PreviewRow
           icon={Users}
-          label="Stakeholders"
-          value={stakeholders.length > 0 ? `${stakeholders.length} groups` : "—"}
+          label="Council"
+          value={
+            councilAgents.length > 0 || stakeholders.length > 0
+              ? `${councilAgents.length} agents · ${stakeholders.length} groups`
+              : "—"
+          }
         />
       </div>
 
@@ -268,9 +275,7 @@ export function ProjectWizard() {
   const [mapCoords, setMapCoords] = useState<GeoCoordinates | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [enriching, setEnriching] = useState(false);
-  const [selectedCouncilAgents, setSelectedCouncilAgents] = useState<AgentId[]>(
-    defaultSelectedSpecialists(),
-  );
+  const [selectedCouncilAgents, setSelectedCouncilAgents] = useState<AgentId[]>([]);
 
   const selectedStakeholders = draft.stakeholders ?? [];
   const location = draft.location?.trim() ?? "";
@@ -372,7 +377,7 @@ export function ProjectWizard() {
   const close = () => {
     if (launching) return;
     setMapCoords(null);
-    setSelectedCouncilAgents(defaultSelectedSpecialists());
+    setSelectedCouncilAgents([]);
     reset();
     setWizardOpen(false);
   };
@@ -454,7 +459,7 @@ export function ProjectWizard() {
         project,
         params: {
           ...(enriched.scenarioParams as ScenarioParams),
-          selectedAgents: selectedCouncilAgents,
+          selectedAgents: normalizeSpecialistSelection(selectedCouncilAgents),
         },
         scenarioTitle: `${project.title} — Initial Analysis`,
         navigateOnComplete: true,
@@ -520,6 +525,7 @@ export function ProjectWizard() {
             budget={draft.budget}
             timeline={draft.timeline}
             stakeholders={selectedStakeholders}
+            councilAgents={selectedCouncilAgents}
           />
         </aside>
 
@@ -742,18 +748,20 @@ export function ProjectWizard() {
                         </WizardFieldGroup>
 
                         <WizardFieldGroup
-                          label="Stakeholders"
+                          label="AI council"
                           error={errors.stakeholders}
                           helper={
                             stakeholdersLoading
-                              ? `${AI_SPONSOR_NAME} is picking affected groups from your project details…`
-                              : `${selectedStakeholders.length} selected — AI pre-filled; add or remove groups below`
+                              ? `${AI_SPONSOR_NAME} is assembling specialists and affected groups…`
+                              : `${selectedCouncilAgents.length} specialists · ${selectedStakeholders.length} affected groups`
                           }
                           required
                         >
-                          <StakeholderPicker
-                            value={selectedStakeholders}
-                            onChange={(stakeholders) => updateDraft({ stakeholders })}
+                          <CouncilPicker
+                            agents={selectedCouncilAgents}
+                            onAgentsChange={setSelectedCouncilAgents}
+                            stakeholders={selectedStakeholders}
+                            onStakeholdersChange={(stakeholders) => updateDraft({ stakeholders })}
                             onUserEdit={markStakeholdersEdited}
                             disabled={launching}
                             aiSuggested={aiSuggested}
@@ -803,28 +811,15 @@ export function ProjectWizard() {
                             onEdit={() => setStep(3)}
                           />
                           <ReviewSection
-                            label="Stakeholders"
-                            value={
-                              selectedStakeholders.length > 0
-                                ? selectedStakeholders.join(", ")
-                                : "—"
-                            }
+                            label="AI council"
+                            value={formatCouncilReview(selectedCouncilAgents, selectedStakeholders)}
                             onEdit={() => setStep(3)}
                             multiline
                           />
                         </div>
 
                         <div className="border-t border-hairline bg-background/60 px-5 py-4">
-                          <WizardFieldGroup
-                            label="AI council"
-                            helper="Pick specialists for this run. The live chamber shows only these agents."
-                          >
-                            <AgentCouncilPicker
-                              value={selectedCouncilAgents}
-                              onChange={setSelectedCouncilAgents}
-                            />
-                          </WizardFieldGroup>
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2">
                             {["7 AI agents", "OpenStreetMap geo", "Live streaming"].map((tag) => (
                               <span
                                 key={tag}
@@ -863,7 +858,11 @@ export function ProjectWizard() {
                   type="button"
                   onClick={() => {
                     if (step === 3 && stakeholdersLoading) {
-                      toast.info("Waiting for AI stakeholder suggestions…");
+                      toast.info("Waiting for AI council suggestions…");
+                      return;
+                    }
+                    if (step === 3 && selectedCouncilAgents.length === 0) {
+                      toast.error("Select at least one council specialist");
                       return;
                     }
                     if (validateStep(step)) handleContinue();
@@ -889,6 +888,15 @@ export function ProjectWizard() {
       </div>
     </div>
   );
+}
+
+function formatCouncilReview(agents: AgentId[], groups: string[]): string {
+  const specialistLine =
+    agents.length > 0
+      ? agents.map((id) => AGENT_VISUALS[id]?.shortLabel ?? id).join(", ")
+      : "—";
+  const groupsLine = groups.length > 0 ? groups.join(", ") : "—";
+  return `Specialists: ${specialistLine}\nAffected groups: ${groupsLine}`;
 }
 
 function ReviewSection({

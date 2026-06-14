@@ -29,10 +29,6 @@ const ProjectWizard = dynamic(
   () => import("../wizard/ProjectWizard").then((m) => ({ default: m.ProjectWizard })),
   { ssr: false },
 );
-const SimulationTheater = dynamic(
-  () => import("../simulation/SimulationTheater").then((m) => ({ default: m.SimulationTheater })),
-  { ssr: false },
-);
 const CompareView = dynamic(
   () => import("../compare/CompareView").then((m) => ({ default: m.CompareView })),
   { loading: () => <IntelligenceLoader />, ssr: false },
@@ -66,7 +62,7 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
   const closeExplanation = useWorkspaceStore((s) => s.closeExplanation);
   const evidencePack = useEvidencePack();
 
-  const { data: project, isPending, isError, isFetched } = useQuery({
+  const { data: project, isPending, isError, isFetched, isLoading } = useQuery({
     queryKey: ["project", projectSlug],
     queryFn: () => fetchProjectBySlug(projectSlug),
     retry: 1,
@@ -241,7 +237,6 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
         />
       )}
       <ProjectWizard />
-      <SimulationTheater />
       <ExplanationDrawer
         open={explanationOpen}
         onClose={closeExplanation}
@@ -251,7 +246,7 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
     </>
   );
 
-  if (isPending) {
+  if (isPending || (isLoading && !project)) {
     return (
       <>
         <WorkspaceLoadingState message="Loading workspace…" />
@@ -313,13 +308,13 @@ export function WorkspaceShell({ projectSlug }: WorkspaceShellProps) {
 
       <WorkspaceShellLayout className="flex-1">
         {workspaceTab === "report" && (
-          <div className="h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
+          <div className="relative h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
             <ReportView projectId={project.id} />
           </div>
         )}
 
         {workspaceTab === "compare" && (
-          <div className="h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
+          <div className="relative h-full overflow-hidden border-t border-hairline/50 bg-surface/80">
             <CompareView projectId={project.id} />
           </div>
         )}

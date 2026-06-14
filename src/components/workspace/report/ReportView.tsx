@@ -31,7 +31,7 @@ export function ReportView({ projectId }: { projectId: string }) {
   const openExplanation = useWorkspaceStore((s) => s.openExplanation);
   const scenarioId = selectedScenario?.id;
 
-  const { data: fetchedReport, isLoading, isFetched } = useScenarioReport(projectId, scenarioId);
+  const { data: fetchedReport, isLoading, isFetched, isError } = useScenarioReport(projectId, scenarioId);
   const { data: fetchedSimulation } = useScenarioSimulation(projectId, scenarioId);
   const evidencePack = useEvidencePack();
 
@@ -68,6 +68,18 @@ export function ReportView({ projectId }: { projectId: string }) {
     };
   }, [report, simulation]);
 
+  if (!scenarioId && !report) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
+        <FileText className="h-10 w-10 text-ink-muted/40" />
+        <p className="font-display text-lg font-semibold text-ink">Preparing brief…</p>
+        <p className="max-w-xs text-xs text-ink-muted">
+          Loading the active scenario for this project.
+        </p>
+      </div>
+    );
+  }
+
   if (isLoading && !report) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 bg-background p-8">
@@ -81,19 +93,30 @@ export function ReportView({ projectId }: { projectId: string }) {
     );
   }
 
-  if (!report && isFetched) {
+  if (!report && (isFetched || isError)) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
         <FileText className="h-10 w-10 text-ink-muted/40" />
         <p className="font-display text-lg font-semibold text-ink">No report yet</p>
         <p className="max-w-xs text-xs text-ink-muted">
-          Run a simulation to generate your executive decision brief.
+          {isError
+            ? "Could not load the report — run a new simulation or try again."
+            : "Run a simulation to generate your executive decision brief."}
         </p>
       </div>
     );
   }
 
-  if (!report || !structured) return null;
+  if (!report || !structured) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-signal/20 border-t-signal" />
+        <p className="font-mono-data text-[10px] uppercase tracking-[0.2em] text-ink-muted">
+          Assembling brief…
+        </p>
+      </div>
+    );
+  }
 
   const viability = resolveReportViability(scores, report.sections.viabilityScore);
 

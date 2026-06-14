@@ -98,6 +98,18 @@ function getDbClient() {
   return createClient();
 }
 
+async function runDbQuery<T>(
+  query: () => PromiseLike<{ data: T | null; error: unknown }>,
+): Promise<T | null> {
+  try {
+    const { data, error } = await withTimeout(query());
+    if (error || data == null) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 async function querySupabase<T>(
   query: () => PromiseLike<{ data: T | null; error: unknown }>,
 ): Promise<T | null> {
@@ -185,38 +197,46 @@ export async function fetchWorkspaceGraph(scenarioId: string): Promise<Workspace
   const supabase = createClient();
   if (!supabase) return empty;
 
-  const [nodesRes, edgesRes] = await Promise.all([
-    supabase.from("canvas_nodes").select("*").eq("scenario_id", scenarioId),
-    supabase.from("canvas_edges").select("*").eq("scenario_id", scenarioId),
-  ]);
+  try {
+    const [nodesRes, edgesRes] = await withTimeout(
+      Promise.all([
+        supabase.from("canvas_nodes").select("*").eq("scenario_id", scenarioId),
+        supabase.from("canvas_edges").select("*").eq("scenario_id", scenarioId),
+      ]),
+    );
 
-  if (nodesRes.error || !nodesRes.data?.length) return empty;
+    if (nodesRes.error || !nodesRes.data?.length) return empty;
 
-  const nodeIds = nodesRes.data.map((n) => n.id);
-  const intelRes = await supabase.from("node_intelligence").select("*").in("node_id", nodeIds);
+    const nodeIds = nodesRes.data.map((n) => n.id);
+    const intelRes = await withTimeout(
+      supabase.from("node_intelligence").select("*").in("node_id", nodeIds),
+    );
 
-  const intelligence: WorkspaceGraph["intelligence"] = {};
-  for (const row of intelRes.data ?? []) {
-    intelligence[row.node_id] = {
-      node_id: row.node_id,
-      impact_strength: row.impact_strength,
-      confidence: row.confidence,
-      stakeholders: row.stakeholders as string[],
-      timeline: row.timeline as { year: string; event: string }[],
-      mitigation: row.mitigation as string[],
-      evidence: (row.evidence as string[] | undefined) ?? ["Derived from simulation agents"],
+    const intelligence: WorkspaceGraph["intelligence"] = {};
+    for (const row of intelRes.data ?? []) {
+      intelligence[row.node_id] = {
+        node_id: row.node_id,
+        impact_strength: row.impact_strength,
+        confidence: row.confidence,
+        stakeholders: row.stakeholders as string[],
+        timeline: row.timeline as { year: string; event: string }[],
+        mitigation: row.mitigation as string[],
+        evidence: (row.evidence as string[] | undefined) ?? ["Derived from simulation agents"],
+      };
+    }
+
+    return {
+      nodes: nodesRes.data.map((n) => ({
+        ...n,
+        position: n.position as { x: number; y: number },
+        data: (n.data ?? {}) as Record<string, unknown>,
+      })) as CanvasNode[],
+      edges: (edgesRes.data ?? []) as WorkspaceGraph["edges"],
+      intelligence,
     };
+  } catch {
+    return empty;
   }
-
-  return {
-    nodes: nodesRes.data.map((n) => ({
-      ...n,
-      position: n.position as { x: number; y: number },
-      data: (n.data ?? {}) as Record<string, unknown>,
-    })) as CanvasNode[],
-    edges: (edgesRes.data ?? []) as WorkspaceGraph["edges"],
-    intelligence,
-  };
 }
 
 export async function activateScenario(projectId: string, scenarioId: string) {
@@ -535,25 +555,29 @@ export async function fetchReportForScenario(scenarioId: string): Promise<Decisi
   const db = getDbClient();
   if (!db) return null;
 
-  const { data: run } = await db
-    .from("simulation_runs")
-    .select("id, report")
-    .eq("scenario_id", scenarioId)
-    .eq("status", "completed")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const run = await runDbQuery<{ id: string; report: DecisionReport | null }>(() =>
+    db
+      .from("simulation_runs")
+      .select("id, report")
+      .eq("scenario_id", scenarioId)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  );
 
   if (run?.report) return run.report as DecisionReport;
 
   if (run?.id) {
-    const { data: dr } = await db
-      .from("decision_reports")
-      .select("content")
-      .eq("simulation_run_id", run.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const dr = await runDbQuery<{ content: DecisionReport | null }>(() =>
+      db
+        .from("decision_reports")
+        .select("content")
+        .eq("simulation_run_id", run.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    );
     if (dr?.content) return dr.content as DecisionReport;
   }
 
@@ -569,25 +593,29 @@ export async function fetchLatestReportForProject(projectId: string): Promise<De
   const db = getDbClient();
   if (!db) return null;
 
-  const { data: run } = await db
-    .from("simulation_runs")
-    .select("id, report")
-    .eq("project_id", projectId)
-    .eq("status", "completed")
-    .not("report", "is", null)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const run = await runDbQuery<{ id: string; report: DecisionReport | null }>(() =>
+    db
+      .from("simulation_runs")
+      .select("id, report")
+      .eq("project_id", projectId)
+      .eq("status", "completed")
+      .not("report", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  );
 
   if (run?.report) return run.report as DecisionReport;
 
   if (run?.id) {
-    const { data: dr } = await db
-      .from("decision_reports")
-      .select("content")
-      .eq("simulation_run_id", run.id)
-      .limit(1)
-      .maybeSingle();
+    const dr = await runDbQuery<{ content: DecisionReport | null }>(() =>
+      db
+        .from("decision_reports")
+        .select("content")
+        .eq("simulation_run_id", run.id)
+        .limit(1)
+        .maybeSingle(),
+    );
     if (dr?.content) return dr.content as DecisionReport;
   }
 
@@ -619,14 +647,16 @@ export async function fetchSimulationRunForProject(
   const db = getDbClient();
 
   if (scenarioId && db) {
-    const { data } = await db
-      .from("simulation_runs")
-      .select("*")
-      .eq("scenario_id", scenarioId)
-      .eq("status", "completed")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const data = await runDbQuery<SimulationRunRow>(() =>
+      db
+        .from("simulation_runs")
+        .select("*")
+        .eq("scenario_id", scenarioId)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    );
     if (data) {
       const graph = await fetchWorkspaceGraph(scenarioId);
       const sim = runRowToSimulation(data, graph);
@@ -651,14 +681,16 @@ export async function fetchSimulationRunForProject(
       : null;
   }
 
-  const { data } = await db
-    .from("simulation_runs")
-    .select("*")
-    .eq("project_id", projectId)
-    .eq("status", "completed")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const data = await runDbQuery<SimulationRunRow>(() =>
+    db
+      .from("simulation_runs")
+      .select("*")
+      .eq("project_id", projectId)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  );
 
   if (!data) return null;
   const sid = data.scenario_id as string | null;

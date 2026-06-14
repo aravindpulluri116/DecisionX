@@ -1,6 +1,6 @@
 import type { DecisionProject, ProjectCategory } from "@/types/simulation";
 import type { Project, ScenarioParams } from "@/types/workspace";
-import { defaultSelectedSpecialists } from "@/lib/agents/selection";
+import { normalizeSpecialistSelection } from "@/lib/agents/selection";
 import {
   fetchProjects,
   fetchProjectBySlug,
@@ -137,7 +137,10 @@ export async function createProject(
   return project;
 }
 
-export function projectToScenarioParams(project: DecisionProject): ScenarioParams {
+export function projectToScenarioParams(
+  project: DecisionProject,
+  overrides?: Partial<ScenarioParams>,
+): ScenarioParams {
   const radiusImpacts = project.locationIntelligence?.radiusImpacts ?? [];
   const geoPopM =
     radiusImpacts.find((r) => r.radiusKm === 5)?.populationEstimate ??
@@ -158,7 +161,10 @@ export function projectToScenarioParams(project: DecisionProject): ScenarioParam
     timeline: timelineYears,
     projectType: project.category,
     policyType: project.category,
-    selectedAgents: defaultSelectedSpecialists(),
+    ...overrides,
+    ...(overrides?.selectedAgents !== undefined
+      ? { selectedAgents: normalizeSpecialistSelection(overrides.selectedAgents) }
+      : {}),
   };
 }
 
