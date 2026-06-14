@@ -23,7 +23,7 @@ function weightedAgentScore(
   const scores: number[] = [];
   for (const agentId of agentIds) {
     const r = agentResults[agentId];
-    if (r) scores.push(r.impactScore * (r.confidence / 100));
+    if (r) scores.push(r.impactScore);
   }
   if (scores.length === 0) return null;
   return scores.reduce((a, b) => a + b, 0) / scores.length;

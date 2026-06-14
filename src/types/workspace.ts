@@ -95,6 +95,8 @@ export type NodeIntelligence = {
   reason?: string;
   /** Upstream cause label */
   causedBy?: string;
+  /** Qualitative chain strength — not a percentage */
+  linkStrength?: "direct" | "indirect" | "speculative";
 };
 
 export type WorkspaceGraph = {

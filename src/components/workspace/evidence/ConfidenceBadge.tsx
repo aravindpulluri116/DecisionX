@@ -2,16 +2,17 @@
 
 import { cn } from "@/lib/utils";
 import type { ConfidenceLevel } from "@/types/simulation";
+import type { ConfidenceBasis } from "@/lib/trust/deriveConfidence";
 import { CONFIDENCE_LABELS, CONFIDENCE_STYLES } from "@/lib/evidence/confidence";
+import { AGENT_AGREEMENT_LABELS, DATA_AVAILABILITY_LABELS } from "@/lib/trust/labels";
 
 type ConfidenceBadgeProps = {
   level: ConfidenceLevel;
-  score?: number;
   compact?: boolean;
   className?: string;
 };
 
-export function ConfidenceBadge({ level, score, compact, className }: ConfidenceBadgeProps) {
+export function ConfidenceBadge({ level, compact, className }: ConfidenceBadgeProps) {
   return (
     <span
       className={cn(
@@ -23,30 +24,34 @@ export function ConfidenceBadge({ level, score, compact, className }: Confidence
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", CONFIDENCE_STYLES[level].dot)} />
       {CONFIDENCE_LABELS[level]}
-      {score != null && <span className="tabular-nums opacity-80">{score}%</span>}
     </span>
   );
 }
 
-type ConfidenceMeterProps = {
-  score: number;
+type ConfidenceBasisPanelProps = {
   level: ConfidenceLevel;
+  basis: ConfidenceBasis;
   label?: string;
 };
 
-export function ConfidenceMeter({ score, level, label = "Confidence" }: ConfidenceMeterProps) {
+export function ConfidenceBasisPanel({ level, basis, label = "Confidence basis" }: ConfidenceBasisPanelProps) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[10px] font-medium uppercase tracking-wide text-ink-muted">{label}</span>
-        <ConfidenceBadge level={level} score={score} compact />
+        <ConfidenceBadge level={level} compact />
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-hairline">
-        <div
-          className={cn("h-full rounded-full transition-all", CONFIDENCE_STYLES[level].bar)}
-          style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
-        />
-      </div>
+      <ul className="space-y-1 rounded-lg border border-hairline bg-background/60 px-3 py-2 text-[11px] text-ink-muted">
+        <li>· Data: {DATA_AVAILABILITY_LABELS[basis.dataAvailability]}</li>
+        <li>· Agents: {AGENT_AGREEMENT_LABELS[basis.agentAgreement]}</li>
+        <li>· Evidence signals: {basis.evidenceCount}</li>
+        <li>· Known unknowns: {basis.unknownCount}</li>
+      </ul>
     </div>
   );
+}
+
+/** @deprecated Use ConfidenceBasisPanel — kept for gradual migration */
+export function ConfidenceMeter({ level, basis }: { level: ConfidenceLevel; basis: ConfidenceBasis; label?: string }) {
+  return <ConfidenceBasisPanel level={level} basis={basis} />;
 }

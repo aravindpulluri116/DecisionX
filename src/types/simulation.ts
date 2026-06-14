@@ -38,14 +38,31 @@ export type AgentId =
 
 export type AgentStatus = "queued" | "running" | "completed" | "failed";
 
-export type ConfidenceLevel = "low" | "medium" | "high";
+export type ConfidenceLevel = "low" | "medium" | "high" | "very_high";
+
+export type StakeholderSentiment =
+  | "strong_support"
+  | "moderate_support"
+  | "mixed_sentiment"
+  | "moderate_opposition"
+  | "strong_opposition"
+  | "concerned";
+
+export type SupportTrend = Exclude<StakeholderSentiment, "concerned">;
+
+export type StakeholderGroupSentiment = {
+  group: string;
+  sentiment: StakeholderSentiment;
+};
 
 export type AgentResult = {
   summary: string;
   impactScore: number;
   risks: string[];
   opportunities: string[];
+  /** @deprecated Stored for legacy runs; UI uses deriveConfidence() */
   confidence: number;
+  /** @deprecated UI uses deriveConfidence() */
   confidenceLevel: ConfidenceLevel;
   recommendations: string[];
   assumptions: string[];

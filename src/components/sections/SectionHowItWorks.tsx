@@ -17,7 +17,7 @@ const steps = [
   {
     n: "03",
     t: "Impact Modeling",
-    d: "Quantify first, second, and third-order effects with confidence intervals and time horizons up to 30 years.",
+    d: "Map first, second, and third-order effects with qualitative confidence and time horizons up to 30 years.",
   },
   {
     n: "04",

@@ -12,6 +12,18 @@ const SPECIALIST_AGENTS: { id: AgentId; nodeType: CanvasNode["type"] }[] = [
   { id: "risk", nodeType: "risk" },
 ];
 
+/** Internal layout weight only — never shown as a percentage in UI */
+function linkStrengthWeight(strength: ConsequenceLink["linkStrength"]): number {
+  switch (strength) {
+    case "direct":
+      return 75;
+    case "speculative":
+      return 30;
+    default:
+      return 50;
+  }
+}
+
 function mapAgentToEvidence(agentResults: Partial<Record<AgentId, AgentResult>>): string[] {
   const evidence: string[] = [];
   for (const result of Object.values(agentResults)) {
@@ -119,18 +131,20 @@ function buildGraphFromConsequences(
 
     const sourceId = labelToId.get(link.source)!;
     const targetId = labelToId.get(link.target)!;
+    const weight = linkStrengthWeight(link.linkStrength);
     edges.push({
       id: crypto.randomUUID(),
       scenario_id: scenarioId,
       source: sourceId,
       target: targetId,
-      data: { confidence: link.confidence },
+      data: { linkStrength: link.linkStrength },
     });
 
     intelligence[targetId] = {
       node_id: targetId,
-      impact_strength: link.confidence,
-      confidence: link.confidence,
+      impact_strength: weight,
+      confidence: weight,
+      linkStrength: link.linkStrength,
       stakeholders: project.stakeholders.length ? [...project.stakeholders] : [],
       timeline: [{ year: "Projected", event: `${link.source} affects ${link.target}` }],
       mitigation: fsResult?.recommendations.slice(0, 3) ?? [],

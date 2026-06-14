@@ -1,11 +1,12 @@
 import type { AgentId, ConfidenceLevel } from "./simulation";
 import type { ImpactScores } from "./workspace";
+import type { ConfidenceBasis } from "@/lib/trust/deriveConfidence";
 
 export interface Evidence {
   title: string;
   description: string;
   source: string;
-  confidence: number;
+  confidenceLevel: ConfidenceLevel;
 }
 
 export type ImpactExplanation = {
@@ -16,8 +17,8 @@ export type ImpactExplanation = {
   evidence: Evidence[];
   assumptions: string[];
   uncertainties: string[];
-  confidence: number;
   confidenceLevel: ConfidenceLevel;
+  confidenceBasis: ConfidenceBasis;
   contributingAgents: AgentId[];
 };
 
@@ -26,7 +27,9 @@ export type ConsequenceExplanation = {
   label: string;
   reason: string;
   causedBy: string | null;
-  confidence: number;
+  linkStrength?: "direct" | "indirect" | "speculative";
+  confidenceLevel: ConfidenceLevel;
+  confidenceBasis: ConfidenceBasis;
   evidence: Evidence[];
   assumptions: string[];
   uncertainties: string[];
@@ -41,8 +44,8 @@ export type ReasoningStep = {
   evidence: Evidence[];
   assumptions: string[];
   uncertainties: string[];
-  confidence: number;
   confidenceLevel: ConfidenceLevel;
+  confidenceBasis: ConfidenceBasis;
 };
 
 export type AgentTransparency = {
@@ -52,14 +55,14 @@ export type AgentTransparency = {
   evidence: Evidence[];
   assumptions: string[];
   uncertainties: string[];
-  confidence: number;
   confidenceLevel: ConfidenceLevel;
+  confidenceBasis: ConfidenceBasis;
   impactScore: number;
 };
 
 export type TrustSummary = {
-  overallConfidence: number;
   overallConfidenceLevel: ConfidenceLevel;
+  confidenceBasis: ConfidenceBasis;
   predictionReliability: string;
   evidenceSources: string[];
   assumptions: string[];

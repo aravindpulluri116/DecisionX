@@ -75,7 +75,7 @@ export function CouncilTranscript() {
                 )}
                 {isComplete && run.result && (
                   <span className="ml-auto font-mono-data text-[9px] tabular-nums text-signal">
-                    Impact {run.result.impactScore} · {run.result.confidence}% conf.
+                    Impact {run.result.impactScore}
                   </span>
                 )}
               </div>
